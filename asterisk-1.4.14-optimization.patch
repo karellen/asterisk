@@ -1,0 +1,48 @@
+From 98e7fe66adec04f21f9703acb745a6175cce3421 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
+Date: Thu, 8 Nov 2007 16:42:14 -0600
+Subject: [PATCH] Pick proper optimization flags for Fedora.
+
+---
+ Makefile |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 2cee8c3..2a832dd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -195,10 +195,16 @@ ifeq ($(OSARCH),linux-gnu)
+ endif
+ 
+ ifeq ($(findstring -save-temps,$(ASTCFLAGS)),)
+-ASTCFLAGS+=-pipe
++  ifeq ($(findstring -pipe,$(ASTCFLAGS)),)
++    ASTCFLAGS+=-pipe
++  endif
++endif
++
++ifeq ($(findstring -Wall,$(ASTCFLAGS)),)
++  ASTCFLAGS+=-Wall
+ endif
+ 
+-ASTCFLAGS+=-Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations $(DEBUG)
++ASTCFLAGS+=-Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations $(DEBUG)
+ 
+ ASTCFLAGS+=-include $(ASTTOPDIR)/include/asterisk/autoconfig.h
+ 
+@@ -211,8 +217,10 @@ ifneq ($(findstring BSD,$(OSARCH)),)
+   ASTLDFLAGS+=-L/usr/local/lib
+ endif
+ 
+-ifneq ($(PROC),ultrasparc)
+-  ASTCFLAGS+=$(shell if $(CC) -march=$(PROC) -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=$(PROC)"; fi)
++ifeq ($(findstring -march,$(ASTCFLAGS)),)
++  ifneq ($(PROC),ultrasparc)
++    ASTCFLAGS+=$(shell if $(CC) -march=$(PROC) -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=$(PROC)"; fi)
++  endif
+ endif
+ 
+ ifeq ($(PROC),ppc)
+-- 
+1.5.3.4
+

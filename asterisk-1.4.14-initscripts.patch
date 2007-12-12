@@ -1,0 +1,131 @@
+From e574042d5337543c47d6cffe5daa7751bca9be63 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Sun, 18 Nov 2007 21:47:59 -0600
+Subject: [PATCH] Modify init scripts for better Fedora compatibility.
+
+---
+ contrib/init.d/rc.redhat.asterisk |   54 +++++++++++++++----------------------
+ contrib/sysconfig/asterisk        |    9 ++++++
+ 2 files changed, 31 insertions(+), 32 deletions(-)
+ create mode 100644 contrib/sysconfig/asterisk
+
+diff --git a/contrib/init.d/rc.redhat.asterisk b/contrib/init.d/rc.redhat.asterisk
+index 27d633e..f160af4 100755
+--- a/contrib/init.d/rc.redhat.asterisk
++++ b/contrib/init.d/rc.redhat.asterisk
+@@ -3,7 +3,7 @@
+ #
+ # asterisk    Starts, Stops and Reloads Asterisk.
+ #
+-# chkconfig: 2345 90 60
++# chkconfig: - 90 60
+ # description: Asterisk PBX and telephony daemon.
+ # processname: asterisk
+ # pidfile: /var/run/asterisk.pid
+@@ -20,59 +20,49 @@
+ # - Added support for -U and -G command line options
+ # - Modified "reload" to call asterisk -rx 'reload' 
+ 
+-# Use this option to specify a different configuration directory
+-#AST_CONFIG=/etc/asterisk
++# Do not modify this script to change any of the settings, instead
++# edit /etc/sysconfig/asterisk
++
++# Specify the configuration file
++AST_CONFIG=/etc/asterisk/asterisk.conf
+ 
+ # Installation directory
+ AST_SBIN=/usr/sbin
+ 
+-# Uncomment the following and set them to the user/groups that you
+-# want to run Asterisk as. NOTE: this requires substantial work to
+-# be sure that Asterisk's environment has permission to write the
+-# files required  for  its  operation, including logs, its comm
+-# socket, the asterisk database, etc.
+-#AST_USER="asterisk"
+-#AST_GROUP="asterisk"
++# The user/group that Asterisk will run as.
++AST_USER="asterisk"
++AST_GROUP="asterisk"
+ 
+-# Source function library.
+-. /etc/rc.d/init.d/functions
++# Allow configuration overrides in /etc/sysconfig/asterisk
++CONFIG0=`readlink $0`
++if [ "$CONFIG0" = "" ]; then
++	CONFIGFILE=/etc/sysconfig/`basename $0`
++else
++	CONFIGFILE=/etc/sysconfig/`basename $CONFIG0`
++fi
++[ -f $CONFIGFILE ] && . $CONFIGFILE
+ 
+ if ! [ -x $AST_SBIN/asterisk ] ; then
+ 	echo "ERROR: $AST_SBIN/asterisk not found"
+ 	exit 0
+ fi
+ 
+-if ! [ -d $AST_CONFIG ] ; then
+-	echo "ERROR: $AST_CONFIG directory not found"
++if ! [ -f $AST_CONFIG ] ; then
++	echo "ERROR: $AST_CONFIG not found"
+ 	exit 0
+ fi
+ 
+-# Uncomment this ONLY if you know what you are doing.
+-# export LD_ASSUME_KERNEL=2.4.1
++# Source function library.
++. /etc/rc.d/init.d/functions
+ 
+ # Full path to asterisk binary
+ DAEMON=$AST_SBIN/asterisk
+ 
+-# Full path to safe_asterisk script
+-SAFE_ASTERISK=$AST_SBIN/safe_asterisk
+-
+-# Allow configuration overrides in /etc/sysconfig/asterisk
+-CONFIG0=`readlink $0`
+-if [ "$CONFIG0" = "" ]; then
+-	CONFIGFILE=/etc/sysconfig/`basename $0`
+-else
+-	CONFIGFILE=/etc/sysconfig/`basename $CONFIG0`
+-fi
+-[ -x $CONFIGFILE ] && . $CONFIGFILE
+-
+ RETVAL=0
+ 
+ start() {
+ 	# Start daemons.
+ 	echo -n $"Starting asterisk: "
+-        if [ -f $SAFE_ASTERISK ] ; then
+-		DAEMON=$SAFE_ASTERISK
+-	fi
+ 	if [ $AST_USER ] ; then
+ 		ASTARGS="-U $AST_USER"
+ 	fi
+@@ -91,7 +81,7 @@ start() {
+ 
+ stop() {
+ 	# Stop daemons.
+-	echo -n $"Shutting down asterisk: "
++	echo -n $"Stopping asterisk: "
+ 	killproc asterisk
+ 	RETVAL=$?
+ 	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/asterisk
+diff --git a/contrib/sysconfig/asterisk b/contrib/sysconfig/asterisk
+new file mode 100644
+index 0000000..05f5adb
+--- /dev/null
++++ b/contrib/sysconfig/asterisk
+@@ -0,0 +1,9 @@
++# Specify the configuration file
++AST_CONFIG=/etc/asterisk/asterisk.conf
++
++# Installation directory
++AST_SBIN=/usr/sbin
++
++# The user/group that Asterisk will run as.
++AST_USER="asterisk"
++AST_GROUP="asterisk"
+-- 
+1.5.3.4
+

@@ -1,0 +1,49 @@
+From 217e55cc56d6e880a790704abf8756c190fe78a5 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
+Date: Thu, 8 Nov 2007 16:32:56 -0600
+Subject: [PATCH] Allow alternate extensions to be specified in users.conf
+
+---
+ pbx/pbx_config.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
+
+diff --git a/pbx/pbx_config.c b/pbx/pbx_config.c
+index 4a106b9..2c3047a 100644
+--- a/pbx/pbx_config.c
++++ b/pbx/pbx_config.c
+@@ -2357,11 +2357,14 @@ static void pbx_load_users(void)
+ {
+ 	struct ast_config *cfg;
+ 	char *cat, *chan;
++	char *ext;
+ 	const char *zapchan;
+ 	const char *hasexten;
++	const char *altexts;
+ 	char tmp[256];
+ 	char iface[256];
+ 	char zapcopy[256];
++	char altcopy[256];
+ 	char *c;
+ 	int len;
+ 	int hasvoicemail;
+@@ -2441,6 +2444,17 @@ static void pbx_load_users(void)
+ 			} else {
+ 				ast_add_extension2(con, 0, cat, 1, NULL, NULL, "Dial", strdup("${HINT}"), ast_free, registrar);
+ 			}
++			altexts = ast_variable_retrieve(cfg, cat, "alternateexts");
++			if (!ast_strlen_zero(altexts)) {
++				snprintf(tmp, sizeof(tmp), "%s|1", cat);
++				ast_copy_string(altcopy, altexts, sizeof(altcopy));
++				c = altcopy;
++				ext = strsep(&c, ",");
++				while (ext) {
++					ast_add_extension2(con, 0, ext, 1, NULL, NULL, "Goto", strdup(tmp), ast_free, registrar);
++					ext = strsep(&c, ",");
++				}
++			}
+ 		}
+ 	}
+ 	ast_config_destroy(cfg);
+-- 
+1.5.3.4
+

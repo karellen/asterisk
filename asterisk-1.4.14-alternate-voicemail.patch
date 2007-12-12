@@ -1,0 +1,47 @@
+From e0d28a01fd6a92db44fb0ef3f9e73bb6a3aeeb4e Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
+Date: Thu, 8 Nov 2007 15:52:36 -0600
+Subject: [PATCH] Modify modules.conf so that different voicemail modules can be loaded.
+
+---
+ configs/modules.conf.sample |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
+
+diff --git a/configs/modules.conf.sample b/configs/modules.conf.sample
+index 0c92e1d..43c3f48 100644
+--- a/configs/modules.conf.sample
++++ b/configs/modules.conf.sample
+@@ -36,3 +36,30 @@ load => res_musiconhold.so
+ ;
+ noload => chan_alsa.so
+ ;noload => chan_oss.so
++
++;
++; Voicemail storage selection
++;
++; Comment out the "noload" lines for the voicemail
++; storage system that you want.  Leave the ones that
++; you don't want uncommented.
++;
++
++;
++; Voicemail with IMAP storage
++;
++noload => app_directory_imap.so
++noload => app_voicemail_imap.so
++
++;
++; Voicemail with ODBC storage
++;
++noload => app_directory_odbc.so
++noload => app_voicemail_odbc.so
++
++;
++; Voicemail with filesystem storage
++;
++;noload => app_directory_plain.so
++;noload => app_voicemail_plain.so
++
+-- 
+1.5.3.4
+

@@ -1,0 +1,1254 @@
+From 896c00799146b1f83afce86fee1b576e7f1a5bf4 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Mon, 12 Nov 2007 15:51:12 -0600
+Subject: [PATCH] Add FAX apps.
+
+---
+ apps/app_rxfax.c                 |  380 +++++++++++++++++++++++++++++++++
+ apps/app_txfax.c                 |  306 ++++++++++++++++++++++++++
+ build_tools/menuselect-deps.in   |    1 +
+ configure                        |  436 ++++++++++++++++++++++++++++++++++++++
+ configure.ac                     |    3 +
+ include/asterisk/autoconfig.h.in |    3 +
+ makeopts.in                      |    3 +
+ 7 files changed, 1132 insertions(+), 0 deletions(-)
+ create mode 100644 apps/app_rxfax.c
+ create mode 100644 apps/app_txfax.c
+
+diff --git a/apps/app_rxfax.c b/apps/app_rxfax.c
+new file mode 100644
+index 0000000..bd81ea1
+--- /dev/null
++++ b/apps/app_rxfax.c
+@@ -0,0 +1,380 @@
++/*
++ * Asterisk -- A telephony toolkit for Linux.
++ *
++ * Trivial application to receive a TIFF FAX file
++ *
++ * Copyright (C) 2003, Steve Underwood
++ *
++ * Steve Underwood <steveu@coppice.org>
++ *
++ * This program is free software, distributed under the terms of
++ * the GNU General Public License
++ */
++
++/*** MODULEINFO
++         <depend>spandsp</depend>
++***/
++
++#include "asterisk.h"
++
++ASTERISK_FILE_VERSION(__FILE__, "$Revision:$")
++
++#include <string.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <inttypes.h>
++#include <pthread.h>
++#include <errno.h>
++#include <tiffio.h>
++
++#include <spandsp.h>
++
++#include "asterisk/lock.h"
++#include "asterisk/file.h"
++#include "asterisk/logger.h"
++#include "asterisk/channel.h"
++#include "asterisk/pbx.h"
++#include "asterisk/module.h"
++#include "asterisk/manager.h"
++
++#ifndef AST_MODULE
++#define AST_MODULE "app_rxfax"
++#endif
++
++static char *app = "RxFAX";
++
++static char *synopsis = "Receive a FAX to a file";
++
++static char *descrip =
++"  RxFAX(filename[|caller][|debug]): Receives a FAX from the channel into the\n"
++"given filename. If the file exists it will be overwritten. The file\n"
++"should be in TIFF/F format.\n"
++"The \"caller\" option makes the application behave as a calling machine,\n"
++"rather than the answering machine. The default behaviour is to behave as\n"
++"an answering machine.\n"
++"Uses LOCALSTATIONID to identify itself to the remote end.\n"
++"     LOCALHEADERINFO to generate a header line on each page.\n"
++"Sets REMOTESTATIONID to the sender CSID.\n"
++"     FAXPAGES to the number of pages received.\n"
++"     FAXBITRATE to the transmition rate.\n"
++"     FAXRESOLUTION to the resolution.\n"
++"Returns -1 when the user hangs up.\n"
++"Returns 0 otherwise.\n";
++
++#define MAX_BLOCK_SIZE 240
++
++static void span_message(int level, const char *msg)
++{
++    int ast_level;
++
++    if (level == SPAN_LOG_WARNING)
++        ast_level = __LOG_WARNING;
++    else if (level == SPAN_LOG_WARNING)
++        ast_level = __LOG_WARNING;
++    else
++        ast_level = __LOG_DEBUG;
++    ast_log(ast_level, __FILE__, __LINE__, __PRETTY_FUNCTION__, msg);
++}
++/*- End of function --------------------------------------------------------*/
++
++#if 0
++static void t30_flush(t30_state_t *s, int which)
++{
++    /* TODO: */
++}
++/*- End of function --------------------------------------------------------*/
++#endif
++
++static void phase_e_handler(t30_state_t *s, void *user_data, int result)
++{
++    struct ast_channel *chan;
++    t30_stats_t t;
++    char local_ident[21];
++    char far_ident[21];
++    char buf[11];
++
++    chan = (struct ast_channel *) user_data;
++    if (result == T30_ERR_OK)
++    {
++        t30_get_transfer_statistics(s, &t);
++        t30_get_far_ident(s, far_ident);
++        t30_get_local_ident(s, local_ident);
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++        ast_log(LOG_DEBUG, "Fax successfully received.\n");
++        ast_log(LOG_DEBUG, "Remote station id: %s\n", far_ident);
++        ast_log(LOG_DEBUG, "Local station id:  %s\n", local_ident);
++        ast_log(LOG_DEBUG, "Pages transferred: %i\n", t.pages_transferred);
++        ast_log(LOG_DEBUG, "Image resolution:  %i x %i\n", t.x_resolution, t.y_resolution);
++        ast_log(LOG_DEBUG, "Transfer Rate:     %i\n", t.bit_rate);
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++        manager_event(EVENT_FLAG_CALL,
++                      "FaxReceived", "Channel: %s\nExten: %s\nCallerID: %s\nRemoteStationID: %s\nLocalStationID: %s\nPagesTransferred: %i\nResolution: %i\nTransferRate: %i\nFileName: %s\n",
++                      chan->name,
++                      chan->exten,
++                      (chan->cid.cid_num)  ?  chan->cid.cid_num  :  "",
++                      far_ident,
++                      local_ident,
++                      t.pages_transferred,
++                      t.y_resolution,
++                      t.bit_rate,
++                      s->rx_file);
++        pbx_builtin_setvar_helper(chan, "REMOTESTATIONID", far_ident);
++        snprintf(buf, sizeof(buf), "%i", t.pages_transferred);
++        pbx_builtin_setvar_helper(chan, "FAXPAGES", buf);
++        snprintf(buf, sizeof(buf), "%i", t.y_resolution);
++        pbx_builtin_setvar_helper(chan, "FAXRESOLUTION", buf);
++        snprintf(buf, sizeof(buf), "%i", t.bit_rate);
++        pbx_builtin_setvar_helper(chan, "FAXBITRATE", buf);
++    }
++    else
++    {
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++        ast_log(LOG_DEBUG, "Fax receive not successful - result (%d) %s.\n", result, t30_completion_code_to_str(result));
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++    }
++}
++/*- End of function --------------------------------------------------------*/
++
++static void phase_d_handler(t30_state_t *s, void *user_data, int result)
++{
++    struct ast_channel *chan;
++    t30_stats_t t;
++
++    chan = (struct ast_channel *) user_data;
++    if (result)
++    {
++        t30_get_transfer_statistics(s, &t);
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++        ast_log(LOG_DEBUG, "Pages transferred:  %i\n", t.pages_transferred);
++        ast_log(LOG_DEBUG, "Image size:         %i x %i\n", t.width, t.length);
++        ast_log(LOG_DEBUG, "Image resolution    %i x %i\n", t.x_resolution, t.y_resolution);
++        ast_log(LOG_DEBUG, "Transfer Rate:      %i\n", t.bit_rate);
++        ast_log(LOG_DEBUG, "Bad rows            %i\n", t.bad_rows);
++        ast_log(LOG_DEBUG, "Longest bad row run %i\n", t.longest_bad_row_run);
++        ast_log(LOG_DEBUG, "Compression type    %i\n", t.encoding);
++        ast_log(LOG_DEBUG, "Image size (bytes)  %i\n", t.image_size);
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++    }
++}
++/*- End of function --------------------------------------------------------*/
++
++static int rxfax_exec(struct ast_channel *chan, void *data)
++{
++    int res = 0;
++    char template_file[256];
++    char target_file[256];
++    char *s;
++    char *t;
++    char *v;
++    const char *x;
++    int option;
++    int len;
++    int i;
++    fax_state_t fax;
++    int calling_party;
++    int verbose;
++    int samples;
++
++    struct ast_module_user *u;
++    struct ast_frame *inf = NULL;
++    struct ast_frame outf;
++
++    int original_read_fmt;
++    int original_write_fmt;
++
++    uint8_t __buf[sizeof(uint16_t)*MAX_BLOCK_SIZE + 2*AST_FRIENDLY_OFFSET];
++    uint8_t *buf = __buf + AST_FRIENDLY_OFFSET;
++
++    if (chan == NULL)
++    {
++        ast_log(LOG_WARNING, "Fax receive channel is NULL. Giving up.\n");
++        return -1;
++    }
++
++    span_set_message_handler(span_message);
++
++    /* The next few lines of code parse out the filename and header from the input string */
++    if (data == NULL)
++    {
++        /* No data implies no filename or anything is present */
++        ast_log(LOG_WARNING, "Rxfax requires an argument (filename)\n");
++        return -1;
++    }
++
++    calling_party = FALSE;
++    verbose = FALSE;
++    target_file[0] = '\0';
++
++    for (option = 0, v = s = data;  v;  option++, s++)
++    {
++        t = s;
++        v = strchr(s, '|');
++        s = (v)  ?  v  :  s + strlen(s);
++        strncpy((char *) buf, t, s - t);
++        buf[s - t] = '\0';
++        if (option == 0)
++        {
++            /* The first option is always the file name */
++            len = s - t;
++            if (len > 255)
++                len = 255;
++            strncpy(target_file, t, len);
++            target_file[len] = '\0';
++            /* Allow the use of %d in the file name for a wild card of sorts, to
++               create a new file with the specified name scheme */
++            if ((x = strchr(target_file, '%'))  &&  x[1] == 'd')
++            {
++                strcpy(template_file, target_file);
++                i = 0;
++                do
++                {
++                    snprintf(target_file, 256, template_file, 1);
++                    i++;
++                }
++                while (ast_fileexists(target_file, "", chan->language) != -1);
++            }
++        }
++        else if (strncmp("caller", t, s - t) == 0)
++        {
++            calling_party = TRUE;
++        }
++        else if (strncmp("debug", t, s - t) == 0)
++        {
++            verbose = TRUE;
++        }
++    }
++
++    /* Done parsing */
++
++    u = ast_module_user_add(chan);
++
++    if (chan->_state != AST_STATE_UP)
++    {
++        /* Shouldn't need this, but checking to see if channel is already answered
++         * Theoretically asterisk should already have answered before running the app */
++        res = ast_answer(chan);
++    }
++
++    if (!res)
++    {
++        original_read_fmt = chan->readformat;
++        if (original_read_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_read_format(chan, AST_FORMAT_SLINEAR);
++            if (res < 0)
++            {
++                ast_log(LOG_WARNING, "Unable to set to linear read mode, giving up\n");
++                return -1;
++            }
++        }
++        original_write_fmt = chan->writeformat;
++        if (original_write_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_write_format(chan, AST_FORMAT_SLINEAR);
++            if (res < 0)
++            {
++                ast_log(LOG_WARNING, "Unable to set to linear write mode, giving up\n");
++                res = ast_set_read_format(chan, original_read_fmt);
++                if (res)
++                    ast_log(LOG_WARNING, "Unable to restore read format on '%s'\n", chan->name);
++                return -1;
++            }
++        }
++        fax_init(&fax, calling_party);
++        if (verbose)
++            fax.logging.level = SPAN_LOG_SHOW_SEVERITY | SPAN_LOG_SHOW_PROTOCOL | SPAN_LOG_FLOW;
++        x = pbx_builtin_getvar_helper(chan, "LOCALSTATIONID");
++        if (x  &&  x[0])
++            t30_set_local_ident(&fax.t30_state, x);
++        x = pbx_builtin_getvar_helper(chan, "LOCALHEADERINFO");
++        if (x  &&  x[0])
++            t30_set_header_info(&fax.t30_state, x);
++        t30_set_rx_file(&fax.t30_state, target_file, -1);
++        //t30_set_phase_b_handler(&fax.t30_state, phase_b_handler, chan);
++        t30_set_phase_d_handler(&fax.t30_state, phase_d_handler, chan);
++        t30_set_phase_e_handler(&fax.t30_state, phase_e_handler, chan);
++        t30_set_ecm_capability(&fax.t30_state, TRUE);
++        t30_set_supported_compressions(&fax.t30_state, T30_SUPPORT_T4_1D_COMPRESSION | T30_SUPPORT_T4_2D_COMPRESSION | T30_SUPPORT_T6_COMPRESSION);
++        while (ast_waitfor(chan, -1) > -1)
++        {
++            inf = ast_read(chan);
++            if (inf == NULL)
++            {
++                res = -1;
++                break;
++            }
++            if (inf->frametype == AST_FRAME_VOICE)
++            {
++                if (fax_rx(&fax, inf->data, inf->samples))
++                    break;
++                samples = (inf->samples <= MAX_BLOCK_SIZE)  ?  inf->samples  :  MAX_BLOCK_SIZE;
++                len = fax_tx(&fax, (int16_t *) &buf[AST_FRIENDLY_OFFSET], samples);
++                if (len)
++                {
++                    memset(&outf, 0, sizeof(outf));
++                    outf.frametype = AST_FRAME_VOICE;
++                    outf.subclass = AST_FORMAT_SLINEAR;
++                    outf.datalen = len*sizeof(int16_t);
++                    outf.samples = len;
++                    outf.data = &buf[AST_FRIENDLY_OFFSET];
++                    outf.offset = AST_FRIENDLY_OFFSET;
++                    outf.src = "RxFAX";
++                    if (ast_write(chan, &outf) < 0)
++                    {
++                        ast_log(LOG_WARNING, "Unable to write frame to channel; %s\n", strerror(errno));
++                        break;
++                    }
++                }
++            }
++            ast_frfree(inf);
++        }
++        if (inf == NULL)
++        {
++            ast_log(LOG_DEBUG, "Got hangup\n");
++            res = -1;
++        }
++        if (original_read_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_read_format(chan, original_read_fmt);
++            if (res)
++                ast_log(LOG_WARNING, "Unable to restore read format on '%s'\n", chan->name);
++        }
++        if (original_write_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_write_format(chan, original_write_fmt);
++            if (res)
++                ast_log(LOG_WARNING, "Unable to restore write format on '%s'\n", chan->name);
++        }
++        t30_terminate(&fax.t30_state);
++    }
++    else
++    {
++        ast_log(LOG_WARNING, "Could not answer channel '%s'\n", chan->name);
++    }
++    ast_module_user_remove(u);
++    return res;
++}
++/*- End of function --------------------------------------------------------*/
++
++static int unload_module(void)
++{
++	int res;
++
++	ast_module_user_hangup_all();
++
++	res = ast_unregister_application(app);
++
++
++	return res;
++}
++/*- End of function --------------------------------------------------------*/
++
++static int load_module(void)
++{
++	return ast_register_application(app, rxfax_exec, synopsis, descrip);
++}
++/*- End of function --------------------------------------------------------*/
++
++AST_MODULE_INFO_STANDARD(ASTERISK_GPL_KEY, "Trivial FAX Receive Application");
++
++/*- End of file ------------------------------------------------------------*/
+diff --git a/apps/app_txfax.c b/apps/app_txfax.c
+new file mode 100644
+index 0000000..713ecf1
+--- /dev/null
++++ b/apps/app_txfax.c
+@@ -0,0 +1,306 @@
++/*
++ * Asterisk -- A telephony toolkit for Linux.
++ *
++ * Trivial application to send a TIFF file as a FAX
++ *
++ * Copyright (C) 2003, Steve Underwood
++ *
++ * Steve Underwood <steveu@coppice.org>
++ *
++ * This program is free software, distributed under the terms of
++ * the GNU General Public License
++ */
++
++/*** MODULEINFO
++         <depend>spandsp</depend>
++***/
++
++#include "asterisk.h"
++
++ASTERISK_FILE_VERSION(__FILE__, "$Revision:$")
++
++#include <string.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <inttypes.h>
++#include <pthread.h>
++#include <errno.h>
++#include <tiffio.h>
++
++#include <spandsp.h>
++
++#include "asterisk/lock.h"
++#include "asterisk/file.h"
++#include "asterisk/logger.h"
++#include "asterisk/channel.h"
++#include "asterisk/pbx.h"
++#include "asterisk/module.h"
++
++#ifndef AST_MODULE
++#define AST_MODULE "app_txfax"
++#endif
++
++static char *app = "TxFAX";
++
++static char *synopsis = "Send a FAX file";
++
++static char *descrip =
++"  TxFAX(filename[|caller][|debug]):  Send a given TIFF file to the channel as a FAX.\n"
++"The \"caller\" option makes the application behave as a calling machine,\n"
++"rather than the answering machine. The default behaviour is to behave as\n"
++"an answering machine.\n"
++"Uses LOCALSTATIONID to identify itself to the remote end.\n"
++"     LOCALHEADERINFO to generate a header line on each page.\n"
++"Sets REMOTESTATIONID to the receiver CSID.\n"
++"Returns -1 when the user hangs up, or if the file does not exist.\n"
++"Returns 0 otherwise.\n";
++
++#define MAX_BLOCK_SIZE 240
++
++static void span_message(int level, const char *msg)
++{
++    int ast_level;
++
++    if (level == SPAN_LOG_WARNING)
++        ast_level = __LOG_WARNING;
++    else if (level == SPAN_LOG_WARNING)
++        ast_level = __LOG_WARNING;
++    else
++        ast_level = __LOG_DEBUG;
++    ast_log(ast_level, __FILE__, __LINE__, __PRETTY_FUNCTION__, msg);
++}
++/*- End of function --------------------------------------------------------*/
++
++#if 0
++static void t30_flush(t30_state_t *s, int which)
++{
++    /* TODO: */
++}
++/*- End of function --------------------------------------------------------*/
++#endif
++
++static void phase_e_handler(t30_state_t *s, void *user_data, int result)
++{
++    struct ast_channel *chan;
++    char far_ident[21];
++
++    chan = (struct ast_channel *) user_data;
++    if (result == T30_ERR_OK)
++    {
++        t30_get_far_ident(s, far_ident);
++        pbx_builtin_setvar_helper(chan, "REMOTESTATIONID", far_ident);
++    }
++    else
++    {
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++        ast_log(LOG_DEBUG, "Fax send not successful - result (%d) %s.\n", result, t30_completion_code_to_str(result));
++        ast_log(LOG_DEBUG, "==============================================================================\n");
++    }
++}
++/*- End of function --------------------------------------------------------*/
++
++static int txfax_exec(struct ast_channel *chan, void *data)
++{
++    int res = 0;
++    char source_file[256];
++    char *s;
++    char *t;
++    char *v;
++    const char *x;
++    int option;
++    int len;
++    fax_state_t fax;
++    int calling_party;
++    int verbose;
++    int samples;
++
++    struct ast_module_user *u;
++    struct ast_frame *inf = NULL;
++    struct ast_frame outf;
++
++    int original_read_fmt;
++    int original_write_fmt;
++
++    uint8_t __buf[sizeof(uint16_t)*MAX_BLOCK_SIZE + 2*AST_FRIENDLY_OFFSET];
++    uint8_t *buf = __buf + AST_FRIENDLY_OFFSET;
++
++    if (chan == NULL)
++    {
++        ast_log(LOG_WARNING, "Fax transmit channel is NULL. Giving up.\n");
++        return -1;
++    }
++
++    span_set_message_handler(span_message);
++
++    /* The next few lines of code parse out the filename and header from the input string */
++    if (data == NULL)
++    {
++        /* No data implies no filename or anything is present */
++        ast_log(LOG_WARNING, "Txfax requires an argument (filename)\n");
++        return -1;
++    }
++
++    calling_party = FALSE;
++    verbose = FALSE;
++    source_file[0] = '\0';
++
++    for (option = 0, v = s = data;  v;  option++, s++)
++    {
++        t = s;
++        v = strchr(s, '|');
++        s = (v)  ?  v  :  s + strlen(s);
++        strncpy((char *) buf, t, s - t);
++        buf[s - t] = '\0';
++        if (option == 0)
++        {
++            /* The first option is always the file name */
++            len = s - t;
++            if (len > 255)
++                len = 255;
++            strncpy(source_file, t, len);
++            source_file[len] = '\0';
++        }
++        else if (strncmp("caller", t, s - t) == 0)
++        {
++            calling_party = TRUE;
++        }
++        else if (strncmp("debug", t, s - t) == 0)
++        {
++            verbose = TRUE;
++        }
++    }
++
++    /* Done parsing */
++
++    u = ast_module_user_add(chan);
++
++    if (chan->_state != AST_STATE_UP)
++    {
++        /* Shouldn't need this, but checking to see if channel is already answered
++         * Theoretically asterisk should already have answered before running the app */
++        res = ast_answer(chan);
++    }
++
++    if (!res)
++    {
++        original_read_fmt = chan->readformat;
++        if (original_read_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_read_format(chan, AST_FORMAT_SLINEAR);
++            if (res < 0)
++            {
++                ast_log(LOG_WARNING, "Unable to set to linear read mode, giving up\n");
++                return -1;
++            }
++        }
++        original_write_fmt = chan->writeformat;
++        if (original_write_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_write_format(chan, AST_FORMAT_SLINEAR);
++            if (res < 0)
++            {
++                ast_log(LOG_WARNING, "Unable to set to linear write mode, giving up\n");
++                res = ast_set_read_format(chan, original_read_fmt);
++                if (res)
++                    ast_log(LOG_WARNING, "Unable to restore read format on '%s'\n", chan->name);
++                return -1;
++            }
++        }
++        fax_init(&fax, calling_party);
++        if (verbose)
++	    fax.logging.level = SPAN_LOG_SHOW_SEVERITY | SPAN_LOG_SHOW_PROTOCOL | SPAN_LOG_FLOW;
++
++        x = pbx_builtin_getvar_helper(chan, "LOCALSTATIONID");
++        if (x  &&  x[0])
++            t30_set_local_ident(&fax.t30_state, x);
++        x = pbx_builtin_getvar_helper(chan, "LOCALHEADERINFO");
++        if (x  &&  x[0])
++            t30_set_header_info(&fax.t30_state, x);
++        t30_set_tx_file(&fax.t30_state, source_file, -1, -1);
++        //t30_set_phase_b_handler(&fax.t30_state, phase_b_handler, chan);
++        //t30_set_phase_d_handler(&fax.t30_state, phase_d_handler, chan);
++        t30_set_phase_e_handler(&fax.t30_state, phase_e_handler, chan);
++        t30_set_ecm_capability(&fax.t30_state, TRUE);
++        t30_set_supported_compressions(&fax.t30_state, T30_SUPPORT_T4_1D_COMPRESSION | T30_SUPPORT_T4_2D_COMPRESSION | T30_SUPPORT_T6_COMPRESSION);
++        while (ast_waitfor(chan, -1) > -1)
++        {
++            inf = ast_read(chan);
++            if (inf == NULL)
++            {
++                res = -1;
++                break;
++            }
++            if (inf->frametype == AST_FRAME_VOICE)
++            {
++                if (fax_rx(&fax, inf->data, inf->samples))
++                    break;
++                samples = (inf->samples <= MAX_BLOCK_SIZE)  ?  inf->samples  :  MAX_BLOCK_SIZE;
++                len = fax_tx(&fax, (int16_t *) &buf[AST_FRIENDLY_OFFSET], samples);
++                if (len)
++                {
++                    memset(&outf, 0, sizeof(outf));
++                    outf.frametype = AST_FRAME_VOICE;
++                    outf.subclass = AST_FORMAT_SLINEAR;
++                    outf.datalen = len*sizeof(int16_t);
++                    outf.samples = len;
++                    outf.data = &buf[AST_FRIENDLY_OFFSET];
++                    outf.offset = AST_FRIENDLY_OFFSET;
++                    if (ast_write(chan, &outf) < 0)
++                    {
++                        ast_log(LOG_WARNING, "Unable to write frame to channel; %s\n", strerror(errno));
++                        break;
++                    }
++                }
++            }
++            ast_frfree(inf);
++        }
++        if (inf == NULL)
++        {
++            ast_log(LOG_DEBUG, "Got hangup\n");
++            res = -1;
++        }
++        if (original_read_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_read_format(chan, original_read_fmt);
++            if (res)
++                ast_log(LOG_WARNING, "Unable to restore read format on '%s'\n", chan->name);
++        }
++        if (original_write_fmt != AST_FORMAT_SLINEAR)
++        {
++            res = ast_set_write_format(chan, original_write_fmt);
++            if (res)
++                ast_log(LOG_WARNING, "Unable to restore write format on '%s'\n", chan->name);
++        }
++        t30_terminate(&fax.t30_state);
++    }
++    else
++    {
++        ast_log(LOG_WARNING, "Could not answer channel '%s'\n", chan->name);
++    }
++    ast_module_user_remove(u);
++    return res;
++}
++/*- End of function --------------------------------------------------------*/
++
++static int unload_module(void)
++{
++	int res;
++
++	ast_module_user_hangup_all();
++
++	res = ast_unregister_application(app);
++
++
++	return res;
++}
++/*- End of function --------------------------------------------------------*/
++
++static int load_module(void)
++{
++    return ast_register_application(app, txfax_exec, synopsis, descrip);
++}
++/*- End of function --------------------------------------------------------*/
++
++AST_MODULE_INFO_STANDARD(ASTERISK_GPL_KEY, "Trivial FAX Transmit Application");
++
++/*- End of file ------------------------------------------------------------*/
+diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
+index 60a53b4..fb10545 100644
+--- a/build_tools/menuselect-deps.in
++++ b/build_tools/menuselect-deps.in
+@@ -22,6 +22,7 @@ POPT=@PBX_POPT@
+ PRI=@PBX_PRI@
+ QT=@PBX_QT@
+ RADIUS=@PBX_RADIUS@
++SPANDSP=@PBX_SPANDSP@
+ SPEEX=@PBX_SPEEX@
+ SQLITE=@PBX_SQLITE@
+ SSL=@PBX_OPENSSL@
+diff --git a/configure b/configure
+index b99da0f..2d2a5cb 100755
+--- a/configure
++++ b/configure
+@@ -820,6 +820,10 @@ RADIUS_LIB
+ RADIUS_INCLUDE
+ RADIUS_DIR
+ PBX_RADIUS
++SPANDSP_LIB
++SPANDSP_INCLUDE
++SPANDSP_DIR
++PBX_SPANDSP
+ SPEEX_LIB
+ SPEEX_INCLUDE
+ SPEEX_DIR
+@@ -1529,6 +1533,7 @@ Optional Packages:
+   --with-h323=PATH        use OpenH323 files in PATH
+   --with-qt=PATH          use Qt files in PATH
+   --with-radius=PATH      use Radius Client files in PATH
++  --with-spandsp=PATH     use spandsp Library files in PATH
+   --with-speex=PATH       use Speex files in PATH
+   --with-sqlite=PATH      use SQLite files in PATH
+   --with-suppserv=PATH    use mISDN Supplemental Services files in PATH
+@@ -8307,6 +8312,34 @@ PBX_RADIUS=0
+ 
+ 
+ 
++SPANDSP_DESCRIP="spandsp Library"
++SPANDSP_OPTION="spandsp"
++
++# Check whether --with-spandsp was given.
++if test "${with_spandsp+set}" = set; then
++  withval=$with_spandsp;
++case ${withval} in
++     n|no)
++     USE_SPANDSP=no
++     ;;
++     y|ye|yes)
++     SPANDSP_MANDATORY="yes"
++     ;;
++     *)
++     SPANDSP_DIR="${withval}"
++     SPANDSP_MANDATORY="yes"
++     ;;
++esac
++
++fi
++
++PBX_SPANDSP=0
++
++
++
++
++
++
+ SPEEX_DESCRIP="Speex"
+ SPEEX_OPTION="speex"
+ 
+@@ -27490,6 +27523,405 @@ fi
+ 
+ 
+ 
++if test "${USE_SPANDSP}" != "no"; then
++   pbxlibdir=""
++   if test "x${SPANDSP_DIR}" != "x"; then
++      if test -d ${SPANDSP_DIR}/lib; then
++	 pbxlibdir="-L${SPANDSP_DIR}/lib"
++      else
++	 pbxlibdir="-L${SPANDSP_DIR}"
++      fi
++   fi
++   { echo "$as_me:$LINENO: checking for fax_init in -lspandsp" >&5
++echo $ECHO_N "checking for fax_init in -lspandsp... $ECHO_C" >&6; }
++if test "${ac_cv_lib_spandsp_fax_init+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  ac_check_lib_save_LIBS=$LIBS
++LIBS="-lspandsp ${pbxlibdir} -ltiff $LIBS"
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char fax_init ();
++int
++main ()
++{
++return fax_init ();
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (ac_try="$ac_link"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_link") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest$ac_exeext &&
++       $as_test_x conftest$ac_exeext; then
++  ac_cv_lib_spandsp_fax_init=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	ac_cv_lib_spandsp_fax_init=no
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
++      conftest$ac_exeext conftest.$ac_ext
++LIBS=$ac_check_lib_save_LIBS
++fi
++{ echo "$as_me:$LINENO: result: $ac_cv_lib_spandsp_fax_init" >&5
++echo "${ECHO_T}$ac_cv_lib_spandsp_fax_init" >&6; }
++if test $ac_cv_lib_spandsp_fax_init = yes; then
++  AST_SPANDSP_FOUND=yes
++else
++  AST_SPANDSP_FOUND=no
++fi
++
++
++   if test "${AST_SPANDSP_FOUND}" = "yes"; then
++      SPANDSP_LIB="-lspandsp -ltiff"
++      SPANDSP_HEADER_FOUND="1"
++      if test "x${SPANDSP_DIR}" != "x"; then
++         SPANDSP_LIB="${pbxlibdir} ${SPANDSP_LIB}"
++	 SPANDSP_INCLUDE="-I${SPANDSP_DIR}/include"
++	 saved_cppflags="${CPPFLAGS}"
++	 CPPFLAGS="${CPPFLAGS} -I${SPANDSP_DIR}/include"
++	 if test "xspandsp.h" != "x" ; then
++	    as_ac_Header=`echo "ac_cv_header_${SPANDSP_DIR}/include/spandsp.h" | $as_tr_sh`
++if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
++  { echo "$as_me:$LINENO: checking for ${SPANDSP_DIR}/include/spandsp.h" >&5
++echo $ECHO_N "checking for ${SPANDSP_DIR}/include/spandsp.h... $ECHO_C" >&6; }
++if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++fi
++ac_res=`eval echo '${'$as_ac_Header'}'`
++	       { echo "$as_me:$LINENO: result: $ac_res" >&5
++echo "${ECHO_T}$ac_res" >&6; }
++else
++  # Is the header compilable?
++{ echo "$as_me:$LINENO: checking ${SPANDSP_DIR}/include/spandsp.h usability" >&5
++echo $ECHO_N "checking ${SPANDSP_DIR}/include/spandsp.h usability... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++$ac_includes_default
++#include <${SPANDSP_DIR}/include/spandsp.h>
++_ACEOF
++rm -f conftest.$ac_objext
++if { (ac_try="$ac_compile"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_compile") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest.$ac_objext; then
++  ac_header_compiler=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	ac_header_compiler=no
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
++echo "${ECHO_T}$ac_header_compiler" >&6; }
++
++# Is the header present?
++{ echo "$as_me:$LINENO: checking ${SPANDSP_DIR}/include/spandsp.h presence" >&5
++echo $ECHO_N "checking ${SPANDSP_DIR}/include/spandsp.h presence... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <${SPANDSP_DIR}/include/spandsp.h>
++_ACEOF
++if { (ac_try="$ac_cpp conftest.$ac_ext"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } >/dev/null && {
++	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       }; then
++  ac_header_preproc=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++  ac_header_preproc=no
++fi
++
++rm -f conftest.err conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
++echo "${ECHO_T}$ac_header_preproc" >&6; }
++
++# So?  What about this header?
++case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
++  yes:no: )
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h: proceeding with the compiler's result" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h: proceeding with the compiler's result" >&2;}
++    ac_header_preproc=yes
++    ;;
++  no:yes:* )
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h: present but cannot be compiled" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h: present but cannot be compiled" >&2;}
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h:     check for missing prerequisite headers?" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h:     check for missing prerequisite headers?" >&2;}
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h: see the Autoconf documentation" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h: see the Autoconf documentation" >&2;}
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h:     section \"Present But Cannot Be Compiled\"" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h:     section \"Present But Cannot Be Compiled\"" >&2;}
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h: proceeding with the preprocessor's result" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h: proceeding with the preprocessor's result" >&2;}
++    { echo "$as_me:$LINENO: WARNING: ${SPANDSP_DIR}/include/spandsp.h: in the future, the compiler will take precedence" >&5
++echo "$as_me: WARNING: ${SPANDSP_DIR}/include/spandsp.h: in the future, the compiler will take precedence" >&2;}
++
++    ;;
++esac
++{ echo "$as_me:$LINENO: checking for ${SPANDSP_DIR}/include/spandsp.h" >&5
++echo $ECHO_N "checking for ${SPANDSP_DIR}/include/spandsp.h... $ECHO_C" >&6; }
++if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  eval "$as_ac_Header=\$ac_header_preproc"
++fi
++ac_res=`eval echo '${'$as_ac_Header'}'`
++	       { echo "$as_me:$LINENO: result: $ac_res" >&5
++echo "${ECHO_T}$ac_res" >&6; }
++
++fi
++if test `eval echo '${'$as_ac_Header'}'` = yes; then
++  SPANDSP_HEADER_FOUND=1
++else
++  SPANDSP_HEADER_FOUND=0
++fi
++
++
++	 fi
++	 CPPFLAGS="${saved_cppflags}"
++      else
++	 if test "xspandsp.h" != "x" ; then
++            if test "${ac_cv_header_spandsp_h+set}" = set; then
++  { echo "$as_me:$LINENO: checking for spandsp.h" >&5
++echo $ECHO_N "checking for spandsp.h... $ECHO_C" >&6; }
++if test "${ac_cv_header_spandsp_h+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++fi
++{ echo "$as_me:$LINENO: result: $ac_cv_header_spandsp_h" >&5
++echo "${ECHO_T}$ac_cv_header_spandsp_h" >&6; }
++else
++  # Is the header compilable?
++{ echo "$as_me:$LINENO: checking spandsp.h usability" >&5
++echo $ECHO_N "checking spandsp.h usability... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++$ac_includes_default
++#include <spandsp.h>
++_ACEOF
++rm -f conftest.$ac_objext
++if { (ac_try="$ac_compile"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_compile") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest.$ac_objext; then
++  ac_header_compiler=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	ac_header_compiler=no
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
++echo "${ECHO_T}$ac_header_compiler" >&6; }
++
++# Is the header present?
++{ echo "$as_me:$LINENO: checking spandsp.h presence" >&5
++echo $ECHO_N "checking spandsp.h presence... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <spandsp.h>
++_ACEOF
++if { (ac_try="$ac_cpp conftest.$ac_ext"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } >/dev/null && {
++	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       }; then
++  ac_header_preproc=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++  ac_header_preproc=no
++fi
++
++rm -f conftest.err conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
++echo "${ECHO_T}$ac_header_preproc" >&6; }
++
++# So?  What about this header?
++case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
++  yes:no: )
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&5
++echo "$as_me: WARNING: spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: proceeding with the compiler's result" >&5
++echo "$as_me: WARNING: spandsp.h: proceeding with the compiler's result" >&2;}
++    ac_header_preproc=yes
++    ;;
++  no:yes:* )
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: present but cannot be compiled" >&5
++echo "$as_me: WARNING: spandsp.h: present but cannot be compiled" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h:     check for missing prerequisite headers?" >&5
++echo "$as_me: WARNING: spandsp.h:     check for missing prerequisite headers?" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: see the Autoconf documentation" >&5
++echo "$as_me: WARNING: spandsp.h: see the Autoconf documentation" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h:     section \"Present But Cannot Be Compiled\"" >&5
++echo "$as_me: WARNING: spandsp.h:     section \"Present But Cannot Be Compiled\"" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: proceeding with the preprocessor's result" >&5
++echo "$as_me: WARNING: spandsp.h: proceeding with the preprocessor's result" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: in the future, the compiler will take precedence" >&5
++echo "$as_me: WARNING: spandsp.h: in the future, the compiler will take precedence" >&2;}
++
++    ;;
++esac
++{ echo "$as_me:$LINENO: checking for spandsp.h" >&5
++echo $ECHO_N "checking for spandsp.h... $ECHO_C" >&6; }
++if test "${ac_cv_header_spandsp_h+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  ac_cv_header_spandsp_h=$ac_header_preproc
++fi
++{ echo "$as_me:$LINENO: result: $ac_cv_header_spandsp_h" >&5
++echo "${ECHO_T}$ac_cv_header_spandsp_h" >&6; }
++
++fi
++if test $ac_cv_header_spandsp_h = yes; then
++  SPANDSP_HEADER_FOUND=1
++else
++  SPANDSP_HEADER_FOUND=0
++fi
++
++
++	 fi
++      fi
++      if test "x${SPANDSP_HEADER_FOUND}" = "x0" ; then
++         if test -n "${SPANDSP_MANDATORY}" ;
++         then
++            { echo "$as_me:$LINENO: ***" >&5
++echo "$as_me: ***" >&6;}
++            { echo "$as_me:$LINENO: *** It appears that you do not have the spandsp development package installed." >&5
++echo "$as_me: *** It appears that you do not have the spandsp development package installed." >&6;}
++            { echo "$as_me:$LINENO: *** Please install it to include ${SPANDSP_DESCRIP} support, or re-run configure" >&5
++echo "$as_me: *** Please install it to include ${SPANDSP_DESCRIP} support, or re-run configure" >&6;}
++            { echo "$as_me:$LINENO: *** without explicitly specifying --with-${SPANDSP_OPTION}" >&5
++echo "$as_me: *** without explicitly specifying --with-${SPANDSP_OPTION}" >&6;}
++            exit 1
++         fi
++         SPANDSP_LIB=""
++         SPANDSP_INCLUDE=""
++         PBX_SPANDSP=0
++      else
++         PBX_SPANDSP=1
++
++cat >>confdefs.h <<_ACEOF
++#define HAVE_SPANDSP 1
++_ACEOF
++
++      fi
++   elif test -n "${SPANDSP_MANDATORY}";
++   then
++      { echo "$as_me:$LINENO: ***" >&5
++echo "$as_me: ***" >&6;}
++      { echo "$as_me:$LINENO: *** The ${SPANDSP_DESCRIP} installation on this system appears to be broken." >&5
++echo "$as_me: *** The ${SPANDSP_DESCRIP} installation on this system appears to be broken." >&6;}
++      { echo "$as_me:$LINENO: *** Either correct the installation, or run configure" >&5
++echo "$as_me: *** Either correct the installation, or run configure" >&6;}
++      { echo "$as_me:$LINENO: *** without explicitly specifying --with-${SPANDSP_OPTION}" >&5
++echo "$as_me: *** without explicitly specifying --with-${SPANDSP_OPTION}" >&6;}
++      exit 1
++   fi
++fi
++
++
++
+ if test "${USE_SPEEX}" != "no"; then
+    pbxlibdir=""
+    if test "x${SPEEX_DIR}" != "x"; then
+@@ -33861,6 +34293,10 @@ RADIUS_LIB!$RADIUS_LIB$ac_delim
+ RADIUS_INCLUDE!$RADIUS_INCLUDE$ac_delim
+ RADIUS_DIR!$RADIUS_DIR$ac_delim
+ PBX_RADIUS!$PBX_RADIUS$ac_delim
++SPANDSP_LIB!$SPANDSP_LIB$ac_delim
++SPANDSP_INCLUDE!$SPANDSP_INCLUDE$ac_delim
++SPANDSP_DIR!$SPANDSP_DIR$ac_delim
++PBX_SPANDSP!$PBX_SPANDSP$ac_delim
+ SPEEX_LIB!$SPEEX_LIB$ac_delim
+ SPEEX_INCLUDE!$SPEEX_INCLUDE$ac_delim
+ SPEEX_DIR!$SPEEX_DIR$ac_delim
+diff --git a/configure.ac b/configure.ac
+index 4354c02..52d7033 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -196,6 +196,7 @@ AST_EXT_LIB_SETUP([PWLIB], [PWlib], [pwlib])
+ AST_EXT_LIB_SETUP([OPENH323], [OpenH323], [h323])
+ AST_EXT_LIB_SETUP([QT], [Qt], [qt])
+ AST_EXT_LIB_SETUP([RADIUS], [Radius Client], [radius])
++AST_EXT_LIB_SETUP([SPANDSP], [spandsp Library], [spandsp])
+ AST_EXT_LIB_SETUP([SPEEX], [Speex], [speex])
+ AST_EXT_LIB_SETUP([SQLITE], [SQLite], [sqlite])
+ AST_EXT_LIB_SETUP([SUPPSERV], [mISDN Supplemental Services], [suppserv])
+@@ -960,6 +961,8 @@ AC_LANG_POP
+ 
+ AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
+ 
++AST_EXT_LIB_CHECK([SPANDSP], [spandsp], [fax_init], [spandsp.h], [-ltiff])
++
+ AST_EXT_LIB_CHECK([SPEEX], [speex], [speex_encode], [speex/speex.h], [-lm])
+ 
+ AST_EXT_LIB_CHECK([SQLITE], [sqlite], [sqlite_exec], [sqlite.h])
+diff --git a/include/asterisk/autoconfig.h.in b/include/asterisk/autoconfig.h.in
+index 92ac3f7..5ab35d9 100644
+--- a/include/asterisk/autoconfig.h.in
++++ b/include/asterisk/autoconfig.h.in
+@@ -320,6 +320,9 @@
+ /* Define to 1 if you have the `socket' function. */
+ #undef HAVE_SOCKET
+ 
++/* Define to indicate the ${SPANDSP_DESCRIP} library */
++#undef HAVE_SPANDSP
++
+ /* Define to indicate the ${SPEEX_DESCRIP} library */
+ #undef HAVE_SPEEX
+ 
+diff --git a/makeopts.in b/makeopts.in
+index 0000f20..5ee3058 100644
+--- a/makeopts.in
++++ b/makeopts.in
+@@ -140,6 +140,9 @@ QT_LIB=@QT_LIB@
+ RADIUS_INCLUDE=@RADIUS_INCLUDE@
+ RADIUS_LIB=@RADIUS_LIB@
+ 
++SPANDSP_INCLUDE=@SPANDSP_INCLUDE@
++SPANDSP_LIB=@SPANDSP_LIB@
++
+ SPEEX_INCLUDE=@SPEEX_INCLUDE@
+ SPEEX_LIB=@SPEEX_LIB@
+ 
+-- 
+1.5.3.4
+

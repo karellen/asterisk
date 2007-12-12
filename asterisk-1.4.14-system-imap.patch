@@ -1,0 +1,254 @@
+From e11c3a30c2242380d5f1d4210e4541071ffcd895 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
+Date: Thu, 8 Nov 2007 15:47:38 -0600
+Subject: [PATCH] Patch so that system IMAP library can be used.
+
+---
+ apps/app_voicemail.c |   10 ++++++++++
+ configure            |   37 ++++++++++++++++++++++++++++---------
+ configure.ac         |   36 +++++++++++++++++++++++++++---------
+ doc/imapstorage.txt  |   34 ++++++++++++++++------------------
+ 4 files changed, 81 insertions(+), 36 deletions(-)
+
+diff --git a/apps/app_voicemail.c b/apps/app_voicemail.c
+index e333fb2..e94d83c 100644
+--- a/apps/app_voicemail.c
++++ b/apps/app_voicemail.c
+@@ -70,10 +70,16 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
+ #include <ctype.h>
+ #include <signal.h>
+ #include <pwd.h>
++#ifdef USE_SYSTEM_IMAP
++#include <imap/c-client.h>
++#include <imap/imap4r1.h>
++#include <imap/linkage.h>
++#else
+ #include "c-client.h"
+ #include "imap4r1.h"
+ #include "linkage.h"
+ #endif
++#endif
+ #include "asterisk/lock.h"
+ #include "asterisk/file.h"
+ #include "asterisk/logger.h"
+@@ -4675,7 +4681,11 @@ static int init_mailstream(struct vm_state *vms, int box)
+ 
+ 	if (delimiter == '\0') {		/* did not probe the server yet */
+ 		char *cp;
++#if USE_SYSTEM_IMAP
++#include <imap/linkage.c>
++#else
+ #include "linkage.c"
++#endif
+ 		/* Connect to INBOX first to get folders delimiter */
+ 		imap_mailbox_name(tmp, sizeof(tmp), vms, 0, 1);
+ 		stream = mail_open (stream, tmp, debug ? OP_DEBUG : NIL);
+diff --git a/configure b/configure
+index a6c8ccb..b99da0f 100755
+--- a/configure
++++ b/configure
+@@ -18447,7 +18447,10 @@ fi
+ fi
+ 
+ if test "${USE_IMAP_TK}" != "no"; then
+-   if test "${IMAP_TK_DIR}" = ""; then
++   if test "${IMAP_TK_DIR}" = "system" ; then
++      { echo "$as_me:$LINENO: Checking for system c-client library..." >&5
++echo "$as_me: Checking for system c-client library..." >&6;}
++   elif test "${IMAP_TK_DIR}" = ""; then
+       IMAP_TK_DIR=`pwd`"/../imap-2004g"
+       if test  -n "${IMAP_TK_MANDATORY}"; then
+ 	 { echo "$as_me:$LINENO: The --with-imap option does not search your system for installed" >&5
+@@ -18460,22 +18463,34 @@ echo "$as_me: the configure script will assume you have placed built the c-clien
+ echo "$as_me: files at ${IMAP_TK_DIR}, as outlined in the doc/imapstorage.txt file." >&6;}
+       fi
+    fi
+-   { echo "$as_me:$LINENO: checking for UW IMAP Toolkit c-client library" >&5
++   if test "${IMAP_TK_DIR}" != "system" ; then
++      { echo "$as_me:$LINENO: checking for UW IMAP Toolkit c-client library" >&5
+ echo $ECHO_N "checking for UW IMAP Toolkit c-client library... $ECHO_C" >&6; }
++   fi
+    saved_cppflags="${CPPFLAGS}"
+    saved_libs="${LIBS}"
+-   if test -f ${IMAP_TK_DIR}/c-client/LDFLAGS ; then
++   if test "${IMAP_TK_DIR}" = "system" ; then
++      imap_ldflags=""
++      imap_libs="-lc-client"
++      imap_include="-DUSE_SYSTEM_IMAP"
++   elif test -f ${IMAP_TK_DIR}/c-client/LDFLAGS ; then
+       imap_ldflags=`cat ${IMAP_TK_DIR}/c-client/LDFLAGS`
++      imap_libs="${IMAP_TK_DIR}/c-client/c-client.a"
++      imap_include="-I${IMAP_TK_DIR}/c-client"
+    fi
+-   CPPFLAGS="${CPPFLAGS} -I${IMAP_TK_DIR}/c-client"
+-   LIBS="${LIBS} ${IMAP_TK_DIR}/c-client/c-client.a "`echo ${imap_ldflags}`
++   CPPFLAGS="${CPPFLAGS} ${imap_include}"
++   LIBS="${LIBS} ${imap_libs} "`echo ${imap_ldflags}`
+    cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+ _ACEOF
+ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+-#include "c-client.h"
++#ifdef USE_SYSTEM_IMAP
++		#include <imap/c-client.h>
++		#else
++		#include "c-client.h"
++		#endif
+ 		void mm_searched (MAILSTREAM *stream,unsigned long number)
+ 		{
+ 		}
+@@ -18568,7 +18583,11 @@ _ACEOF
+ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+-#include "c-client.h"
++#ifdef USE_SYSTEM_IMAP
++	 #include <imap/c-client.h>
++	 #else
++	 #include "c-client.h"
++	 #endif
+          void mm_searched (MAILSTREAM *stream,unsigned long number)
+          {
+          }
+@@ -18660,8 +18679,8 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+    if test "${ac_cv_imap_tk}" = "yes"; then
+       { echo "$as_me:$LINENO: result: yes" >&5
+ echo "${ECHO_T}yes" >&6; }
+-      IMAP_TK_LIB="${IMAP_TK_DIR}/c-client/c-client.a "`echo ${imap_ldflags}`
+-      IMAP_TK_INCLUDE="-I${IMAP_TK_DIR}/c-client"
++      IMAP_TK_LIB="${imap_libs}"`echo ${imap_ldflags}`
++      IMAP_TK_INCLUDE="${imap_include}"
+       PBX_IMAP_TK=1
+ 
+ cat >>confdefs.h <<\_ACEOF
+diff --git a/configure.ac b/configure.ac
+index 4eeab85..4354c02 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -469,7 +469,9 @@ if test "${PBX_IKSEMEL}" = 1; then
+ fi
+ 
+ if test "${USE_IMAP_TK}" != "no"; then
+-   if test "${IMAP_TK_DIR}" = ""; then
++   if test "${IMAP_TK_DIR}" = "system" ; then
++      AC_MSG_NOTICE([Checking for system c-client library...])
++   elif test "${IMAP_TK_DIR}" = ""; then
+       IMAP_TK_DIR=`pwd`"/../imap-2004g"
+       if test  -n "${IMAP_TK_MANDATORY}"; then
+ 	 AC_MSG_NOTICE([The --with-imap option does not search your system for installed])
+@@ -478,17 +480,29 @@ if test "${USE_IMAP_TK}" != "no"; then
+ 	 AC_MSG_NOTICE([files at ${IMAP_TK_DIR}, as outlined in the doc/imapstorage.txt file.])
+       fi
+    fi
+-   AC_MSG_CHECKING(for UW IMAP Toolkit c-client library)
++   if test "${IMAP_TK_DIR}" != "system" ; then
++      AC_MSG_CHECKING(for UW IMAP Toolkit c-client library)
++   fi
+    saved_cppflags="${CPPFLAGS}"
+    saved_libs="${LIBS}"
+-   if test -f ${IMAP_TK_DIR}/c-client/LDFLAGS ; then
++   if test "${IMAP_TK_DIR}" = "system" ; then
++      imap_ldflags=""
++      imap_libs="-lc-client"
++      imap_include="-DUSE_SYSTEM_IMAP"
++   elif test -f ${IMAP_TK_DIR}/c-client/LDFLAGS ; then
+       imap_ldflags=`cat ${IMAP_TK_DIR}/c-client/LDFLAGS`
++      imap_libs="${IMAP_TK_DIR}/c-client/c-client.a"
++      imap_include="-I${IMAP_TK_DIR}/c-client"
+    fi
+-   CPPFLAGS="${CPPFLAGS} -I${IMAP_TK_DIR}/c-client"
+-   LIBS="${LIBS} ${IMAP_TK_DIR}/c-client/c-client.a "`echo ${imap_ldflags}`
++   CPPFLAGS="${CPPFLAGS} ${imap_include}"
++   LIBS="${LIBS} ${imap_libs} "`echo ${imap_ldflags}`
+    AC_LINK_IFELSE(
+ 	AC_LANG_PROGRAM(
+-		[#include "c-client.h"
++		[#ifdef USE_SYSTEM_IMAP
++		#include <imap/c-client.h>
++		#else
++		#include "c-client.h"
++		#endif
+ 		void mm_searched (MAILSTREAM *stream,unsigned long number)
+ 		{
+ 		}
+@@ -544,7 +558,11 @@ if test "${USE_IMAP_TK}" != "no"; then
+    if test "${ac_cv_imap_tk}" = "yes"; then
+    AC_LINK_IFELSE(
+       AC_LANG_PROGRAM(
+-         [#include "c-client.h"
++         [#ifdef USE_SYSTEM_IMAP
++	 #include <imap/c-client.h>
++	 #else
++	 #include "c-client.h"
++	 #endif
+          void mm_searched (MAILSTREAM *stream,unsigned long number)
+          {
+          }
+@@ -602,8 +620,8 @@ if test "${USE_IMAP_TK}" != "no"; then
+    LIBS="${saved_libs}"
+    if test "${ac_cv_imap_tk}" = "yes"; then
+       AC_MSG_RESULT(yes) 
+-      IMAP_TK_LIB="${IMAP_TK_DIR}/c-client/c-client.a "`echo ${imap_ldflags}`
+-      IMAP_TK_INCLUDE="-I${IMAP_TK_DIR}/c-client"
++      IMAP_TK_LIB="${imap_libs}"`echo ${imap_ldflags}`
++      IMAP_TK_INCLUDE="${imap_include}"
+       PBX_IMAP_TK=1
+       AC_DEFINE([HAVE_IMAP_TK], 1, [Define if your system has the UW IMAP Toolkit c-client library.])
+       if test "${ac_cv_imap_tk2006}" = "yes"; then
+diff --git a/doc/imapstorage.txt b/doc/imapstorage.txt
+index 1e5484b..d292b5d 100644
+--- a/doc/imapstorage.txt
++++ b/doc/imapstorage.txt
+@@ -38,10 +38,11 @@ Installation Notes
+ --------------------------------------
+ University of Washington IMAP C-Client
+ --------------------------------------
+-You will need a source distribution of University of Washington's IMAP
+-c-client (http://www.washington.edu/imap/).  Asterisk supports both the
+-2004 and 2006 versions of c-client, however mail_expunge_full is enabled
+-in the 2006 version.
++If you do not have the University of Washington's IMAP c-client
++installed on your system, you will need to download the c-client
++source distribution (http://www.washington.edu/imap/) and compile it.
++Asterisk supports both the 2004 and 2006 versions of c-client, however
++mail_expunge_full is enabled in the 2006 version.
+ 
+ Note that Asterisk only uses the 'client' portion of the UW IMAP toolkit,
+ but building it also builds an IMAP server and various other utilities.
+@@ -68,20 +69,17 @@ need to run 'make install'.
+ ------------------
+ Compiling Asterisk 
+ ------------------
+-
+-Configure with ./configure --with-imap=/usr/src/imap
+-or where ever you built thfe UWashington IMAP Toolkit. When you run
+-'make menuselect', choose 'Voicemail Build Options' and the
+-IMAP_STORAGE option should be available for selection.
+-
+-Note that the --with-imap option will NOT search your system for an
+-installed copy of the IMAP Toolkit c-client library; the Asterisk
+-Makefiles and configure script are designed to build against an
+-unpacked and compiled source tree of the IMAP Toolkit, not a binary
+-distribution.
+-
+-After selecting it, use the 'x' key to exit menuselect and save
+-your changes, and the build/install Asterisk normally.
++To use the system c-client library, configure Asterisk with
++./configure --with-imap=system. If you downloaded the c-client source
++and compiled it according to the above instructions, configure
++Asterisk with with ./configure --with-imap=/usr/src/imap or where ever
++you built the UWashington IMAP Toolkit. When you run 'make
++menuselect', choose 'Voicemail Build Options' and the IMAP_STORAGE
++option should be available for selection.
++
++After selecting the IMAP_STORAGE option, use the 'x' key to exit
++menuselect and save your changes, and the build/install Asterisk
++normally.
+ 
+ ---------------------
+ Modify voicemail.conf
+-- 
+1.5.3.4
+
