@@ -1,7 +1,9 @@
+%define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
+
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.4.15
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -50,10 +52,12 @@ BuildRequires: ncurses-devel
 BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
 
+%if %{with_apidoc}
 # for building docs
 BuildRequires: doxygen
 BuildRequires: graphviz
 BuildRequires: graphviz-gd
+%endif
 
 # for codec_speex and app_conference
 BuildRequires: speex-devel >= 1.2
@@ -87,6 +91,7 @@ BuildRequires: alsa-lib-devel
 %description alsa
 Modules for Asterisk that use Alsa sound drivers.
 
+%if %{with_apidoc}
 %package apidoc
 Summary: API documentation for Asterisk
 Group: Applications/Internet
@@ -94,6 +99,7 @@ Requires: asterisk = %{version}-%{release}
 
 %description apidoc
 API documentation for Asterisk.
+%endif
 
 %package conference
 Summary: Audio/video conferencing application for Asterisk
@@ -363,10 +369,12 @@ mv apps/app_directory.so apps/app_directory_odbc.so
 touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
 
+%if %{with_apidoc}
 ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
+%endif
 
 %install
 rm -rf %{buildroot}
@@ -402,7 +410,9 @@ rm -f %{buildroot}%{_datadir}/asterisk/agi-bin/*
 # Don't package the sample voicemail user
 rm -rf %{buildroot}%{_localstatedir}/spool/asterisk/voicemail/default
 
+%if %{with_apidoc}
 find doc/api/html -name \*.map -size 0 -delete
+%endif
 
 %clean
 rm -rf %{buildroot}
@@ -709,9 +719,11 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
 %{_libdir}/asterisk/modules/chan_alsa.so
 
+%if %{with_apidoc}
 %files apidoc
 %defattr(-,root,root,-)
 %doc doc/api/html/*
+%endif
 
 %files conference
 %defattr(-,root,root,-)
@@ -859,6 +871,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Dec 12 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.15-4
+- Don't build apidocs by default since there's a problem building on x86_64.
+
 * Tue Dec 11 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.15-3
 - Really get rid of zero length map files.
 
