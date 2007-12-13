@@ -3,10 +3,13 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.4.15
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
+
+# will file a bug once the asterisk bugzilla component shows up
+ExcludeArch: ppc64
 
 # The asterisk tarball contains some items that we don't want in there,
 # so start with the original tarball from here:
@@ -871,6 +874,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Dec 12 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.15-5
+- Exclude PPC64
+
 * Wed Dec 12 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.15-4
 - Don't build apidocs by default since there's a problem building on x86_64.
 
