@@ -2,8 +2,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.4.16
-Release: 2%{?dist}
+Version: 1.4.16.1
+Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -20,13 +20,13 @@ ExcludeArch: ppc64
 #
 # MD5 Sums
 # ========
-# 2bc92ed77ba1dede35da744cca046ac0  asterisk-1.4.16.tar.gz
-# 76a17563c4f6e3cc7b4457377db0b85b  asterisk-1.4.16-stripped.tar.gz
+# 1b58b2a48bc65f651b66a2d1dbfc3cc3  asterisk-1.4.16.1.tar.gz
+# 3162a3a2d90d1883e16bb5f0b552a9fd  asterisk-1.4.16.1-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 996ef122e2cd11a348c6679133019b664a8535ee  asterisk-1.4.16.tar.gz
-# e4ec1416016dc757ad8a6aad3eeefc49b4d0e76c  asterisk-1.4.16-stripped.tar.gz
+# 0ad6a4c6ec49ac7b8f204798fb7bde7cb624cdc6  asterisk-1.4.16.1.tar.gz
+# 76a2d5bf407a0d48eb9b5a3543a0624b069eb3b1  asterisk-1.4.16.1-stripped.tar.gz
 
 Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -44,7 +44,6 @@ Patch7:  asterisk-1.4.16-optimization.patch
 Patch8:  asterisk-1.4.16-libcap.patch
 Patch9:  asterisk-1.4.16-chanmobile.patch
 Patch10: asterisk-1.4.16-autoconf.patch
-Patch11: asterisk-1.4.16-1.4.16.1-update.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -322,7 +321,6 @@ Modules for Asterisk that use Zaptel.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -878,6 +876,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Dec 19 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16.1-1
+- Update to the real 1.4.16.1.
+
 * Wed Dec 19 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16-2
 - Add patch to bring source up to version 1.4.16.1 which will be
   released shortly to fix some crasher bugs introduced by 1.4.16.
