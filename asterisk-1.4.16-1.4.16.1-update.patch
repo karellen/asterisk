@@ -1,0 +1,69 @@
+diff --git a/.version b/.version
+index 6ee81ab..ee8d608 100644
+--- a/.version
++++ b/.version
+@@ -1 +1 @@
+-1.4.16
++1.4.16.1
+diff --git a/ChangeLog b/ChangeLog
+index 7c8e2cd..d9c8a1b 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,22 @@
++2007-12-19  Russell Bryant <russell@digium.com>
++
++	* Asterisk 1.4.16.1 released.
++
++2007-12-19 17:29 +0000 [r93955]  Joshua Colp <jcolp@digium.com>
++
++	* channels/chan_iax2.c: Make the 1.4 builders happy, ensure var is
++	  NULL.
++
++2007-12-19 17:04 +0000 [r93949]  Tilghman Lesher <tlesher@digium.com>
++
++	* channels/chan_iax2.c: Avoid segfault in chan_iax when peer isn't
++	  defined (Closes issue #11602)
++
++2007-12-18 22:42 +0000 [r93764]  Jason Parker <jparker@digium.com>
++
++	* channels/chan_skinny.c: FreeBSD also does not have byte swap
++	  functions. Issue 11586, patch by sobomax.
++
+ 2007-12-18  Russell Bryant <russell@digium.com>
+ 
+ 	* Asterisk 1.4.16 released.
+diff --git a/channels/chan_iax2.c b/channels/chan_iax2.c
+index 75ac2df..1e09d55 100644
+--- a/channels/chan_iax2.c
++++ b/channels/chan_iax2.c
+@@ -2674,7 +2674,7 @@ static int iax2_fixup(struct ast_channel *oldchannel, struct ast_channel *newcha
+  */
+ static struct iax2_peer *realtime_peer(const char *peername, struct sockaddr_in *sin)
+ {
+-	struct ast_variable *var;
++	struct ast_variable *var = NULL;
+ 	struct ast_variable *tmp;
+ 	struct iax2_peer *peer=NULL;
+ 	time_t regseconds = 0, nowtime;
+@@ -2696,7 +2696,7 @@ static struct iax2_peer *realtime_peer(const char *peername, struct sockaddr_in
+ 			}
+ 		}
+ 	}
+-	if (!var) { /* Last ditch effort */
++	if (!var && peername) { /* Last ditch effort */
+ 		var = ast_load_realtime("iaxpeers", "name", peername, NULL);
+ 		/*!\note
+ 		 * If this one loaded something, then we need to ensure that the host
+diff --git a/channels/chan_skinny.c b/channels/chan_skinny.c
+index 60566c4..9508906 100644
+--- a/channels/chan_skinny.c
++++ b/channels/chan_skinny.c
+@@ -107,7 +107,7 @@ static char version_id[16] = "P002F202";
+ #define htolel(x) (x)
+ #define htoles(x) (x)
+ #else
+-#if defined(SOLARIS) || defined(__Darwin__) || defined(__NetBSD__) || defined(__OpenBSD__)
++#if defined(SOLARIS) || defined(__Darwin__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)
+ #define __bswap_16(x) \
+ 	((((x) & 0xff00) >> 8) | \
+ 	 (((x) & 0x00ff) << 8))

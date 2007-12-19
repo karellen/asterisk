@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.4.16
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -44,6 +44,7 @@ Patch7:  asterisk-1.4.16-optimization.patch
 Patch8:  asterisk-1.4.16-libcap.patch
 Patch9:  asterisk-1.4.16-chanmobile.patch
 Patch10: asterisk-1.4.16-autoconf.patch
+Patch11: asterisk-1.4.16-1.4.16.1-update.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -321,6 +322,7 @@ Modules for Asterisk that use Zaptel.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -876,6 +878,10 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Dec 19 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16-2
+- Add patch to bring source up to version 1.4.16.1 which will be
+  released shortly to fix some crasher bugs introduced by 1.4.16.
+
 * Tue Dec 18 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16-1
 - Update to 1.4.16 to fix security bug.
 
