@@ -1,4 +1,4 @@
-From 98bdecc2b792305d9d3fba2cfc42a02470a0dc36 Mon Sep 17 00:00:00 2001
+From 90c23e041c9c4f215f62f617873766d13c5a9063 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 22:25:43 -0600
 Subject: [PATCH] Add chan_mobile (backported from asterisk-addons trunk).
@@ -27,10 +27,10 @@ index fb10545..4f12adb 100644
  FREETDS=@PBX_FREETDS@
  GSM=@PBX_GSM@
 diff --git a/channels/Makefile b/channels/Makefile
-index 6f9a7d5..5feb521 100644
+index f5e96c7..9844128 100644
 --- a/channels/Makefile
 +++ b/channels/Makefile
-@@ -118,4 +118,6 @@ misdn/isdn_lib.o: ASTCFLAGS+=-Wno-strict-aliasing
+@@ -124,4 +124,6 @@ misdn/isdn_lib.o: ASTCFLAGS+=-Wno-strict-aliasing
  
  $(if $(filter chan_misdn,$(EMBEDDED_MODS)),modules.link,chan_misdn.so): chan_misdn.o misdn_config.o misdn/isdn_lib.o misdn/isdn_msg_parser.o
  
@@ -2236,10 +2236,10 @@ index 0000000..1ea4182
 +type=headset
 +adapter=dlink
 diff --git a/configure.ac b/configure.ac
-index 546febb..6c8cabe 100644
+index 17ecb3d..cb05662 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -171,6 +171,7 @@ AC_SUBST(AST_DEVMODE)
+@@ -168,6 +168,7 @@ AC_SUBST(AST_DEVMODE)
  # by the --with option name, to make things easier for the users :-)
  
  AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
@@ -2247,7 +2247,7 @@ index 546febb..6c8cabe 100644
  AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
  AST_EXT_LIB_SETUP([CAP], [POSIX 1.e capabilities], [cap])
  AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
-@@ -396,6 +397,8 @@ AC_CHECK_SIZEOF(int)
+@@ -394,6 +395,8 @@ AC_CHECK_SIZEOF(int)
  
  AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -ldl])
  
@@ -2503,10 +2503,10 @@ index 0000000..5c8cafb
 +
 +email me at   david.bowerman at gmail.com   or dseeb_ on #asterisk & #asterisk-dev irc.
 diff --git a/makeopts.in b/makeopts.in
-index bc7570f..cc93d0e 100644
+index a81503c..ac67901 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -66,6 +66,9 @@ AST_DECLARATION_AFTER_STATEMENT=@AST_DECLARATION_AFTER_STATEMENT@
+@@ -67,6 +67,9 @@ AST_DECLARATION_AFTER_STATEMENT=@AST_DECLARATION_AFTER_STATEMENT@
  ASOUND_INCLUDE=@ALSA_INCLUDE@
  ASOUND_LIB=@ALSA_LIB@
  
@@ -2517,5 +2517,5 @@ index bc7570f..cc93d0e 100644
  CURL_LIB=@CURL_LIB@
  
 -- 
-1.5.3.4
+1.5.3.6
 

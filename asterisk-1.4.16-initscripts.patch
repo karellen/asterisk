@@ -1,4 +1,4 @@
-From e574042d5337543c47d6cffe5daa7751bca9be63 Mon Sep 17 00:00:00 2001
+From cc796206f187ff1d3f4bebde7381fcf5505db759 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 21:47:59 -0600
 Subject: [PATCH] Modify init scripts for better Fedora compatibility.
@@ -127,5 +127,5 @@ index 0000000..05f5adb
 +AST_USER="asterisk"
 +AST_GROUP="asterisk"
 -- 
-1.5.3.4
+1.5.3.6
 

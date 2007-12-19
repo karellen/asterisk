@@ -1,4 +1,4 @@
-From e11c3a30c2242380d5f1d4210e4541071ffcd895 Mon Sep 17 00:00:00 2001
+From 964b72f05f056a6a494e8650c37f7172320fb9cd Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 15:47:38 -0600
 Subject: [PATCH] Patch so that system IMAP library can be used.
@@ -11,7 +11,7 @@ Subject: [PATCH] Patch so that system IMAP library can be used.
  4 files changed, 81 insertions(+), 36 deletions(-)
 
 diff --git a/apps/app_voicemail.c b/apps/app_voicemail.c
-index e333fb2..e94d83c 100644
+index fec54fc..d455a0f 100644
 --- a/apps/app_voicemail.c
 +++ b/apps/app_voicemail.c
 @@ -70,10 +70,16 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
@@ -31,7 +31,7 @@ index e333fb2..e94d83c 100644
  #include "asterisk/lock.h"
  #include "asterisk/file.h"
  #include "asterisk/logger.h"
-@@ -4675,7 +4681,11 @@ static int init_mailstream(struct vm_state *vms, int box)
+@@ -4708,7 +4714,11 @@ static int init_mailstream(struct vm_state *vms, int box)
  
  	if (delimiter == '\0') {		/* did not probe the server yet */
  		char *cp;
@@ -44,10 +44,10 @@ index e333fb2..e94d83c 100644
  		imap_mailbox_name(tmp, sizeof(tmp), vms, 0, 1);
  		stream = mail_open (stream, tmp, debug ? OP_DEBUG : NIL);
 diff --git a/configure b/configure
-index a6c8ccb..b99da0f 100755
+index f296f05..fb3bdbf 100755
 --- a/configure
 +++ b/configure
-@@ -18447,7 +18447,10 @@ fi
+@@ -18652,7 +18652,10 @@ fi
  fi
  
  if test "${USE_IMAP_TK}" != "no"; then
@@ -59,7 +59,7 @@ index a6c8ccb..b99da0f 100755
        IMAP_TK_DIR=`pwd`"/../imap-2004g"
        if test  -n "${IMAP_TK_MANDATORY}"; then
  	 { echo "$as_me:$LINENO: The --with-imap option does not search your system for installed" >&5
-@@ -18460,22 +18463,34 @@ echo "$as_me: the configure script will assume you have placed built the c-clien
+@@ -18665,22 +18668,34 @@ echo "$as_me: the configure script will assume you have placed built the c-clien
  echo "$as_me: files at ${IMAP_TK_DIR}, as outlined in the doc/imapstorage.txt file." >&6;}
        fi
     fi
@@ -99,7 +99,7 @@ index a6c8ccb..b99da0f 100755
  		void mm_searched (MAILSTREAM *stream,unsigned long number)
  		{
  		}
-@@ -18568,7 +18583,11 @@ _ACEOF
+@@ -18773,7 +18788,11 @@ _ACEOF
  cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
@@ -112,7 +112,7 @@ index a6c8ccb..b99da0f 100755
           void mm_searched (MAILSTREAM *stream,unsigned long number)
           {
           }
-@@ -18660,8 +18679,8 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+@@ -18865,8 +18884,8 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
     if test "${ac_cv_imap_tk}" = "yes"; then
        { echo "$as_me:$LINENO: result: yes" >&5
  echo "${ECHO_T}yes" >&6; }
@@ -124,10 +124,10 @@ index a6c8ccb..b99da0f 100755
  
  cat >>confdefs.h <<\_ACEOF
 diff --git a/configure.ac b/configure.ac
-index 4eeab85..4354c02 100644
+index 8f1d95c..4b074ba 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -469,7 +469,9 @@ if test "${PBX_IKSEMEL}" = 1; then
+@@ -467,7 +467,9 @@ if test "${PBX_IKSEMEL}" = 1; then
  fi
  
  if test "${USE_IMAP_TK}" != "no"; then
@@ -138,7 +138,7 @@ index 4eeab85..4354c02 100644
        IMAP_TK_DIR=`pwd`"/../imap-2004g"
        if test  -n "${IMAP_TK_MANDATORY}"; then
  	 AC_MSG_NOTICE([The --with-imap option does not search your system for installed])
-@@ -478,17 +480,29 @@ if test "${USE_IMAP_TK}" != "no"; then
+@@ -476,17 +478,29 @@ if test "${USE_IMAP_TK}" != "no"; then
  	 AC_MSG_NOTICE([files at ${IMAP_TK_DIR}, as outlined in the doc/imapstorage.txt file.])
        fi
     fi
@@ -173,7 +173,7 @@ index 4eeab85..4354c02 100644
  		void mm_searched (MAILSTREAM *stream,unsigned long number)
  		{
  		}
-@@ -544,7 +558,11 @@ if test "${USE_IMAP_TK}" != "no"; then
+@@ -542,7 +556,11 @@ if test "${USE_IMAP_TK}" != "no"; then
     if test "${ac_cv_imap_tk}" = "yes"; then
     AC_LINK_IFELSE(
        AC_LANG_PROGRAM(
@@ -186,7 +186,7 @@ index 4eeab85..4354c02 100644
           void mm_searched (MAILSTREAM *stream,unsigned long number)
           {
           }
-@@ -602,8 +620,8 @@ if test "${USE_IMAP_TK}" != "no"; then
+@@ -600,8 +618,8 @@ if test "${USE_IMAP_TK}" != "no"; then
     LIBS="${saved_libs}"
     if test "${ac_cv_imap_tk}" = "yes"; then
        AC_MSG_RESULT(yes) 
@@ -250,5 +250,5 @@ index 1e5484b..d292b5d 100644
  ---------------------
  Modify voicemail.conf
 -- 
-1.5.3.4
+1.5.3.6
 

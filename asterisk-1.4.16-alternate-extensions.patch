@@ -1,4 +1,4 @@
-From 217e55cc56d6e880a790704abf8756c190fe78a5 Mon Sep 17 00:00:00 2001
+From bf6bbce50cf7486e1627605c7808c5a74acb3c45 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 16:32:56 -0600
 Subject: [PATCH] Allow alternate extensions to be specified in users.conf
@@ -8,7 +8,7 @@ Subject: [PATCH] Allow alternate extensions to be specified in users.conf
  1 files changed, 14 insertions(+), 0 deletions(-)
 
 diff --git a/pbx/pbx_config.c b/pbx/pbx_config.c
-index 4a106b9..2c3047a 100644
+index 6d0ec2e..969c77a 100644
 --- a/pbx/pbx_config.c
 +++ b/pbx/pbx_config.c
 @@ -2357,11 +2357,14 @@ static void pbx_load_users(void)
@@ -45,5 +45,5 @@ index 4a106b9..2c3047a 100644
  	}
  	ast_config_destroy(cfg);
 -- 
-1.5.3.4
+1.5.3.6
 

@@ -2,8 +2,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.4.15
-Release: 7%{?dist}
+Version: 1.4.16
+Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -20,13 +20,13 @@ ExcludeArch: ppc64
 #
 # MD5 Sums
 # ========
-# c2f87a1343a7bf7eb4925c06ef962976  asterisk-1.4.15.tar.gz
-# a548cfe60e86013eac0851ef585d01ed  asterisk-1.4.15-stripped.tar.gz
+# 2bc92ed77ba1dede35da744cca046ac0  asterisk-1.4.16.tar.gz
+# 76a17563c4f6e3cc7b4457377db0b85b  asterisk-1.4.16-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# c9d934a5a6ed374aebdc9152b65af1b76e603e39  asterisk-1.4.15.tar.gz
-# a55daa6b9a991bcaa08417e0addf27274471dc3c  asterisk-1.4.15-stripped.tar.gz
+# 996ef122e2cd11a348c6679133019b664a8535ee  asterisk-1.4.16.tar.gz
+# e4ec1416016dc757ad8a6aad3eeefc49b4d0e76c  asterisk-1.4.16-stripped.tar.gz
 
 Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -34,16 +34,16 @@ Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source4: asterisk-strip.sh
 
-Patch1:  asterisk-1.4.14-initscripts.patch
-Patch2:  asterisk-1.4.14-system-imap.patch
-Patch3:  asterisk-1.4.14-alternate-voicemail.patch
-Patch4:  asterisk-1.4.14-spandspfax.patch
-Patch5:  asterisk-1.4.14-appconference.patch
-Patch6:  asterisk-1.4.14-alternate-extensions.patch
-Patch7:  asterisk-1.4.14-optimization.patch
-Patch8:  asterisk-1.4.14-libcap.patch
-Patch9:  asterisk-1.4.14-chanmobile.patch
-Patch10: asterisk-1.4.14-autoconf.patch
+Patch1:  asterisk-1.4.16-initscripts.patch
+Patch2:  asterisk-1.4.16-system-imap.patch
+Patch3:  asterisk-1.4.16-alternate-voicemail.patch
+Patch4:  asterisk-1.4.16-spandspfax.patch
+Patch5:  asterisk-1.4.16-appconference.patch
+Patch6:  asterisk-1.4.16-alternate-extensions.patch
+Patch7:  asterisk-1.4.16-optimization.patch
+Patch8:  asterisk-1.4.16-libcap.patch
+Patch9:  asterisk-1.4.16-chanmobile.patch
+Patch10: asterisk-1.4.16-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -876,6 +876,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Tue Dec 18 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16-1
+- Update to 1.4.16 to fix security bug.
+
 * Sat Dec 15 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.15-7
 - Really, really fix the build problems on devel.
 

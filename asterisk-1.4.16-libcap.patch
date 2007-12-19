@@ -1,4 +1,4 @@
-From 820dac0b531f042bd632b98a6514dd931ea05e80 Mon Sep 17 00:00:00 2001
+From a7efa0ed8b28de55ef0fa2b39fefc3753ce1db8a Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 16:42:56 -0600
 Subject: [PATCH] Backport patch that lets Asterisk set the TOS byte even when running as non-root.
@@ -26,10 +26,10 @@ index faa1855..7825d58 100644
 +      --with-cap to specify the path.
 +
 diff --git a/configure.ac b/configure.ac
-index 52d7033..546febb 100644
+index 1488a1e..17ecb3d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -172,6 +172,7 @@ AC_SUBST(AST_DEVMODE)
+@@ -169,6 +169,7 @@ AC_SUBST(AST_DEVMODE)
  
  AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
  AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
@@ -37,7 +37,7 @@ index 52d7033..546febb 100644
  AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
  AST_EXT_LIB_SETUP([GNUTLS], [GNU TLS support (used for iksemel only)], [gnutls])
  AST_EXT_LIB_SETUP([GSM], [GSM], [gsm], [, or 'internal'])
-@@ -397,6 +398,10 @@ AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -l
+@@ -395,6 +396,10 @@ AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -l
  
  AST_EXT_LIB_CHECK([CURSES], [curses], [initscr], [curses.h])
  
@@ -67,7 +67,7 @@ index 0801679..3adf536 100644
  
  First and foremost remember this:
 diff --git a/main/Makefile b/main/Makefile
-index 10353da..9d71844 100644
+index 4f405b5..cee9e13 100644
 --- a/main/Makefile
 +++ b/main/Makefile
 @@ -55,6 +55,9 @@ ifneq ($(findstring $(OSARCH), linux-gnu uclinux linux-uclibc ),)
@@ -145,10 +145,10 @@ index 202a190..bd8cd9b 100644
  
  #endif /* __CYGWIN__ */
 diff --git a/makeopts.in b/makeopts.in
-index 5ee3058..bc7570f 100644
+index 8138dd8..a81503c 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -188,3 +188,6 @@ TERMCAP_DIR=@TERMCAP_DIR@
+@@ -189,3 +189,6 @@ TERMCAP_DIR=@TERMCAP_DIR@
  TINFO_INCLUDE=@TINFO_INCLUDE@
  TINFO_LIB=@TINFO_LIB@
  TINFO_DIR=@TINFO_DIR@
@@ -156,5 +156,5 @@ index 5ee3058..bc7570f 100644
 +CAP_LIB=@CAP_LIB@
 +CAP_INCLUDE=@CAP_INCLUDE@
 -- 
-1.5.3.4
+1.5.3.6
 
