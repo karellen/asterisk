@@ -1,4 +1,4 @@
-From 5fdceb7064e63067e16e8d27ae084ccb1f9d0f60 Mon Sep 17 00:00:00 2001
+From e1b0800664d4cb8c7d87e04f23bf3a5b98f6e1f0 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 22:23:17 -0600
 Subject: [PATCH] Add app_conference rev 911
@@ -10234,5 +10234,5 @@ index 0000000..f4cae3f
 +extern struct ast_frame *ast_packer_read(struct ast_packer *s);
 +#endif
 -- 
-1.5.3.6
+1.5.3.7
 

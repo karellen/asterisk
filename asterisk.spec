@@ -2,8 +2,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.4.16.1
-Release: 2%{?dist}
+Version: 1.4.16.2
+Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -20,13 +20,13 @@ ExcludeArch: ppc64
 #
 # MD5 Sums
 # ========
-# 1b58b2a48bc65f651b66a2d1dbfc3cc3  asterisk-1.4.16.1.tar.gz
-# 3162a3a2d90d1883e16bb5f0b552a9fd  asterisk-1.4.16.1-stripped.tar.gz
+# 1010a11dace37ae8e8b55864db73d0ef  asterisk-1.4.16.2.tar.gz
+# 7c728c41c74c263b35d160fbf660effa  asterisk-1.4.16.2-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 0ad6a4c6ec49ac7b8f204798fb7bde7cb624cdc6  asterisk-1.4.16.1.tar.gz
-# 76a2d5bf407a0d48eb9b5a3543a0624b069eb3b1  asterisk-1.4.16.1-stripped.tar.gz
+# 37b6099e2ec50dcb8158fbd15d15ad93071f1d6f  asterisk-1.4.16.2.tar.gz
+# b3640624d77beaa4cdc87d8f6baa8a04f2cd1bbe  asterisk-1.4.16.2-stripped.tar.gz
 
 Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -34,16 +34,16 @@ Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source4: asterisk-strip.sh
 
-Patch1:  asterisk-1.4.16-initscripts.patch
-Patch2:  asterisk-1.4.16-system-imap.patch
-Patch3:  asterisk-1.4.16-alternate-voicemail.patch
-Patch4:  asterisk-1.4.16-spandspfax.patch
-Patch5:  asterisk-1.4.16-appconference.patch
-Patch6:  asterisk-1.4.16-alternate-extensions.patch
-Patch7:  asterisk-1.4.16-optimization.patch
-Patch8:  asterisk-1.4.16-libcap.patch
-Patch9:  asterisk-1.4.16-chanmobile.patch
-Patch10: asterisk-1.4.16-autoconf.patch
+Patch1:  asterisk-1.4.16.2-initscripts.patch
+Patch2:  asterisk-1.4.16.2-system-imap.patch
+Patch3:  asterisk-1.4.16.2-alternate-voicemail.patch
+Patch4:  asterisk-1.4.16.2-spandspfax.patch
+Patch5:  asterisk-1.4.16.2-appconference.patch
+Patch6:  asterisk-1.4.16.2-alternate-extensions.patch
+Patch7:  asterisk-1.4.16.2-optimization.patch
+Patch8:  asterisk-1.4.16.2-libcap.patch
+Patch9:  asterisk-1.4.16.2-chanmobile.patch
+Patch10: asterisk-1.4.16.2-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -876,6 +876,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Fri Dec 28 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16.2-1
+- Update to 1.4.16.2
+
 * Sat Dec 22 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16.1-2
 - Bump release and rebuild to fix broken dep on uw-imap.
 
