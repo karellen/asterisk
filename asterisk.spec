@@ -2,7 +2,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.4.16.2
+Version: 1.4.17
 Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -20,13 +20,13 @@ ExcludeArch: ppc64
 #
 # MD5 Sums
 # ========
-# 1010a11dace37ae8e8b55864db73d0ef  asterisk-1.4.16.2.tar.gz
-# 7c728c41c74c263b35d160fbf660effa  asterisk-1.4.16.2-stripped.tar.gz
+# ff25f56d775858c4de619f2f59a55099  asterisk-1.4.17.tar.gz
+# 5097de6f6650a40251f0ebb5aa12c056  asterisk-1.4.17-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 37b6099e2ec50dcb8158fbd15d15ad93071f1d6f  asterisk-1.4.16.2.tar.gz
-# b3640624d77beaa4cdc87d8f6baa8a04f2cd1bbe  asterisk-1.4.16.2-stripped.tar.gz
+# bc909e34a5d3c79009b90dac45be8c3c051e573c  asterisk-1.4.17.tar.gz
+# 07193d1f82473b20f5e140dd1ebbac077ea2ec7e  asterisk-1.4.17-stripped.tar.gz
 
 Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -876,6 +876,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Jan  2 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.17-1
+- Update to 1.4.17 to fix AST-2008-001.
+
 * Fri Dec 28 2007 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.16.2-1
 - Update to 1.4.16.2
 
