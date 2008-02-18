@@ -1,4 +1,4 @@
-From b7b79d988252729c187bce32cd21b2c5595ca263 Mon Sep 17 00:00:00 2001
+From 2fa124a4329da73868c62f73cb39250572947e44 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 22:25:43 -0600
 Subject: [PATCH] Add chan_mobile (backported from asterisk-addons trunk).
@@ -17,7 +17,7 @@ Subject: [PATCH] Add chan_mobile (backported from asterisk-addons trunk).
  create mode 100644 doc/chan_mobile.txt
 
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index fb10545..4f12adb 100644
+index 6bf5131..6a6e3a2 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
 @@ -1,4 +1,5 @@
@@ -39,7 +39,7 @@ index f5e96c7..9844128 100644
  chan_vpb.oo: ASTCFLAGS:=$(filter-out -Wdeclaration-after-statement,$(ASTCFLAGS))
 diff --git a/channels/chan_mobile.c b/channels/chan_mobile.c
 new file mode 100644
-index 0000000..69c871f
+index 0000000..e3f5ec3
 --- /dev/null
 +++ b/channels/chan_mobile.c
 @@ -0,0 +1,2126 @@
@@ -221,15 +221,15 @@ index 0000000..69c871f
 +
 +/* CLI stuff */
 +static const char show_usage[] =
-+"Usage: mobile show devices\n" 
++"Usage: mobile show devices\n"
 +"       Shows the state of Bluetooth Cell / Mobile devices.\n";
 +
 +static const char search_usage[] =
-+"Usage: mobile search\n" 
++"Usage: mobile search\n"
 +"       Searches for Bluetooth Cell / Mobile devices in range.\n";
 +
 +static const char rfcomm_usage[] =
-+"Usage: mobile rfcomm command\n" 
++"Usage: mobile rfcomm command\n"
 +"       Send command to the rfcomm port.\n";
 +
 +static int do_show_devices(int, int, char **);
@@ -248,7 +248,7 @@ index 0000000..69c871f
 +static char *mblstatus_desc =
 +"MobileStatus(Device,Variable)\n"
 +"  Device - Id of mobile device from mobile.conf\n"
-+"  Variable - Variable to store status in will be 1-3.\n" 
++"  Variable - Variable to store status in will be 1-3.\n"
 +"             In order, Disconnected, Connected & Free, Connected & Busy.\n";
 +
 +static char *app_mblsendsms = "MobileSendSMS";
@@ -320,7 +320,7 @@ index 0000000..69c871f
 +		ba2str(&pvt->addr, bdaddr);
 +		snprintf(group, 5, "%d", pvt->group);
 +		ast_cli(fd, FORMAT, pvt->id, bdaddr, group, pvt->adapter->id, pvt->connected?"Yes":"No", (pvt->state == MBL_STATE_IDLE)?"Free":(pvt->state < MBL_STATE_IDLE)?"Init":"Busy", (pvt->has_sms)?"Yes":"No");
-+	}	
++	}
 +
 +	return RESULT_SUCCESS;
 +
@@ -349,7 +349,7 @@ index 0000000..69c871f
 +		ast_cli(fd, "All Bluetooth adapters are in use at this time.\n");
 +		return RESULT_SUCCESS;
 +	}
-+	
++
 +	len  = 8;
 +	max_rsp = 255;
 +	flags = IREQ_CACHE_FLUSH;
@@ -1552,7 +1552,7 @@ index 0000000..69c871f
 +					if ((strstr(buf, pvt->ciev_callsetup_0) || strstr(buf, pvt->ciev_call_0))) { /* Caller disconnected */
 +						ast_queue_control(pvt->owner, AST_CONTROL_HANGUP);
 +					}
-+				} 
++				}
 +				break;
 +			case MBL_STATE_INCOMING:
 +				if (strstr(buf, "+CIEV")) {
@@ -1606,7 +1606,7 @@ index 0000000..69c871f
 +			}
 +			/* Unsolicited responses */
 +
-+ 			if (strstr(buf, "+CMTI:")) {	/* SMS Incoming... */
++			if (strstr(buf, "+CMTI:")) {	/* SMS Incoming... */
 +				if ((p = strchr(buf, ','))) {
 +					p++;
 +					smsi = atoi(p);
@@ -1622,7 +1622,7 @@ index 0000000..69c871f
 +			if (pvt->state == MBL_STATE_INIT2) { /* Some devices dont respond to AT+CIND? properly. RIM Blackberry 4 example */
 +				pvt->state++;
 +				rfcomm_write(pvt, "AT+CMER=3,0,0,1\r");
-+ 			} else if (pvt->state == MBL_STATE_INIT3) { /* Some devices dont respond to AT+CMER=3,0,0,1 properly. VK 2020 for example */
++			} else if (pvt->state == MBL_STATE_INIT3) { /* Some devices dont respond to AT+CMER=3,0,0,1 properly. VK 2020 for example */
 +				pvt->state++;
 +				rfcomm_write(pvt, "AT+CLIP=1\r");
 +			} else if (pvt->state == MBL_STATE_PREIDLE) {
@@ -1675,7 +1675,7 @@ index 0000000..69c871f
 +			}
 +		} else if (s == -1) {
 +			if (option_verbose > 2)
-+				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno); 
++				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno);
 +			monitor = 0;
 +		}
 +
@@ -1765,7 +1765,7 @@ index 0000000..69c871f
 +			}
 +		} else if (s == -1) {
 +			if (option_verbose > 2)
-+				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno); 
++				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno);
 +			monitor = 0;
 +		}
 +
@@ -1894,7 +1894,7 @@ index 0000000..69c871f
 +
 +			pvt = NULL;
 +			AST_LIST_TRAVERSE(&devices, pvt, entry) {
-+				if (!bacmp(&pvt->addr, &addr.sco_bdaddr)) 
++				if (!bacmp(&pvt->addr, &addr.sco_bdaddr))
 +					break;
 +			}
 +			if (pvt) {
@@ -2171,7 +2171,7 @@ index 0000000..69c871f
 +);
 diff --git a/configs/mobile.conf.sample b/configs/mobile.conf.sample
 new file mode 100644
-index 0000000..1ea4182
+index 0000000..7ef26d8
 --- /dev/null
 +++ b/configs/mobile.conf.sample
 @@ -0,0 +1,60 @@
@@ -2181,7 +2181,7 @@ index 0000000..1ea4182
 +;
 +
 +[general]
-+interval=30		; Number of seconds between trying to connect to devices. 
++interval=30		; Number of seconds between trying to connect to devices.
 +
 +; The following is a list of adapters we use.
 +; id must be unique and address is the bdaddr of the adapter from hciconfig.
@@ -2201,7 +2201,7 @@ index 0000000..1ea4182
 +address=00:80:C8:35:52:78
 +
 +; The following is a list of the devices we deal with.
-+; Every device listed below will be available for calls in and out of Asterisk. 
++; Every device listed below will be available for calls in and out of Asterisk.
 +; Each device needs an adapter=xxxx entry which determines which bluetooth adapter is used.
 +; Use the CLI command 'mobile search' to discover devices.
 +; Use the CLI command 'mobile show devices' to see device status.
@@ -2236,7 +2236,7 @@ index 0000000..1ea4182
 +type=headset
 +adapter=dlink
 diff --git a/configure.ac b/configure.ac
-index cd4e87b..0bcf7af 100644
+index 765c3c0..365b551 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -173,6 +173,7 @@ AC_SUBST(AST_DEVMODE)
@@ -2258,7 +2258,7 @@ index cd4e87b..0bcf7af 100644
  if test "x${host_os}" = "xlinux-gnu" ; then
 diff --git a/doc/chan_mobile.txt b/doc/chan_mobile.txt
 new file mode 100644
-index 0000000..5c8cafb
+index 0000000..32fcfd4
 --- /dev/null
 +++ b/doc/chan_mobile.txt
 @@ -0,0 +1,240 @@
@@ -2361,10 +2361,10 @@ index 0000000..5c8cafb
 +The CLI command 'mobile show devices' can be used at any time to show the status of configured devices,
 +and whether or not the device is capable of sending / receiving SMS via bluetooth.
 +
-+*CLI> mobile show devices 
++*CLI> mobile show devices
 +ID              Address           Group Adapter         Connected State SMS
-+headset         00:0B:9E:11:AE:C6 0     blue            No        Init  No 
-+LGTU550         00:E0:91:7F:46:44 1     dlink           No        Init  No 
++headset         00:0B:9E:11:AE:C6 0     blue            No        Init  No
++LGTU550         00:E0:91:7F:46:44 1     dlink           No        Init  No
 +*CLI>
 +
 +As each phone is connected you will see a message on the Asterisk console :-
@@ -2503,10 +2503,10 @@ index 0000000..5c8cafb
 +
 +email me at   david.bowerman at gmail.com   or dseeb_ on #asterisk & #asterisk-dev irc.
 diff --git a/makeopts.in b/makeopts.in
-index a81503c..ac67901 100644
+index 983c7a9..6ac8df7 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -67,6 +67,9 @@ AST_DECLARATION_AFTER_STATEMENT=@AST_DECLARATION_AFTER_STATEMENT@
+@@ -66,6 +66,9 @@ AST_DECLARATION_AFTER_STATEMENT=@AST_DECLARATION_AFTER_STATEMENT@
  ASOUND_INCLUDE=@ALSA_INCLUDE@
  ASOUND_LIB=@ALSA_LIB@
  
@@ -2517,5 +2517,5 @@ index a81503c..ac67901 100644
  CURL_LIB=@CURL_LIB@
  
 -- 
-1.5.3.7
+1.5.4.1
 

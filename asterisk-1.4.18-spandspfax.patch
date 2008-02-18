@@ -1,4 +1,4 @@
-From 37948f65ec97ddbc323e2a92f4537a03f46c1559 Mon Sep 17 00:00:00 2001
+From ffc11985802a32f48138695cb9e33a33f379d844 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 12 Nov 2007 15:51:12 -0600
 Subject: [PATCH] Add FAX apps.
@@ -712,30 +712,30 @@ index 0000000..713ecf1
 +
 +/*- End of file ------------------------------------------------------------*/
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 60a53b4..fb10545 100644
+index e9eac56..6bf5131 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
-@@ -22,6 +22,7 @@ POPT=@PBX_POPT@
+@@ -21,6 +21,7 @@ PGSQL=@PBX_PGSQL@
+ POPT=@PBX_POPT@
  PRI=@PBX_PRI@
- QT=@PBX_QT@
  RADIUS=@PBX_RADIUS@
 +SPANDSP=@PBX_SPANDSP@
  SPEEX=@PBX_SPEEX@
+ SPEEXDSP=@PBX_SPEEXDSP@
  SQLITE=@PBX_SQLITE@
- SSL=@PBX_OPENSSL@
 diff --git a/configure.ac b/configure.ac
-index 62b5c83..26a5735 100644
+index f52184d..765c3c0 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -198,6 +198,7 @@ AST_EXT_LIB_SETUP([PWLIB], [PWlib], [pwlib])
+@@ -198,6 +198,7 @@ AST_EXT_LIB_SETUP([PRI], [ISDN PRI], [pri])
+ AST_EXT_LIB_SETUP([PWLIB], [PWlib], [pwlib])
  AST_EXT_LIB_SETUP([OPENH323], [OpenH323], [h323])
- AST_EXT_LIB_SETUP([QT], [Qt], [qt])
  AST_EXT_LIB_SETUP([RADIUS], [Radius Client], [radius])
 +AST_EXT_LIB_SETUP([SPANDSP], [spandsp Library], [spandsp])
  AST_EXT_LIB_SETUP([SPEEX], [Speex], [speex])
+ AST_EXT_LIB_SETUP([SPEEXDSP], [Speexdsp], [speexdsp])
  AST_EXT_LIB_SETUP([SQLITE], [SQLite], [sqlite])
- AST_EXT_LIB_SETUP([SUPPSERV], [mISDN Supplemental Services], [suppserv])
-@@ -963,6 +964,8 @@ AC_LANG_POP
+@@ -896,6 +897,8 @@ fi
  
  AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
  
@@ -743,12 +743,12 @@ index 62b5c83..26a5735 100644
 +
  AST_EXT_LIB_CHECK([SPEEX], [speex], [speex_encode], [speex/speex.h], [-lm])
  
- AST_EXT_LIB_CHECK([SQLITE], [sqlite], [sqlite_exec], [sqlite.h])
+ AST_EXT_LIB_CHECK([SPEEXDSP], [speexdsp], [speex_preprocess_ctl], [speex/speex.h], [-lm])
 diff --git a/makeopts.in b/makeopts.in
-index 193ec3c..8138dd8 100644
+index 88a414f..983c7a9 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -141,6 +141,9 @@ QT_LIB=@QT_LIB@
+@@ -137,6 +137,9 @@ PWLIB_LIB=@PWLIB_LIB@
  RADIUS_INCLUDE=@RADIUS_INCLUDE@
  RADIUS_LIB=@RADIUS_LIB@
  
@@ -759,5 +759,5 @@ index 193ec3c..8138dd8 100644
  SPEEX_LIB=@SPEEX_LIB@
  
 -- 
-1.5.3.7
+1.5.4.1
 

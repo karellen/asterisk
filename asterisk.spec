@@ -2,7 +2,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.4.17
+Version: 1.4.18
 Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -20,13 +20,13 @@ ExcludeArch: ppc64
 #
 # MD5 Sums
 # ========
-# ff25f56d775858c4de619f2f59a55099  asterisk-1.4.17.tar.gz
-# 5097de6f6650a40251f0ebb5aa12c056  asterisk-1.4.17-stripped.tar.gz
+# 3d8b2b2ef4f202901771663b40f19c3d  asterisk-1.4.18.tar.gz
+# b5027a1a87592db138e10ddbd0cece8a  asterisk-1.4.18-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# bc909e34a5d3c79009b90dac45be8c3c051e573c  asterisk-1.4.17.tar.gz
-# 07193d1f82473b20f5e140dd1ebbac077ea2ec7e  asterisk-1.4.17-stripped.tar.gz
+# 3a027488395510b6ebe4a0a0c372db33b2044b0a  asterisk-1.4.18.tar.gz
+# 6f66bf67e87d17f9ccce5fc07643abb759862289  asterisk-1.4.18-stripped.tar.gz
 
 Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -34,18 +34,20 @@ Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source4: asterisk-strip.sh
 
-Patch1:  asterisk-1.4.16.2-initscripts.patch
-Patch2:  asterisk-1.4.16.2-system-imap.patch
-Patch3:  asterisk-1.4.16.2-alternate-voicemail.patch
-Patch4:  asterisk-1.4.16.2-spandspfax.patch
-Patch5:  asterisk-1.4.16.2-appconference.patch
-Patch6:  asterisk-1.4.16.2-alternate-extensions.patch
-Patch7:  asterisk-1.4.16.2-optimization.patch
-Patch8:  asterisk-1.4.16.2-libcap.patch
-Patch9:  asterisk-1.4.16.2-chanmobile.patch
-Patch10: asterisk-1.4.16.2-autoconf.patch
+Patch1:  asterisk-1.4.18-initscripts.patch
+Patch2:  asterisk-1.4.18-system-imap.patch
+Patch3:  asterisk-1.4.18-alternate-voicemail.patch
+Patch4:  asterisk-1.4.18-spandspfax.patch
+Patch5:  asterisk-1.4.18-appconference.patch
+Patch6:  asterisk-1.4.18-alternate-extensions.patch
+Patch7:  asterisk-1.4.18-optimization.patch
+Patch8:  asterisk-1.4.18-chanmobile.patch
+Patch9:  asterisk-1.4.18-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
+
+#BuildRequires: autoconf
+#BuildRequires: automake
 
 # core build requirements
 BuildRequires: openssl-devel
@@ -159,6 +161,17 @@ Requires: festival
 
 %description firmware
 Firmware for the Digium S101I (IAXy).
+
+%package ices
+Summary: Stream audio from Asterisk to an IceCast server
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Requires: ices
+Obsoletes: asterisk < 1.4.18-1
+Conflicts: asterisk < 1.4.18-1
+
+%description ices
+Stream audio from Asterisk to an IceCast server.
 
 %package jabber
 Summary: Jabber/XMPP resources for Asterisk
@@ -320,7 +333,6 @@ Modules for Asterisk that use Zaptel.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -333,8 +345,18 @@ cp %{SOURCE3} menuselect.makeopts
 mv main/fskmodem.c main/fskmodem.c.old
 iconv -f iso-8859-1 -t utf-8 -o main/fskmodem.c main/fskmodem.c.old
 touch -r main/fskmodem.c.old main/fskmodem.c
+rm main/fskmodem.c.old
 
 %build
+
+# if we are building for i386 promote the CPU arch to i486 for atomic operations support
+%ifarch i386
+%define optflags %{__global_cflags} -m32 -march=i486 -mtune=generic -fasynchronous-unwind-tables
+%endif
+
+#aclocal
+#autoconf
+#autoheader
 
 pushd menuselect/mxml
 %configure
@@ -473,7 +495,6 @@ fi
 %doc doc/h323.txt
 %doc doc/hardware.txt
 %doc doc/iax.txt
-%doc doc/ices.txt
 %doc doc/ip-tos.txt
 %doc doc/jitterbuffer.txt
 %doc doc/localchannel.txt
@@ -522,7 +543,6 @@ fi
 %{_libdir}/asterisk/modules/app_followme.so
 %{_libdir}/asterisk/modules/app_forkcdr.so
 %{_libdir}/asterisk/modules/app_getcpeid.so
-%{_libdir}/asterisk/modules/app_ices.so
 %{_libdir}/asterisk/modules/app_image.so
 %{_libdir}/asterisk/modules/app_lookupblacklist.so
 %{_libdir}/asterisk/modules/app_lookupcidname.so
@@ -779,6 +799,11 @@ fi
 %{_libdir}/asterisk/modules/chan_gtalk.so
 %{_libdir}/asterisk/modules/res_jabber.so
 
+%files ices
+%defattr(-,root,root,-)
+%doc doc/ices.txt contrib/asterisk-ices.xml
+%{_libdir}/asterisk/modules/app_ices.so
+
 %files misdn
 %defattr(-,root,root,-)
 %doc doc/misdn.txt
@@ -876,6 +901,21 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Feb 13 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.18-1
+- Update to 1.4.18.
+- Use -march=i486 on i386 builds for atomic operations (GCC 4.3
+  compatibility).
+- Use "logger reload" instead of "logger rotate" in logrotate file
+  (#432197).
+- Don't explicitly specify a group in in the init script to prevent
+  Zaptel breakage (#426629).
+- Split app_ices out to a separate package so that the ices package
+  can be required.
+- pbx_kdeconsole has been dropped, don't specifically exclude it from
+  the build anymore.
+- Update app_conference patch.
+- Drop upstreamed libcap patch.
+
 * Wed Jan  2 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.17-1
 - Update to 1.4.17 to fix AST-2008-001.
 
