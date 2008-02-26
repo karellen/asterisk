@@ -1,0 +1,25 @@
+From bf3e93b57829278c612260be475e1cf487543850 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Mon, 25 Feb 2008 14:36:29 -0600
+Subject: [PATCH] Must supply mode when using O_CREAT.
+
+---
+ utils/astcanary.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/utils/astcanary.c b/utils/astcanary.c
+index eb9f172..294a1a8 100644
+--- a/utils/astcanary.c
++++ b/utils/astcanary.c
+@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
+ 		/* Update the modification times (checked from Asterisk) */
+ 		if (utime(argv[1], NULL)) {
+ 			/* Recreate the file if it doesn't exist */
+-			if ((fd = open(argv[1], O_RDWR | O_TRUNC | O_CREAT)) > -1)
++			if ((fd = open(argv[1], O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH )) > -1)
+ 				close(fd);
+ 			else
+ 				exit(1);
+-- 
+1.5.4.1
+

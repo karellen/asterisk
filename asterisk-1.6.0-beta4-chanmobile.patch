@@ -1,48 +1,51 @@
-From 2fa124a4329da73868c62f73cb39250572947e44 Mon Sep 17 00:00:00 2001
+From d08779cdcd6741f223556e837bda66c72f82e016 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Sun, 18 Nov 2007 22:25:43 -0600
-Subject: [PATCH] Add chan_mobile (backported from asterisk-addons trunk).
+Date: Mon, 25 Feb 2008 09:23:28 -0600
+Subject: [PATCH] Add chan_mobile from asterisk-addons.
 
 ---
  build_tools/menuselect-deps.in |    1 +
  channels/Makefile              |    2 +
- channels/chan_mobile.c         | 2126 ++++++++++++++++++++++++++++++++++++++++
+ channels/chan_mobile.c         | 2118 ++++++++++++++++++++++++++++++++++++++++
  configs/mobile.conf.sample     |   60 ++
- configure.ac                   |    3 +
+ configure.ac                   |    4 +
  doc/chan_mobile.txt            |  240 +++++
  makeopts.in                    |    3 +
- 7 files changed, 2435 insertions(+), 0 deletions(-)
+ 7 files changed, 2428 insertions(+), 0 deletions(-)
  create mode 100644 channels/chan_mobile.c
  create mode 100644 configs/mobile.conf.sample
  create mode 100644 doc/chan_mobile.txt
 
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 6bf5131..6a6e3a2 100644
+index 4923560..9df8667 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
-@@ -1,4 +1,5 @@
+@@ -1,5 +1,6 @@
  ASOUND=@PBX_ALSA@
+ CRYPTO=@PBX_CRYPTO@
 +BLUETOOTH=@PBX_BLUETOOTH@
  CURL=@PBX_CURL@
  FREETDS=@PBX_FREETDS@
- GSM=@PBX_GSM@
+ GNU_LD=@GNU_LD@
 diff --git a/channels/Makefile b/channels/Makefile
-index f5e96c7..9844128 100644
+index 467fc80..612ccd9 100644
 --- a/channels/Makefile
 +++ b/channels/Makefile
-@@ -124,4 +124,6 @@ misdn/isdn_lib.o: ASTCFLAGS+=-Wno-strict-aliasing
+@@ -100,6 +100,8 @@ misdn/isdn_lib.o: ASTCFLAGS+=-Wno-strict-aliasing
  
- $(if $(filter chan_misdn,$(EMBEDDED_MODS)),modules.link,chan_misdn.so): chan_misdn.o misdn_config.o misdn/isdn_lib.o misdn/isdn_msg_parser.o
+ $(if $(filter chan_misdn,$(EMBEDDED_MODS)),modules.link,chan_misdn.so): misdn_config.o misdn/isdn_lib.o misdn/isdn_msg_parser.o
  
 +chan_mobile.so: LIBS+=$(BLUETOOTH_LIB)
 +
  chan_vpb.oo: ASTCFLAGS:=$(filter-out -Wdeclaration-after-statement,$(ASTCFLAGS))
+ 
+ $(if $(filter chan_oss,$(EMBEDDED_MODS)),modules.link,chan_oss.so): console_video.o vgrabbers.o console_board.o
 diff --git a/channels/chan_mobile.c b/channels/chan_mobile.c
 new file mode 100644
-index 0000000..e3f5ec3
+index 0000000..1312ea9
 --- /dev/null
 +++ b/channels/chan_mobile.c
-@@ -0,0 +1,2126 @@
+@@ -0,0 +1,2118 @@
 +/*
 + * Asterisk -- An open source telephony toolkit.
 + *
@@ -115,8 +118,6 @@ index 0000000..e3f5ec3
 +#include <asterisk/app.h>
 +#include <asterisk/manager.h>
 +
-+#define AST_MODULE "chan_mobile"
-+
 +#define MBL_CONFIG "mobile.conf"
 +
 +#define DEVICE_FRAME_SIZE 48
@@ -142,6 +143,7 @@ index 0000000..e3f5ec3
 +	MBL_STATE_INIT4,
 +	MBL_STATE_INIT5,
 +	MBL_STATE_INIT6,
++	MBL_STATE_INIT7,
 +	MBL_STATE_PREIDLE,
 +	MBL_STATE_IDLE,
 +	MBL_STATE_DIAL,
@@ -220,26 +222,14 @@ index 0000000..e3f5ec3
 +static AST_LIST_HEAD_STATIC(devices, mbl_pvt);
 +
 +/* CLI stuff */
-+static const char show_usage[] =
-+"Usage: mobile show devices\n"
-+"       Shows the state of Bluetooth Cell / Mobile devices.\n";
-+
-+static const char search_usage[] =
-+"Usage: mobile search\n"
-+"       Searches for Bluetooth Cell / Mobile devices in range.\n";
-+
-+static const char rfcomm_usage[] =
-+"Usage: mobile rfcomm command\n"
-+"       Send command to the rfcomm port.\n";
-+
-+static int do_show_devices(int, int, char **);
-+static int do_search_devices(int, int, char **);
-+static int do_send_rfcomm(int, int, char **);
++static char *handle_cli_mobile_show_devices(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a);
++static char *handle_cli_mobile_search(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a);
++static char *handle_cli_mobile_rfcomm(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a);
 +
 +static struct ast_cli_entry mbl_cli[] = {
-+	{{"mobile", "show", "devices", NULL}, do_show_devices, "Show Bluetooth Cell / Mobile devices", show_usage},
-+	{{"mobile", "search", NULL}, do_search_devices, "Search for Bluetooth Cell / Mobile devices", search_usage},
-+	{{"mobile", "rfcomm", NULL}, do_send_rfcomm, "Send commands to the rfcomm port for debugging", rfcomm_usage},
++	AST_CLI_DEFINE(handle_cli_mobile_show_devices, "Show Bluetooth Cell / Mobile devices"),
++	AST_CLI_DEFINE(handle_cli_mobile_search,       "Search for Bluetooth Cell / Mobile devices"),
++	AST_CLI_DEFINE(handle_cli_mobile_rfcomm,       "Send commands to the rfcomm port for debugging"),
 +};
 +
 +/* App stuff */
@@ -248,7 +238,7 @@ index 0000000..e3f5ec3
 +static char *mblstatus_desc =
 +"MobileStatus(Device,Variable)\n"
 +"  Device - Id of mobile device from mobile.conf\n"
-+"  Variable - Variable to store status in will be 1-3.\n"
++"  Variable - Variable to store status in will be 1-3.\n" 
 +"             In order, Disconnected, Connected & Free, Connected & Busy.\n";
 +
 +static char *app_mblsendsms = "MobileSendSMS";
@@ -300,35 +290,46 @@ index 0000000..e3f5ec3
 +	.devicestate = mbl_devicestate
 +};
 +
-+/*
++/* CLI Commands implementation */
 +
-+	CLI Commands implementation
-+
-+*/
-+
-+static int do_show_devices(int fd, int argc, char **argv)
++static char *handle_cli_mobile_show_devices(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
 +{
-+
 +	struct mbl_pvt *pvt;
 +	char bdaddr[18];
 +	char group[6];
 +
-+	#define FORMAT "%-15.15s %-17.17s %-5.5s %-15.15s %-9.9s %-5.5s %-3.3s\n"
++#define FORMAT1 "%-15.15s %-17.17s %-5.5s %-15.15s %-9.9s %-5.5s %-3.3s\n"
 +
-+	ast_cli(fd, FORMAT, "ID", "Address", "Group", "Adapter", "Connected", "State", "SMS");
++	switch (cmd) {
++	case CLI_INIT:
++		e->command = "mobile show devices";
++		e->usage =
++			"Usage: mobile show devices\n" 
++			"       Shows the state of Bluetooth Cell / Mobile devices.\n";
++		return NULL;
++	case CLI_GENERATE:
++		return NULL;
++	}
++
++	if (a->argc != 3)
++		return CLI_SHOWUSAGE;
++
++	ast_cli(a->fd, FORMAT1, "ID", "Address", "Group", "Adapter", "Connected", "State", "SMS");
 +	AST_LIST_TRAVERSE(&devices, pvt, entry) {
 +		ba2str(&pvt->addr, bdaddr);
 +		snprintf(group, 5, "%d", pvt->group);
-+		ast_cli(fd, FORMAT, pvt->id, bdaddr, group, pvt->adapter->id, pvt->connected?"Yes":"No", (pvt->state == MBL_STATE_IDLE)?"Free":(pvt->state < MBL_STATE_IDLE)?"Init":"Busy", (pvt->has_sms)?"Yes":"No");
++		ast_cli(a->fd, FORMAT1, pvt->id, bdaddr, group, pvt->adapter->id, pvt->connected ? "Yes" : "No",
++			(pvt->state == MBL_STATE_IDLE) ? "Free" : (pvt->state < MBL_STATE_IDLE) ? "Init" : "Busy",
++			(pvt->has_sms) ? "Yes" : "No");
 +	}
 +
-+	return RESULT_SUCCESS;
++#undef FORMAT1
 +
++	return CLI_SUCCESS;
 +}
 +
-+static int do_search_devices(int fd, int argc, char **argv)
++static char *handle_cli_mobile_search(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
 +{
-+
 +	struct adapter_pvt *adapter;
 +	inquiry_info *ii = NULL;
 +	int max_rsp, num_rsp;
@@ -337,17 +338,32 @@ index 0000000..e3f5ec3
 +	char addr[19] = {0};
 +	char name[31] = {0};
 +
-+	#define FORMAT2 "%-17.17s %-30.30s %-6.6s %-7.7s %-4.4s\n"
-+	#define FORMAT3 "%-17.17s %-30.30s %-6.6s %-7.7s %d\n"
++#define FORMAT1 "%-17.17s %-30.30s %-6.6s %-7.7s %-4.4s\n"
++#define FORMAT2 "%-17.17s %-30.30s %-6.6s %-7.7s %d\n"
++
++	switch (cmd) {
++	case CLI_INIT:
++		e->command = "mobile search";
++		e->usage =
++			"Usage: mobile search\n" 
++			"       Searches for Bluetooth Cell / Mobile devices in range.\n";
++		return NULL;
++	case CLI_GENERATE:
++		return NULL;
++	}
++
++	if (a->argc != 2)
++		return CLI_SHOWUSAGE;
 +
 +	/* find a free adapter */
 +	AST_LIST_TRAVERSE(&adapters, adapter, entry) {
 +		if (!adapter->inuse)
 +			break;
 +	}
++
 +	if (!adapter) {
-+		ast_cli(fd, "All Bluetooth adapters are in use at this time.\n");
-+		return RESULT_SUCCESS;
++		ast_cli(a->fd, "All Bluetooth adapters are in use at this time.\n");
++		return CLI_SUCCESS;
 +	}
 +
 +	len  = 8;
@@ -357,52 +373,63 @@ index 0000000..e3f5ec3
 +	ii = alloca(max_rsp * sizeof(inquiry_info));
 +	num_rsp = hci_inquiry(adapter->dev_id, len, max_rsp, NULL, &ii, flags);
 +	if (num_rsp > 0) {
-+		ast_cli(fd, FORMAT2, "Address", "Name", "Usable", "Type", "Port");
++		ast_cli(a->fd, FORMAT1, "Address", "Name", "Usable", "Type", "Port");
 +		for (i = 0; i < num_rsp; i++) {
-+			ba2str(&(ii+i)->bdaddr, addr);
++			ba2str(&(ii + i)->bdaddr, addr);
 +			name[0] = 0x00;
-+			if (hci_read_remote_name(adapter->hci_socket, &(ii+i)->bdaddr, sizeof(name)-1, name, 0) < 0)
++			if (hci_read_remote_name(adapter->hci_socket, &(ii + i)->bdaddr, sizeof(name) - 1, name, 0) < 0)
 +				strcpy(name, "[unknown]");
 +			phport = sdp_search(addr, HANDSFREE_AGW_PROFILE_ID);
 +			if (!phport)
 +				hsport = sdp_search(addr, HEADSET_PROFILE_ID);
 +			else
 +				hsport = 0;
-+			ast_cli(fd, FORMAT3, addr, name, (phport > 0 || hsport > 0)?"Yes":"No", (phport > 0)?"Phone":"Headset", (phport > 0)?phport:hsport);
++			ast_cli(a->fd, FORMAT2, addr, name, (phport > 0 || hsport > 0) ? "Yes" : "No",
++				(phport > 0) ? "Phone" : "Headset", (phport > 0) ? phport : hsport);
 +		}
 +	} else
-+		ast_cli(fd, "No Bluetooth Cell / Mobile devices found.\n");
++		ast_cli(a->fd, "No Bluetooth Cell / Mobile devices found.\n");
 +
-+	return RESULT_SUCCESS;
++#undef FORMAT1
++#undef FORMAT2
 +
++	return CLI_SUCCESS;
 +}
 +
-+static int do_send_rfcomm(int fd, int argc, char **argv)
++static char *handle_cli_mobile_rfcomm(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
 +{
-+
-+	struct mbl_pvt *pvt;
 +	char buf[128];
++	struct mbl_pvt *pvt = NULL;
 +
-+	if (argc != 4) {
-+		ast_cli(fd, "You must specify the name of the device and command.\n");
-+		return RESULT_SUCCESS;
++	switch (cmd) {
++	case CLI_INIT:
++		e->command = "mobile rfcomm";
++		e->usage =
++			"Usage: mobile rfcomm <device ID> <command>\n"
++			"       Send <command> to the rfcomm port on the device\n"
++			"       with the specified <device ID>.\n";
++		return NULL;
++	case CLI_GENERATE:
++		return NULL;
 +	}
 +
++	if (a->argc != 4)
++		return CLI_SHOWUSAGE;
++
 +	AST_LIST_TRAVERSE(&devices, pvt, entry) {
-+		if (!strcmp(pvt->id, argv[2]))
++		if (!strcmp(pvt->id, a->argv[2]))
 +			break;
 +	}
 +
 +	if (!pvt || !pvt->connected) {
-+		ast_cli(fd, "Device %s not found.\n", argv[2]);
-+		return RESULT_SUCCESS;
++		ast_cli(a->fd, "Device %s not found.\n", a->argv[2]);
++		return CLI_SUCCESS;
 +	}
 +
-+	sprintf(buf, "%s\r", argv[3]);
++	snprintf(buf, sizeof(buf), "%s\r", a->argv[3]);
 +	rfcomm_write(pvt, buf);
 +
-+	return RESULT_SUCCESS;
-+
++	return CLI_SUCCESS;
 +}
 +
 +/*
@@ -560,9 +587,7 @@ index 0000000..e3f5ec3
 +		chn->writeformat = prefformat;
 +		chn->readformat = prefformat;
 +		chn->tech_pvt = pvt;
-+		ast_channel_lock(chn);
-+		chn->fds[0] = pvt->io_pipe[0];
-+		ast_channel_unlock(chn);
++		ast_channel_set_fd(chn, 0, pvt->io_pipe[0]);
 +		if (state == AST_STATE_RING)
 +			chn->rings = 1;
 +		ast_string_field_set(chn, language, "en");
@@ -661,8 +686,7 @@ index 0000000..e3f5ec3
 +		return -1;
 +	}
 +
-+	if (option_debug)
-+		ast_log(LOG_DEBUG, "Calling %s on %s\n", dest, ast->name);
++	ast_debug(1, "Calling %s on %s\n", dest, ast->name);
 +
 +	if (pvt->type == MBL_TYPE_PHONE) {
 +		ast_copy_string(pvt->dial_number, dest_num, sizeof(pvt->dial_number));
@@ -687,12 +711,9 @@ index 0000000..e3f5ec3
 +	}
 +	pvt = ast->tech_pvt;
 +
-+	if (option_debug)
-+		ast_log(LOG_DEBUG, "Hanging up device %s.\n", pvt->id);
++	ast_debug(1, "Hanging up device %s.\n", pvt->id);
 +
-+	ast_channel_lock(ast);
-+	ast->fds[0] = -1;
-+	ast_channel_unlock(ast);
++	ast_channel_set_fd(ast, 0, -1);
 +	close(pvt->io_pipe[0]);
 +	close(pvt->io_pipe[1]);
 +
@@ -753,8 +774,7 @@ index 0000000..e3f5ec3
 +	if (pvt->type == MBL_TYPE_HEADSET)
 +		return 0;
 +
-+	if (option_debug)
-+		ast_log(LOG_DEBUG, "Dialed %c\n", digit);
++	ast_debug(1, "Dialed %c\n", digit);
 +
 +	switch(digit) {
 +	case '0':
@@ -788,8 +808,7 @@ index 0000000..e3f5ec3
 +	struct ast_frame *f;
 +	int r;
 +
-+	if (option_debug > 1)
-+		ast_log(LOG_DEBUG, "*** mbl_read()\n");
++	ast_debug(2, "*** mbl_read()\n");
 +
 +	if (!pvt->owner) {
 +		return &ast_null_frame;
@@ -833,8 +852,7 @@ index 0000000..e3f5ec3
 +	int i, r, io_need, num_frames;
 +	char *pfr, buf[DEVICE_FRAME_SIZE];
 +
-+	if (option_debug > 1)
-+		ast_log(LOG_DEBUG, "*** mbl_write\n");
++	ast_debug(2, "*** mbl_write\n");
 +
 +	if (frame->frametype != AST_FRAME_VOICE) {
 +		return 0;
@@ -848,7 +866,8 @@ index 0000000..e3f5ec3
 +		if ((r = sco_read(pvt->sco_socket, buf, DEVICE_FRAME_SIZE))) {
 +			if (pvt->do_alignment_detection)
 +				do_alignment_detection(pvt, buf, r);
-+			sco_write(pvt->io_pipe[1], buf, r);
++			if (ast->_state == AST_STATE_UP)	/* Dont queue the audio in the pipe if the call is not up yet. just toss it. */
++				sco_write(pvt->io_pipe[1], buf, r);
 +		}
 +	}
 +
@@ -860,7 +879,8 @@ index 0000000..e3f5ec3
 +		if ((r = sco_read(pvt->sco_socket, buf, DEVICE_FRAME_SIZE))) {
 +			if (pvt->do_alignment_detection)
 +				do_alignment_detection(pvt, buf, r);
-+			sco_write(pvt->io_pipe[1], buf, r);
++			if (ast->_state == AST_STATE_UP)
++				sco_write(pvt->io_pipe[1], buf, r);
 +		}
 +		pfr += DEVICE_FRAME_SIZE;
 +	}
@@ -895,8 +915,7 @@ index 0000000..e3f5ec3
 +
 +	device = ast_strdupa(S_OR(data, ""));
 +
-+	if (option_debug)
-+		ast_log(LOG_DEBUG, "Checking device state for device %s\n", device);
++	ast_debug(1, "Checking device state for device %s\n", device);
 +
 +	AST_LIST_TRAVERSE(&devices, pvt, entry) {
 +		if (!strcmp(pvt->id, device))
@@ -970,15 +989,13 @@ index 0000000..e3f5ec3
 +		return;
 +	}
 +
-+	if (option_debug)
-+		ast_log(LOG_DEBUG, "Alignment Detection result is [%-d %-d %-d %-d]\n", pvt->alignment_samples[0], pvt->alignment_samples[1], pvt->alignment_samples[2], pvt->alignment_samples[3]);
++	ast_debug(1, "Alignment Detection result is [%-d %-d %-d %-d]\n", pvt->alignment_samples[0], pvt->alignment_samples[1], pvt->alignment_samples[2], pvt->alignment_samples[3]);
 +
 +	a = abs(pvt->alignment_samples[1]) + abs(pvt->alignment_samples[2]) + abs(pvt->alignment_samples[3]);
 +	a /= 3;
 +	if (a > 100) {
 +		pvt->alignment_detection_triggered = 1;
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "Alignment Detection Triggered.\n");
++		ast_debug(1, "Alignment Detection Triggered.\n");
 +	} else
 +		pvt->do_alignment_detection = 0;
 +
@@ -996,8 +1013,7 @@ index 0000000..e3f5ec3
 +	int s;
 +
 +	if ((s = socket(PF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)) < 0) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "socket() failed (%d).\n", errno);
++		ast_debug(1, "socket() failed (%d).\n", errno);
 +		return -1;
 +	}
 +
@@ -1006,8 +1022,7 @@ index 0000000..e3f5ec3
 +	bacpy(&addr.rc_bdaddr, &src);
 +	addr.rc_channel = (uint8_t) 1;
 +	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "bind() failed (%d).\n", errno);
++		ast_debug(1, "bind() failed (%d).\n", errno);
 +		close(s);
 +		return -1;
 +	}
@@ -1017,8 +1032,7 @@ index 0000000..e3f5ec3
 +	bacpy(&addr.rc_bdaddr, &dst);
 +	addr.rc_channel = remote_channel;
 +	if (connect(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "connect() failed (%d).\n", errno);
++		ast_debug(1, "connect() failed (%d).\n", errno);
 +		close(s);
 +		return -1;
 +	}
@@ -1034,14 +1048,12 @@ index 0000000..e3f5ec3
 +	ssize_t num_write;
 +	int len;
 +
-+	if (option_debug)
-+		ast_log(LOG_DEBUG, "rfcomm_write() (%s) [%s]\n", pvt->id, buf);
++	ast_debug(1, "rfcomm_write() (%s) [%s]\n", pvt->id, buf);
 +	len = strlen(buf);
 +	p = buf;
 +	while (len > 0) {
 +		if ((num_write = write(pvt->rfcomm_socket, p, len)) == -1) {
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "rfcomm_write() error [%d]\n", errno);
++			ast_debug(1, "rfcomm_write() error [%d]\n", errno);
 +			return 0;
 +		}
 +		len -= num_write;
@@ -1131,8 +1143,7 @@ index 0000000..e3f5ec3
 +	int s;
 +
 +	if ((s = socket(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_SCO)) < 0) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "socket() failed (%d).\n", errno);
++		ast_debug(1, "socket() failed (%d).\n", errno);
 +		return -1;
 +	}
 +
@@ -1140,8 +1151,7 @@ index 0000000..e3f5ec3
 +	addr.sco_family = AF_BLUETOOTH;
 +	bacpy(&addr.sco_bdaddr, &src);
 +	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "bind() failed (%d).\n", errno);
++		ast_debug(1, "bind() failed (%d).\n", errno);
 +		close(s);
 +		return -1;
 +	}
@@ -1151,8 +1161,7 @@ index 0000000..e3f5ec3
 +	bacpy(&addr.sco_bdaddr, &dst);
 +
 +	if (connect(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "sco connect() failed (%d).\n", errno);
++		ast_debug(1, "sco connect() failed (%d).\n", errno);
 +		close(s);
 +		return -1;
 +	}
@@ -1167,18 +1176,15 @@ index 0000000..e3f5ec3
 +	int r;
 +
 +	if (s == -1) {
-+		if (option_debug > 1)
-+			ast_log(LOG_DEBUG, "sco_write() not ready\n");
++		ast_debug(2, "sco_write() not ready\n");
 +		return 0;
 +	}
 +
-+	if (option_debug > 1)
-+		ast_log(LOG_DEBUG, "sco_write()\n");
++	ast_debug(2, "sco_write()\n");
 +
 +	r = write(s, buf, len);
 +	if (r == -1) {
-+		if (option_debug > 1)
-+			ast_log(LOG_DEBUG, "sco write error %d\n", errno);
++		ast_debug(2, "sco write error %d\n", errno);
 +		return 0;
 +	}
 +
@@ -1192,18 +1198,15 @@ index 0000000..e3f5ec3
 +	int r;
 +
 +	if (s == -1) {
-+		if (option_debug > 1)
-+			ast_log(LOG_DEBUG, "sco_read() not ready\n");
++		ast_debug(2, "sco_read() not ready\n");
 +		return 0;
 +	}
 +
-+	if (option_debug > 1)
-+		ast_log(LOG_DEBUG, "sco_read()\n");
++	ast_debug(2, "sco_read()\n");
 +
 +	r = read(s, buf, len);
 +	if (r == -1) {
-+		if (option_debug > 1)
-+			ast_log(LOG_DEBUG, "sco_read() error %d\n", errno);
++		ast_debug(2, "sco_read() error %d\n", errno);
 +		return 0;
 +	}
 +
@@ -1233,8 +1236,7 @@ index 0000000..e3f5ec3
 +	port = 0;
 +	session = sdp_connect(BDADDR_ANY, &bdaddr, SDP_RETRY_IF_BUSY);
 +	if (!session) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "sdp_connect() failed on device %s.\n", addr);
++		ast_debug(1, "sdp_connect() failed on device %s.\n", addr);
 +		return 0;
 +	}
 +
@@ -1254,11 +1256,9 @@ index 0000000..e3f5ec3
 +			sdp_record_free(sdprec);
 +			sdp_list_free(response_list, 0);
 +		} else
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "No responses returned for device %s.\n", addr);
++			ast_debug(1, "No responses returned for device %s.\n", addr);
 +	} else
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "sdp_service_search_attr_req() failed on device %s.\n", addr);
++		ast_debug(1, "sdp_service_search_attr_req() failed on device %s.\n", addr);
 +
 +	sdp_list_free(search_list, 0);
 +	sdp_list_free(attrid_list, 0);
@@ -1372,8 +1372,7 @@ index 0000000..e3f5ec3
 +		s = rfcomm_read(pvt, buf, 0, t);
 +
 +		if ((s > 0) && (buf[0] != 0x0) && (buf[0] != '\r')) {
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "rfcomm_read() (%s) [%s]\n", pvt->id, buf);
++			ast_debug(1, "rfcomm_read() (%s) [%s]\n", pvt->id, buf);
 +			switch (pvt->state) {
 +			case MBL_STATE_INIT:
 +				if (strstr(buf, "+BRSF:")) {
@@ -1414,8 +1413,7 @@ index 0000000..e3f5ec3
 +					sprintf(pvt->ciev_callsetup_3, "%d,3", callsetupp);
 +					if (callsetupp == 0) /* This phone has no call setup indication!! ... */
 +						pvt->no_callsetup = 1;
-+					if (option_debug)
-+						ast_log(LOG_DEBUG, "CIEV_CALL=%d CIEV_CALLSETUP=%d\n", callp, callsetupp);
++					ast_debug(1, "CIEV_CALL=%d CIEV_CALLSETUP=%d\n", callp, callsetupp);
 +				}
 +				if (strstr(buf, "OK")) {
 +					rfcomm_write(pvt, "AT+CIND?\r");
@@ -1442,11 +1440,17 @@ index 0000000..e3f5ec3
 +				break;
 +			case MBL_STATE_INIT4:
 +				if (strstr(buf, "OK")) {
-+					rfcomm_write(pvt, "AT+CMGF=1\r");
++					rfcomm_write(pvt, "AT+VGS=15\r");
 +					pvt->state++;
 +				}
 +				break;
 +			case MBL_STATE_INIT5:
++				if (strstr(buf, "OK")) {
++					rfcomm_write(pvt, "AT+CMGF=1\r");
++					pvt->state++;
++				}
++				break;
++			case MBL_STATE_INIT6:
 +				if (strstr(buf, "ERROR")) {	/* No SMS Support ! */
 +					pvt->state = MBL_STATE_PREIDLE;
 +				} else if (strstr(buf, "OK")) {
@@ -1454,7 +1458,7 @@ index 0000000..e3f5ec3
 +					pvt->state++;
 +				}
 +				break;
-+			case MBL_STATE_INIT6:
++			case MBL_STATE_INIT7:
 +				if (strstr(buf, "OK")) {	/* We have SMS Support */
 +					pvt->has_sms = 1;
 +					pvt->state = MBL_STATE_PREIDLE;
@@ -1466,8 +1470,7 @@ index 0000000..e3f5ec3
 +			case MBL_STATE_PREIDLE: /* Nothing handled here, wait for timeout, then off we go... */
 +				break;
 +			case MBL_STATE_IDLE:
-+				if (option_debug)
-+					ast_log(LOG_DEBUG, "Device %s [%s]\n", pvt->id, buf);
++				ast_debug(1, "Device %s [%s]\n", pvt->id, buf);
 +				if (strstr(buf, "RING")) {
 +					pvt->state = MBL_STATE_RING;
 +				} else if (strstr(buf, "+CIEV:")) {
@@ -1552,7 +1555,7 @@ index 0000000..e3f5ec3
 +					if ((strstr(buf, pvt->ciev_callsetup_0) || strstr(buf, pvt->ciev_call_0))) { /* Caller disconnected */
 +						ast_queue_control(pvt->owner, AST_CONTROL_HANGUP);
 +					}
-+				}
++				} 
 +				break;
 +			case MBL_STATE_INCOMING:
 +				if (strstr(buf, "+CIEV")) {
@@ -1606,7 +1609,7 @@ index 0000000..e3f5ec3
 +			}
 +			/* Unsolicited responses */
 +
-+			if (strstr(buf, "+CMTI:")) {	/* SMS Incoming... */
++ 			if (strstr(buf, "+CMTI:")) {	/* SMS Incoming... */
 +				if ((p = strchr(buf, ','))) {
 +					p++;
 +					smsi = atoi(p);
@@ -1622,7 +1625,7 @@ index 0000000..e3f5ec3
 +			if (pvt->state == MBL_STATE_INIT2) { /* Some devices dont respond to AT+CIND? properly. RIM Blackberry 4 example */
 +				pvt->state++;
 +				rfcomm_write(pvt, "AT+CMER=3,0,0,1\r");
-+			} else if (pvt->state == MBL_STATE_INIT3) { /* Some devices dont respond to AT+CMER=3,0,0,1 properly. VK 2020 for example */
++ 			} else if (pvt->state == MBL_STATE_INIT3) { /* Some devices dont respond to AT+CMER=3,0,0,1 properly. VK 2020 for example */
 +				pvt->state++;
 +				rfcomm_write(pvt, "AT+CLIP=1\r");
 +			} else if (pvt->state == MBL_STATE_PREIDLE) {
@@ -1648,8 +1651,7 @@ index 0000000..e3f5ec3
 +			} else if (pvt->state == MBL_STATE_HANGUP) {
 +				if (pvt->do_hangup) {
 +					if (pvt->hangup_count == 6) {
-+						if (option_debug)
-+							ast_log(LOG_DEBUG, "Device %s failed to hangup after 6 tries, disconnecting.\n", pvt->id);
++						ast_debug(1, "Device %s failed to hangup after 6 tries, disconnecting.\n", pvt->id);
 +						monitor = 0;
 +					}
 +					rfcomm_write(pvt, "AT+CHUP\r");
@@ -1675,7 +1677,7 @@ index 0000000..e3f5ec3
 +			}
 +		} else if (s == -1) {
 +			if (option_verbose > 2)
-+				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno);
++				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno); 
 +			monitor = 0;
 +		}
 +
@@ -1722,8 +1724,7 @@ index 0000000..e3f5ec3
 +		s = rfcomm_read(pvt, buf, 0, t);
 +
 +		if ((s > 0) && (buf[0] != 0x0) && (buf[0] != '\r')) {
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "rfcomm_read() (%s) [%s]\n", pvt->id, buf);
++			ast_debug(1, "rfcomm_read() (%s) [%s]\n", pvt->id, buf);
 +			switch (pvt->state) {
 +			case MBL_STATE_RING2:
 +				if (strstr(buf, "AT+CKPD=")) {
@@ -1765,7 +1766,7 @@ index 0000000..e3f5ec3
 +			}
 +		} else if (s == -1) {
 +			if (option_verbose > 2)
-+				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno);
++				ast_verbose(VERBOSE_PREFIX_3  "Bluetooth Device %s has disconnected, reason (%d).\n", pvt->id, errno); 
 +			monitor = 0;
 +		}
 +
@@ -1879,22 +1880,19 @@ index 0000000..e3f5ec3
 +		return NULL;
 +	}
 +	while (1) {
-+		if (option_debug)
-+			ast_log(LOG_DEBUG, "About to accept() socket.\n");
++		ast_debug(1, "About to accept() socket.\n");
 +		addrlen = sizeof(struct sockaddr_sco);
 +		if ((ns = accept(adapter->sco_socket, (struct sockaddr *)&addr, &addrlen)) > -1) {
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "accept()ed socket.\n");
++			ast_debug(1, "accept()ed socket.\n");
 +			len = sizeof(so);
 +			getsockopt(ns, SOL_SCO, SCO_OPTIONS, &so, &len);
 +
 +			ba2str(&addr.sco_bdaddr, saddr);
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "Incoming Audio Connection from device %s MTU is %d\n", saddr, so.mtu);
++			ast_debug(1, "Incoming Audio Connection from device %s MTU is %d\n", saddr, so.mtu);
 +
 +			pvt = NULL;
 +			AST_LIST_TRAVERSE(&devices, pvt, entry) {
-+				if (!bacmp(&pvt->addr, &addr.sco_bdaddr))
++				if (!bacmp(&pvt->addr, &addr.sco_bdaddr)) 
 +					break;
 +			}
 +			if (pvt) {
@@ -1902,8 +1900,7 @@ index 0000000..e3f5ec3
 +					close(pvt->sco_socket);
 +				pvt->sco_socket = ns;
 +			} else
-+				if (option_debug)
-+					ast_log(LOG_DEBUG, "Could not find device for incoming Audio Connection.\n");
++				ast_debug(1, "Could not find device for incoming Audio Connection.\n");
 +		} else {
 +			 ast_log(LOG_ERROR, "accept() failed %d\n", errno);
 +		}
@@ -1931,8 +1928,9 @@ index 0000000..e3f5ec3
 +	uint16_t vs;
 +	struct hci_dev_req dr;
 +	char nadapters = 0;
++	struct ast_flags config_flags = { 0 };
 +
-+	cfg = ast_config_load(MBL_CONFIG);
++	cfg = ast_config_load(MBL_CONFIG, config_flags);
 +	if (!cfg)
 +		return 0;
 +
@@ -1949,8 +1947,7 @@ index 0000000..e3f5ec3
 +			address = ast_variable_retrieve(cfg, cat, "address");
 +			master = ast_variable_retrieve(cfg, cat, "forcemaster");
 +			aligndetect = ast_variable_retrieve(cfg, cat, "alignmentdetection");
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "Loading adapter %s %s.\n", id, address);
++			ast_debug(1, "Loading adapter %s %s.\n", id, address);
 +			if (!ast_strlen_zero(id) && !ast_strlen_zero(address)) {
 +				if ((adapter = ast_calloc(1, sizeof(*adapter)))) {
 +					ast_copy_string(adapter->id, id, sizeof(adapter->id));
@@ -2001,8 +1998,7 @@ index 0000000..e3f5ec3
 +	cat = ast_category_browse(cfg, NULL);
 +	while (cat) {
 +		if (strcasecmp(cat, "general") && strcasecmp(cat, "adapter")) {
-+			if (option_debug)
-+				ast_log(LOG_DEBUG, "Loading device %s.\n", cat);
++			ast_debug(1, "Loading device %s.\n", cat);
 +			address = ast_variable_retrieve(cfg, cat, "address");
 +			useadapter = ast_variable_retrieve(cfg, cat, "adapter");
 +			port = ast_variable_retrieve(cfg, cat, "port");
@@ -2040,8 +2036,7 @@ index 0000000..e3f5ec3
 +					if (!ast_strlen_zero(nocallsetup)) {
 +						if ((*nocallsetup == 'y') || (*nocallsetup == 'Y')) {
 +							pvt->no_callsetup = 1;
-+							if (option_debug)
-+								ast_log(LOG_DEBUG, "Setting nocallsetup mode for device %s.\n", pvt->id);
++							ast_debug(1, "Setting nocallsetup mode for device %s.\n", pvt->id);
 +						}
 +					}
 +					pvt->dsp = ast_dsp_new();
@@ -2236,18 +2231,19 @@ index 0000000..7ef26d8
 +type=headset
 +adapter=dlink
 diff --git a/configure.ac b/configure.ac
-index 765c3c0..365b551 100644
+index c9d87ff..708f4cf 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -173,6 +173,7 @@ AC_SUBST(AST_DEVMODE)
- # by the --with option name, to make things easier for the users :-)
- 
- AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
+@@ -203,6 +203,8 @@ AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
+ # BKTR is used for backtrace support on platforms that do not
+ # have it natively.
+ AST_EXT_LIB_SETUP([BKTR], [Stack Backtrace support], [execinfo])
 +AST_EXT_LIB_SETUP([BLUETOOTH], [Bluetooth Support], [bluetooth])
- AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
++AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
  AST_EXT_LIB_SETUP([CAP], [POSIX 1.e capabilities], [cap])
+ AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
  AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
-@@ -399,6 +400,8 @@ AC_CHECK_SIZEOF(int)
+@@ -518,6 +520,8 @@ AC_CHECK_SIZEOF(int)
  
  AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -ldl])
  
@@ -2503,10 +2499,10 @@ index 0000000..32fcfd4
 +
 +email me at   david.bowerman at gmail.com   or dseeb_ on #asterisk & #asterisk-dev irc.
 diff --git a/makeopts.in b/makeopts.in
-index 983c7a9..6ac8df7 100644
+index 5baa11f..3769c87 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -66,6 +66,9 @@ AST_DECLARATION_AFTER_STATEMENT=@AST_DECLARATION_AFTER_STATEMENT@
+@@ -68,6 +68,9 @@ AST_DECLARATION_AFTER_STATEMENT=@AST_DECLARATION_AFTER_STATEMENT@
  ASOUND_INCLUDE=@ALSA_INCLUDE@
  ASOUND_LIB=@ALSA_LIB@
  

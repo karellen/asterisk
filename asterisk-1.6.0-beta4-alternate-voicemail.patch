@@ -1,4 +1,4 @@
-From fca22baf837f885be443c220330a9c4d6a605897 Mon Sep 17 00:00:00 2001
+From 4a9fc9906f22f46512262e8a28ebc0d0a4fbd94b Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 15:52:36 -0600
 Subject: [PATCH] Modify modules.conf so that different voicemail modules can be loaded.
@@ -8,13 +8,13 @@ Subject: [PATCH] Modify modules.conf so that different voicemail modules can be 
  1 files changed, 27 insertions(+), 0 deletions(-)
 
 diff --git a/configs/modules.conf.sample b/configs/modules.conf.sample
-index 9302e87..b2ef961 100644
+index 2ca3c03..ae20637 100644
 --- a/configs/modules.conf.sample
 +++ b/configs/modules.conf.sample
-@@ -33,3 +33,30 @@ load => res_musiconhold.so
- ;
+@@ -37,3 +37,30 @@ load => res_musiconhold.so
  noload => chan_alsa.so
  ;noload => chan_oss.so
+ ;noload => chan_console.so
 +
 +;
 +; Voicemail storage selection

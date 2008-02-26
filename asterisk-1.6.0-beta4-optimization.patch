@@ -1,4 +1,4 @@
-From f3359ab4608ea90ac03dd90f5e7249256c107dcc Mon Sep 17 00:00:00 2001
+From 839089fcb6d5d48a808b5f683885c80d0e3a76b8 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 16:42:14 -0600
 Subject: [PATCH] Pick proper optimization flags for Fedora.
@@ -8,10 +8,10 @@ Subject: [PATCH] Pick proper optimization flags for Fedora.
  1 files changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 5343672..e932f90 100644
+index 1b6616f..9d268b9 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -198,10 +198,16 @@ ifeq ($(OSARCH),linux-gnu)
+@@ -221,10 +221,16 @@ ifeq ($(OSARCH),linux-gnu)
  endif
  
  ifeq ($(findstring -save-temps,$(ASTCFLAGS)),)
@@ -30,7 +30,7 @@ index 5343672..e932f90 100644
  
  ASTCFLAGS+=-include $(ASTTOPDIR)/include/asterisk/autoconfig.h
  
-@@ -214,8 +220,10 @@ ifneq ($(findstring BSD,$(OSARCH)),)
+@@ -237,8 +243,10 @@ ifneq ($(findstring BSD,$(OSARCH)),)
    ASTLDFLAGS+=-L/usr/local/lib
  endif
  

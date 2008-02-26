@@ -1,0 +1,34 @@
+From 3a3baa63fe0c890596e3779f1547db23df9bd484 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Mon, 25 Feb 2008 13:14:23 -0600
+Subject: [PATCH] Use pkgconfig to check for Lua.
+
+---
+ configure.ac |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 708f4cf..40899e4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1307,9 +1307,14 @@ if test "${PBX_PWLIB}" = "1" -a "${USE_OPENH323}" != "no" ; then
+ 		[${PWLIB_INCLUDE}], [${PWLIB_LIB}])
+ fi
+ 
+-LUA_INCLUDE="-I/usr/include/lua5.1"
+-LUA_LIB="-llua5.1"
+-AST_EXT_LIB_CHECK([LUA], [lua5.1], [luaL_newstate], [lua5.1/lua.h]) 
++PBX_LUA=0
++AC_CHECK_TOOL(PKGCONFIG, pkg-config, No)
++if test ! "x${PKGCONFIG}" = xNo; then
++   LUA_INCLUDE=$(${PKGCONFIG} lua --cflags 2>/dev/null)
++   LUA_LIB=$(${PKGCONFIG} lua --libs 2>/dev/null)
++   PBX_LUA=1
++   AC_DEFINE([HAVE_LUA], 1, [Define if your system has the LUA libraries.])
++fi
+ 
+ AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
+ 
+-- 
+1.5.4.1
+

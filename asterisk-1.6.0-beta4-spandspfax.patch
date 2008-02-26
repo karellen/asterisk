@@ -1,4 +1,4 @@
-From ffc11985802a32f48138695cb9e33a33f379d844 Mon Sep 17 00:00:00 2001
+From 91f54af21c2766bc59d90fa44a46fcb696d42ce5 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 12 Nov 2007 15:51:12 -0600
 Subject: [PATCH] Add FAX apps.
@@ -712,22 +712,22 @@ index 0000000..713ecf1
 +
 +/*- End of file ------------------------------------------------------------*/
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index e9eac56..6bf5131 100644
+index 80eaf7d..4923560 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
-@@ -21,6 +21,7 @@ PGSQL=@PBX_PGSQL@
- POPT=@PBX_POPT@
+@@ -29,6 +29,7 @@ POPT=@PBX_POPT@
+ PORTAUDIO=@PBX_PORTAUDIO@
  PRI=@PBX_PRI@
  RADIUS=@PBX_RADIUS@
 +SPANDSP=@PBX_SPANDSP@
  SPEEX=@PBX_SPEEX@
  SPEEXDSP=@PBX_SPEEXDSP@
- SQLITE=@PBX_SQLITE@
+ SQLITE3=@PBX_SQLITE3@
 diff --git a/configure.ac b/configure.ac
-index f52184d..765c3c0 100644
+index 883198f..c9d87ff 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -198,6 +198,7 @@ AST_EXT_LIB_SETUP([PRI], [ISDN PRI], [pri])
+@@ -235,6 +235,7 @@ AST_EXT_LIB_SETUP([SS7], [ISDN SS7], [ss7])
  AST_EXT_LIB_SETUP([PWLIB], [PWlib], [pwlib])
  AST_EXT_LIB_SETUP([OPENH323], [OpenH323], [h323])
  AST_EXT_LIB_SETUP([RADIUS], [Radius Client], [radius])
@@ -735,7 +735,7 @@ index f52184d..765c3c0 100644
  AST_EXT_LIB_SETUP([SPEEX], [Speex], [speex])
  AST_EXT_LIB_SETUP([SPEEXDSP], [Speexdsp], [speexdsp])
  AST_EXT_LIB_SETUP([SQLITE], [SQLite], [sqlite])
-@@ -896,6 +897,8 @@ fi
+@@ -1308,6 +1309,8 @@ AST_EXT_LIB_CHECK([LUA], [lua5.1], [luaL_newstate], [lua5.1/lua.h])
  
  AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
  
@@ -745,12 +745,12 @@ index f52184d..765c3c0 100644
  
  AST_EXT_LIB_CHECK([SPEEXDSP], [speexdsp], [speex_preprocess_ctl], [speex/speex.h], [-lm])
 diff --git a/makeopts.in b/makeopts.in
-index 88a414f..983c7a9 100644
+index 1b150a9..5baa11f 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -137,6 +137,9 @@ PWLIB_LIB=@PWLIB_LIB@
- RADIUS_INCLUDE=@RADIUS_INCLUDE@
- RADIUS_LIB=@RADIUS_LIB@
+@@ -165,6 +165,9 @@ SDL_LIB=@SDL_LIB@
+ SDL_IMAGE_INCLUDE=@SDL_IMAGE_INCLUDE@
+ SDL_IMAGE_LIB=@SDL_IMAGE_LIB@
  
 +SPANDSP_INCLUDE=@SPANDSP_INCLUDE@
 +SPANDSP_LIB=@SPANDSP_LIB@
