@@ -4,13 +4,10 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.1.beta4%{?dist}
+Release: 0.2.beta4%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=435035
-ExcludeArch: ppc64
 
 # The asterisk tarball contains some items that we don't want in there,
 # so start with the original tarball from here:
@@ -45,6 +42,7 @@ Patch7:  asterisk-1.6.0-beta4-chanmobile.patch
 Patch8:  asterisk-1.6.0-beta4-lua.patch
 Patch9:  asterisk-1.6.0-beta4-autoconf.patch
 Patch10: asterisk-1.6.0-beta4-astcanary.patch
+Patch11: asterisk-1.6.0-beta4-funcdesc.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -406,6 +404,7 @@ Modules for Asterisk that use Zaptel.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1009,6 +1008,12 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Tue Feb 26 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.2.beta4
+- Add patch from David Woodhouse that fixes building on PPC64.
+
+* Tue Feb 26 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.1.beta4
+- Update to 1.6.0 beta 4
+
 * Wed Feb 13 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.4.18-1
 - Update to 1.4.18.
 - Use -march=i486 on i386 builds for atomic operations (GCC 4.3

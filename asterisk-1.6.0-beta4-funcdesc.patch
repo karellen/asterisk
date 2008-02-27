@@ -1,0 +1,37 @@
+diff -urp asterisk-1.6.0-beta4.orig/build_tools/strip_nonapi asterisk-1.6.0-beta4/build_tools/strip_nonapi
+--- asterisk-1.6.0-beta4.orig/build_tools/strip_nonapi	2008-01-02 09:05:30.000000000 -0500
++++ asterisk-1.6.0-beta4/build_tools/strip_nonapi	2008-02-26 22:25:31.000000000 -0500
+@@ -16,11 +16,20 @@
+ #	pbx_
+ #	resample_
+ 
++case "${PROC}" in
++    powerpc64)
++	TEXTSYM=" D "
++	;;
++    *)
++	TEXTSYM=" T "
++	;;
++esac
++
+ FILTER="${GREP} -v -e ^ast_ -e ^_ast_ -e ^__ast_ -e ^astman_ -e ^pbx_ -e ^resample_"
+ 
+ case "${OSARCH}" in
+     linux-gnu|FreeBSD)
+-	nm ${1} | ${GREP} -e " T " | cut -d" " -f3 | ${FILTER} > striplist
++	nm ${1} | ${GREP} -e "$TEXTSYM" | cut -d" " -f3 | ${FILTER} > striplist
+ 	sed -e "s/^/-N /" striplist | xargs ${STRIP} ${1}
+ 	rm -f striplist
+ 	;;
+diff -urp asterisk-1.6.0-beta4.orig/main/Makefile asterisk-1.6.0-beta4/main/Makefile
+--- asterisk-1.6.0-beta4.orig/main/Makefile	2008-01-29 12:44:05.000000000 -0500
++++ asterisk-1.6.0-beta4/main/Makefile	2008-02-26 22:27:44.000000000 -0500
+@@ -163,7 +163,7 @@ ifneq ($(findstring chan_h323,$(MENUSELE
+ else
+ 	$(CMD_PREFIX) $(CXX) $(STATIC_BUILD) -o $@ $(ASTLINK) $(AST_EMBED_LDFLAGS) $(ASTLDFLAGS) $(H323LDFLAGS) $^ buildinfo.o $(AST_LIBS) $(AST_EMBED_LIBS) $(H323LDLIBS)
+ endif
+-	@$(ASTTOPDIR)/build_tools/strip_nonapi $@
++	$(CMD_PREFIX) $(ASTTOPDIR)/build_tools/strip_nonapi $@ || rm $@
+ 
+ clean::
+ 	rm -f asterisk
