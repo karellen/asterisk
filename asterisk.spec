@@ -1,10 +1,10 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 4
+%define beta 5
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.3.beta4%{?dist}
+Release: 0.4.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -18,13 +18,13 @@ URL: http://www.asterisk.org/
 #
 # MD5 Sums
 # ========
-# 96b5b0cb960ddd88bb09896e62c85f6b  asterisk-1.6.0-beta4.tar.gz
-# 827fca887b15d5141c08cdef30b7ceb0  asterisk-1.6.0-beta4-stripped.tar.gz
+# dbed33a8ee036ee7ecf9280f3f04f5de  asterisk-1.6.0-beta5.tar.gz
+# c8d03cb1af828da07177fe837546d6f9  asterisk-1.6.0-beta5-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 1f67154aefdb25fb03eb4b378a2c61a7ee1bd434  asterisk-1.6.0-beta4.tar.gz
-# 9f1b7d4e6b405327a038ed7cc484460beac26852  asterisk-1.6.0-beta4-stripped.tar.gz
+# 3061015fba17766948fc33b0f7dfb9ad187b5981  asterisk-1.6.0-beta5.tar.gz
+# 5eb34e991168f7a53334fef72a3d79a9c6170156  asterisk-1.6.0-beta5-stripped.tar.gz
 
 Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -32,17 +32,15 @@ Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source4: asterisk-strip.sh
 
-Patch1:  asterisk-1.6.0-beta4-initscripts.patch
-Patch2:  asterisk-1.6.0-beta4-alternate-voicemail.patch
-Patch3:  asterisk-1.6.0-beta4-spandspfax.patch
-Patch4:  asterisk-1.6.0-beta4-appconference.patch
-Patch5:  asterisk-1.6.0-beta4-alternate-extensions.patch
-Patch6:  asterisk-1.6.0-beta4-optimization.patch
-Patch7:  asterisk-1.6.0-beta4-chanmobile.patch
-Patch8:  asterisk-1.6.0-beta4-lua.patch
-Patch9:  asterisk-1.6.0-beta4-autoconf.patch
-Patch10: asterisk-1.6.0-beta4-astcanary.patch
-Patch11: asterisk-1.6.0-beta4-funcdesc.patch
+Patch1:  asterisk-1.6.0-beta5-initscripts.patch
+Patch2:  asterisk-1.6.0-beta5-alternate-voicemail.patch
+Patch3:  asterisk-1.6.0-beta5-spandspfax.patch
+Patch4:  asterisk-1.6.0-beta5-appconference.patch
+Patch5:  asterisk-1.6.0-beta5-alternate-extensions.patch
+Patch6:  asterisk-1.6.0-beta5-optimization.patch
+Patch7:  asterisk-1.6.0-beta5-chanmobile.patch
+Patch8:  asterisk-1.6.0-beta5-lua.patch
+Patch9:  asterisk-1.6.0-beta5-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -403,8 +401,6 @@ Modules for Asterisk that use Zaptel.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1010,6 +1006,10 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Mar  5 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.4.beta5
+- Update to 1.6.0-beta5
+- Remove upstreamed patches.
+
 * Mon Mar  3 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.3.beta4
 - Package the directory used to store monitor recordings.
 

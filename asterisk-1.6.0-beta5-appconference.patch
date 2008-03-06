@@ -21,10 +21,10 @@ index 22b8f6d..d2be277 100644
 +	$(CMD_PREFIX) $(CXX) $(PTHREAD_CFLAGS) $(ASTLDFLAGS) $(SOLINK) -o $@ $^ -lspeex
 diff --git a/apps/app_conference.c b/apps/app_conference.c
 new file mode 100644
-index 0000000..824d5dd
+index 0000000..3c7205b
 --- /dev/null
 +++ b/apps/app_conference.c
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,106 @@
 +/*
 + * app_conference
 + *
@@ -54,14 +54,7 @@ index 0000000..824d5dd
 +
 +#include "asterisk.h"
 +
-+// SVN revision number, provided by make
-+#ifndef REVISION
-+#define REVISION "unknown"
-+#endif
-+
-+static char *revision = REVISION;
-+
-+ASTERISK_FILE_VERSION(__FILE__, REVISION)
++ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
 +
 +#include "app_conference.h"
 +#include "common.h"
@@ -111,7 +104,7 @@ index 0000000..824d5dd
 +
 +static int load_module( void )
 +{
-+	ast_log( LOG_NOTICE, "Loading app_conference module, revision=%s\n", revision) ;
++	ast_log( LOG_NOTICE, "Loading app_conference module\n") ;
 +
 +	init_conference() ;
 +
@@ -1119,10 +1112,10 @@ index 0000000..e3415c4
 +
 diff --git a/apps/conference/cli.c b/apps/conference/cli.c
 new file mode 100644
-index 0000000..ab7d3ca
+index 0000000..1f84cd4
 --- /dev/null
 +++ b/apps/conference/cli.c
-@@ -0,0 +1,1113 @@
+@@ -0,0 +1,1116 @@
 +
 +// $Id: cli.c 884 2007-06-27 14:56:21Z sbalea $
 +
@@ -1153,9 +1146,12 @@ index 0000000..ab7d3ca
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
 +
++#include "asterisk.h"
++
++ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
++
 +#include "asterisk/autoconfig.h"
 +#include "cli.h"
-+
 +
 +static char *handle_cli_app_conference_restart(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
 +{
@@ -2443,10 +2439,10 @@ index 0000000..e73e57a
 +#endif
 diff --git a/apps/conference/conference.c b/apps/conference/conference.c
 new file mode 100644
-index 0000000..e98c67f
+index 0000000..824363a
 --- /dev/null
 +++ b/apps/conference/conference.c
-@@ -0,0 +1,3021 @@
+@@ -0,0 +1,3024 @@
 +
 +// $Id: conference.c 886 2007-08-06 14:33:34Z bcholew $
 +
@@ -2476,6 +2472,9 @@ index 0000000..e98c67f
 + * program; if not, write to the Free Software Foundation, Inc.
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
++
++#include "asterisk.h"
++ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
 +
 +#include "asterisk/autoconfig.h"
 +#include "conference.h"
@@ -5666,10 +5665,10 @@ index 0000000..6ef6676
 +#endif
 diff --git a/apps/conference/frame.c b/apps/conference/frame.c
 new file mode 100644
-index 0000000..24e04bd
+index 0000000..fbc7a96
 --- /dev/null
 +++ b/apps/conference/frame.c
-@@ -0,0 +1,679 @@
+@@ -0,0 +1,683 @@
 +
 +// $Id: frame.c 751 2006-12-11 22:08:45Z sbalea $
 +
@@ -5699,6 +5698,10 @@ index 0000000..24e04bd
 + * program; if not, write to the Free Software Foundation, Inc.
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
++
++#include "asterisk.h"
++
++ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
 +
 +#include "asterisk/autoconfig.h"
 +#include "frame.h"

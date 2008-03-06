@@ -1,4 +1,4 @@
-From d08779cdcd6741f223556e837bda66c72f82e016 Mon Sep 17 00:00:00 2001
+From 71326da75705d098df0d569960d5ec6477800511 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 09:23:28 -0600
 Subject: [PATCH] Add chan_mobile from asterisk-addons.
@@ -2231,7 +2231,7 @@ index 0000000..7ef26d8
 +type=headset
 +adapter=dlink
 diff --git a/configure.ac b/configure.ac
-index c9d87ff..708f4cf 100644
+index cacb116..c85548a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -203,6 +203,8 @@ AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
@@ -2243,7 +2243,7 @@ index c9d87ff..708f4cf 100644
  AST_EXT_LIB_SETUP([CAP], [POSIX 1.e capabilities], [cap])
  AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
  AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
-@@ -518,6 +520,8 @@ AC_CHECK_SIZEOF(int)
+@@ -519,6 +521,8 @@ AC_CHECK_SIZEOF(int)
  
  AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -ldl])
  
@@ -2513,5 +2513,5 @@ index 5baa11f..3769c87 100644
  CURL_LIB=@CURL_LIB@
  
 -- 
-1.5.4.1
+1.5.4.3
 
