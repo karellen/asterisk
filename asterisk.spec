@@ -4,7 +4,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.4.beta%{beta}%{?dist}
+Release: 0.5.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -293,6 +293,8 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 BuildRequires: net-snmp-devel
 BuildRequires: lm_sensors-devel
+# This subpackage depends on perl-libs, this Requires tracks versioning.
+Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 %description snmp
 Module that enables SNMP monitoring of Asterisk.
@@ -1006,6 +1008,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Tue Mar 18 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 1.6.0-0.5.beta5
+- add Requires for versioned perl (libperl.so)
+
 * Wed Mar  5 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.4.beta5
 - Update to 1.6.0-beta5
 - Remove upstreamed patches.
