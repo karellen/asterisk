@@ -1,10 +1,10 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 5
+%define beta 6
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.5.beta%{beta}%{?dist}
+Release: 0.6.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -18,13 +18,13 @@ URL: http://www.asterisk.org/
 #
 # MD5 Sums
 # ========
-# dbed33a8ee036ee7ecf9280f3f04f5de  asterisk-1.6.0-beta5.tar.gz
-# c8d03cb1af828da07177fe837546d6f9  asterisk-1.6.0-beta5-stripped.tar.gz
+# aa5d2cf5c822bc5b542f58d21a2dc086  asterisk-1.6.0-beta6.tar.gz
+# 4415aa27d70796046c330a2f9d43a752  asterisk-1.6.0-beta6-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 3061015fba17766948fc33b0f7dfb9ad187b5981  asterisk-1.6.0-beta5.tar.gz
-# 5eb34e991168f7a53334fef72a3d79a9c6170156  asterisk-1.6.0-beta5-stripped.tar.gz
+# 52c7eaf2ff6e80644d8b7ef7a8f70520ca2a1396  asterisk-1.6.0-beta6.tar.gz
+# 4f309a4b6bf00a9d1f18d26cc9fd540b756bbbd9  asterisk-1.6.0-beta6-stripped.tar.gz
 
 Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -32,15 +32,15 @@ Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source4: asterisk-strip.sh
 
-Patch1:  asterisk-1.6.0-beta5-initscripts.patch
-Patch2:  asterisk-1.6.0-beta5-alternate-voicemail.patch
-Patch3:  asterisk-1.6.0-beta5-spandspfax.patch
-Patch4:  asterisk-1.6.0-beta5-appconference.patch
-Patch5:  asterisk-1.6.0-beta5-alternate-extensions.patch
-Patch6:  asterisk-1.6.0-beta5-optimization.patch
-Patch7:  asterisk-1.6.0-beta5-chanmobile.patch
-Patch8:  asterisk-1.6.0-beta5-lua.patch
-Patch9:  asterisk-1.6.0-beta5-autoconf.patch
+Patch1:  asterisk-1.6.0-beta6-initscripts.patch
+Patch2:  asterisk-1.6.0-beta6-alternate-voicemail.patch
+Patch3:  asterisk-1.6.0-beta6-spandspfax.patch
+Patch4:  asterisk-1.6.0-beta6-appconference.patch
+Patch5:  asterisk-1.6.0-beta6-alternate-extensions.patch
+Patch6:  asterisk-1.6.0-beta6-optimization.patch
+Patch7:  asterisk-1.6.0-beta6-chanmobile.patch
+Patch8:  asterisk-1.6.0-beta6-lua.patch
+Patch9:  asterisk-1.6.0-beta6-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -1008,6 +1008,28 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Mar 19 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.6.beta6
+- Update to 1.6.0-beta6 to fix some security issues.
+-
+- AST-2008-002 details two buffer overflows that were discovered in
+- RTP codec payload type handling.
+-  * http://downloads.digium.com/pub/security/AST-2008-002.pdf
+-  * All users of SIP in Asterisk 1.4 and 1.6 are affected.
+-
+- AST-2008-003 details a vulnerability which allows an attacker to
+- bypass SIP authentication and to make a call into the context
+- specified in the general section of sip.conf.
+-  * http://downloads.digium.com/pub/security/AST-2008-003.pdf
+-  * All users of SIP in Asterisk 1.0, 1.2, 1.4, or 1.6 are affected.
+-
+- AST-2008-004 Logging messages displayed using the ast_verbose
+- logging API call are not displayed as a character string, they are
+- displayed as a format string.
+-  * http://downloads.digium.com/pub/security/AST-2008-004.pdf
+-
+- AST-2008-005 details a problem in the way manager IDs are caculated.
+-  * http://downloads.digium.com/pub/security/AST-2008-005.pdf
+
 * Tue Mar 18 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 1.6.0-0.5.beta5
 - add Requires for versioned perl (libperl.so)
 
