@@ -4,7 +4,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.6.beta%{beta}%{?dist}
+Release: 0.8.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -40,7 +40,8 @@ Patch5:  asterisk-1.6.0-beta6-alternate-extensions.patch
 Patch6:  asterisk-1.6.0-beta6-optimization.patch
 Patch7:  asterisk-1.6.0-beta6-chanmobile.patch
 Patch8:  asterisk-1.6.0-beta6-lua.patch
-Patch9:  asterisk-1.6.0-beta6-autoconf.patch
+Patch9:  asterisk-1.6.0-beta6-editline.patch
+Patch10: asterisk-1.6.0-beta6-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -73,6 +74,9 @@ BuildRequires: libvorbis-devel
 
 # codec_gsm
 BuildRequires: gsm-devel
+
+# cli
+BuildRequires: libedit-devel
 
 Requires(pre): %{_sbindir}/useradd
 Requires(pre): %{_sbindir}/groupadd
@@ -403,6 +407,7 @@ Modules for Asterisk that use Zaptel.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -421,7 +426,9 @@ rm main/fskmodem.c.old
 
 # if we are building for i386 promote the CPU arch to i486 for atomic operations support
 %ifarch i386
-%define optflags %{__global_cflags} -m32 -march=i486 -mtune=generic -fasynchronous-unwind-tables
+%define optflags %{__global_cflags} -m32 -march=i486 -mtune=generic -fasynchronous-unwind-tables -Werror-implicit-function-declaration
+%else
+%define optflags %(rpm --eval %%{optflags}) -Werror-implicit-function-declaration
 %endif
 
 #aclocal
@@ -440,7 +447,7 @@ pushd main/editline
 %configure
 popd
 
-%configure --with-imap=system --with-gsm=/usr
+%configure --with-imap=system --with-gsm=/usr --with-libedit=yes
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
 
@@ -510,6 +517,10 @@ rm -rf %{buildroot}%{_localstatedir}/spool/asterisk/voicemail/default
 
 # Don't package example phone provision configs
 rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
+
+# these are compiled with -O0 and thus include unfortified code.
+rm -rf %{buildroot}%{_sbindir}/hashtest
+rm -rf %{buildroot}%{_sbindir}/hashtest2
 
 %if %{with_apidoc}
 find doc/api/html -name \*.map -size 0 -delete
@@ -717,8 +728,6 @@ fi
 %{_sbindir}/autosupport
 %{_sbindir}/check_expr
 %{_sbindir}/conf2ael
-%{_sbindir}/hashtest
-%{_sbindir}/hashtest2
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
 %{_sbindir}/safe_asterisk
@@ -1008,6 +1017,16 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Tue Mar 25 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.8.beta6
+- Update patches.
+- Add patch to compile against external libedit rather than using the
+  in-tree version.
+- Add -Werror-implicit-function-declaration to optflags.
+- Get rid of hashtest and hashtest2 binaries that link to unfortified
+  versions of *printf functions.  They are compiled with -O0 which
+  somehow pulls in the wrong versions.  These programs aren't
+  necessary to the operation of the package anyway.
+
 * Wed Mar 19 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.6.beta6
 - Update to 1.6.0-beta6 to fix some security issues.
 -

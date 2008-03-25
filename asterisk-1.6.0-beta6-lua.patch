@@ -1,4 +1,4 @@
-From deaa6ef7c67297cda351f888fba4c195295a0bca Mon Sep 17 00:00:00 2001
+From 5e2202876cb8ab3f2e43bd2111884913c81a8186 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 13:14:23 -0600
 Subject: [PATCH] Use pkgconfig to check for Lua.

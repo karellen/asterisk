@@ -1,4 +1,4 @@
-From 38296a8480f5a77ff31086cddbd5c3828f782116 Mon Sep 17 00:00:00 2001
+From 3f5b21bd6efb829d144605c431a87c13936ecb5e Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 09:23:28 -0600
 Subject: [PATCH] Add chan_mobile from asterisk-addons.

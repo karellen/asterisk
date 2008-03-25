@@ -1,3 +1,48 @@
+From 45933f50742575621d0be7c0a439d26c7211f930 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Mon, 24 Mar 2008 23:25:39 -0500
+Subject: [PATCH] Applying latest appconference.
+
+---
+ apps/Makefile                      |   13 +
+ apps/app_conference.c              |  106 ++
+ apps/conference/CLI.txt            |   96 +
+ apps/conference/Flags.txt          |   35 +
+ apps/conference/LICENSE            |  341 ++++
+ apps/conference/README             |  125 ++
+ apps/conference/README.videoswitch |   87 +
+ apps/conference/TODO               |    4 +
+ apps/conference/app_conference.h   |  249 +++
+ apps/conference/cli.c              | 1116 ++++++++++++
+ apps/conference/cli.h              |   51 +
+ apps/conference/common.h           |   63 +
+ apps/conference/conf_frame.h       |   73 +
+ apps/conference/conference.c       | 3024 ++++++++++++++++++++++++++++++++
+ apps/conference/conference.h       |  190 ++
+ apps/conference/frame.c            |  683 ++++++++
+ apps/conference/frame.h            |   75 +
+ apps/conference/member.c           | 3379 ++++++++++++++++++++++++++++++++++++
+ apps/conference/member.h           |  336 ++++
+ 19 files changed, 10046 insertions(+), 0 deletions(-)
+ create mode 100644 apps/app_conference.c
+ create mode 100644 apps/conference/CLI.txt
+ create mode 100644 apps/conference/Flags.txt
+ create mode 100644 apps/conference/LICENSE
+ create mode 100644 apps/conference/README
+ create mode 100644 apps/conference/README.videoswitch
+ create mode 100644 apps/conference/TODO
+ create mode 100644 apps/conference/app_conference.h
+ create mode 100644 apps/conference/cli.c
+ create mode 100644 apps/conference/cli.h
+ create mode 100644 apps/conference/common.h
+ create mode 100644 apps/conference/conf_frame.h
+ create mode 100644 apps/conference/conference.c
+ create mode 100644 apps/conference/conference.h
+ create mode 100644 apps/conference/frame.c
+ create mode 100644 apps/conference/frame.h
+ create mode 100644 apps/conference/member.c
+ create mode 100644 apps/conference/member.h
+
 diff --git a/apps/Makefile b/apps/Makefile
 index 22b8f6d..d2be277 100644
 --- a/apps/Makefile
@@ -2439,7 +2484,7 @@ index 0000000..e73e57a
 +#endif
 diff --git a/apps/conference/conference.c b/apps/conference/conference.c
 new file mode 100644
-index 0000000..824363a
+index 0000000..4d82633
 --- /dev/null
 +++ b/apps/conference/conference.c
 @@ -0,0 +1,3024 @@
@@ -4520,7 +4565,7 @@ index 0000000..824363a
 +		if ( longest_speaking_member )
 +			// Somebody is talking, switch to that member
 +			new_id = longest_speaking_member->id;
-+		else if ( conf->default_video_source_id &&
++		else if ( conf->default_video_source_id >= 0  &&
 +		          (!default_no_video || default_force_switch)
 +		        )
 +			// No talking, but we have a default that can send video
@@ -10160,3 +10205,6 @@ index 0000000..62f3e59
 +extern int ast_packer_feed(struct ast_packer *s, const struct ast_frame *f);
 +extern struct ast_frame *ast_packer_read(struct ast_packer *s);
 +#endif
+-- 
+1.5.4.3
+

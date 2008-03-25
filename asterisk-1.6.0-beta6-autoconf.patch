@@ -1,15 +1,15 @@
-From b289fe040480f9a9e923b50e568e18f70f1cc824 Mon Sep 17 00:00:00 2001
+From b308f69dd658b51c5535251b7296d5680d421e52 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Mon, 25 Feb 2008 13:15:55 -0600
+Date: Tue, 25 Mar 2008 00:51:35 -0500
 Subject: [PATCH] Update autoconf.
 
 ---
- configure                        |  808 ++++++++++++++++++++++++++++++--------
- include/asterisk/autoconfig.h.in |   17 +-
- 2 files changed, 650 insertions(+), 175 deletions(-)
+ configure                        |  983 +++++++++++++++++++++++++++++++-------
+ include/asterisk/autoconfig.h.in |   20 +-
+ 2 files changed, 820 insertions(+), 183 deletions(-)
 
 diff --git a/configure b/configure
-index 4199e72..9ecb39b 100755
+index 4199e72..011c661 100755
 --- a/configure
 +++ b/configure
 @@ -1,5 +1,5 @@
@@ -42,7 +42,18 @@ index 4199e72..9ecb39b 100755
  CURSES_LIB
  CURSES_INCLUDE
  CURSES_DIR
-@@ -872,6 +876,10 @@ SDL_IMAGE_LIB
+@@ -788,6 +792,10 @@ LDAP_LIB
+ LDAP_INCLUDE
+ LDAP_DIR
+ PBX_LDAP
++LIBEDIT_LIB
++LIBEDIT_INCLUDE
++LIBEDIT_DIR
++PBX_LIBEDIT
+ LTDL_LIB
+ LTDL_INCLUDE
+ LTDL_DIR
+@@ -872,6 +880,10 @@ SDL_IMAGE_LIB
  SDL_IMAGE_INCLUDE
  SDL_IMAGE_DIR
  PBX_SDL_IMAGE
@@ -53,7 +64,7 @@ index 4199e72..9ecb39b 100755
  SPEEX_LIB
  SPEEX_INCLUDE
  SPEEX_DIR
-@@ -963,6 +971,7 @@ OPENH323_INCDIR
+@@ -963,6 +975,7 @@ OPENH323_INCDIR
  OPENH323_LIBDIR
  OPENH323_SUFFIX
  OPENH323_BUILD
@@ -61,15 +72,16 @@ index 4199e72..9ecb39b 100755
  CONFIG_GMIME
  PBX_ZAPTEL_VLDTMF
  PBX_ZAPTEL_ECHOCANPARAMS
-@@ -974,7 +983,6 @@ PBX_H323
+@@ -974,7 +987,7 @@ PBX_H323
  PBX_IXJUSER
  CONFIG_SDL
  CONFIG_GTK
 -PKGCONFIG
++LIBEDIT_OBJ
  CURL_CONFIG
  LTLIBOBJS'
  ac_subst_files=''
-@@ -1574,8 +1582,9 @@ Optional Packages:
+@@ -1574,8 +1587,9 @@ Optional Packages:
    --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
    --with-asound=PATH      use Advanced Linux Sound Architecture files in PATH
    --with-execinfo=PATH    use Stack Backtrace support files in PATH
@@ -80,7 +92,15 @@ index 4199e72..9ecb39b 100755
    --with-curses=PATH      use curses files in PATH
    --with-crypto=PATH      use OpenSSL Cryptography support files in PATH
    --with-avcodec=PATH     use Ffmpeg and avcodec library files in PATH
-@@ -1611,6 +1620,7 @@ Optional Packages:
+@@ -1590,6 +1604,7 @@ Optional Packages:
+   --with-isdnnet=PATH     use ISDN4Linux Library files in PATH
+   --with-jack=PATH        use Jack Audio Connection Kit files in PATH
+   --with-ldap=PATH        use OpenLDAP files in PATH
++  --with-libedit=PATH     use NetBSD Editline library files in PATH
+   --with-ltdl=PATH        use libtool files in PATH
+   --with-lua=PATH         use Lua files in PATH
+   --with-misdn=PATH       use mISDN User Library files in PATH
+@@ -1611,6 +1626,7 @@ Optional Packages:
    --with-radius=PATH      use Radius Client files in PATH
    --with-sdl=PATH         use Sdl files in PATH
    --with-SDL_image=PATH   use Sdl Image library files in PATH
@@ -88,7 +108,7 @@ index 4199e72..9ecb39b 100755
    --with-speex=PATH       use Speex files in PATH
    --with-speexdsp=PATH    use Speexdsp files in PATH
    --with-sqlite=PATH      use SQLite files in PATH
-@@ -7940,6 +7950,62 @@ fi
+@@ -7940,6 +7956,62 @@ fi
  
  
  
@@ -151,7 +171,42 @@ index 4199e72..9ecb39b 100755
      CAP_DESCRIP="POSIX 1.e capabilities"
      CAP_OPTION="cap"
  
-@@ -8948,6 +9014,34 @@ fi
+@@ -8360,6 +8432,34 @@ fi
+ 
+ 
+ 
++    LIBEDIT_DESCRIP="NetBSD Editline library"
++    LIBEDIT_OPTION="libedit"
++
++# Check whether --with-libedit was given.
++if test "${with_libedit+set}" = set; then
++  withval=$with_libedit;
++	case ${withval} in
++	n|no)
++	USE_LIBEDIT=no
++	;;
++	y|ye|yes)
++	ac_mandatory_list="${ac_mandatory_list} LIBEDIT"
++	;;
++	*)
++	LIBEDIT_DIR="${withval}"
++	ac_mandatory_list="${ac_mandatory_list} LIBEDIT"
++	;;
++	esac
++
++fi
++
++    PBX_LIBEDIT=0
++
++
++
++
++
++
+     LTDL_DESCRIP="libtool"
+     LTDL_OPTION="ltdl"
+ 
+@@ -8948,6 +9048,34 @@ fi
  
  
  
@@ -186,7 +241,7 @@ index 4199e72..9ecb39b 100755
      SPEEX_DESCRIP="Speex"
      SPEEX_OPTION="speex"
  
-@@ -12769,13 +12863,11 @@ _ACEOF
+@@ -12769,13 +12897,11 @@ _ACEOF
  cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
@@ -202,7 +257,7 @@ index 4199e72..9ecb39b 100755
    ;
    return 0;
  }
-@@ -12815,13 +12907,11 @@ cat confdefs.h >>conftest.$ac_ext
+@@ -12815,13 +12941,11 @@ cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
  #define _LARGEFILE_SOURCE 1
@@ -218,7 +273,7 @@ index 4199e72..9ecb39b 100755
    ;
    return 0;
  }
-@@ -18120,6 +18210,268 @@ fi
+@@ -18120,6 +18244,268 @@ fi
  
  
  
@@ -487,7 +542,7 @@ index 4199e72..9ecb39b 100755
  if test "x${PBX_CURSES}" != "x1" -a "${USE_CURSES}" != "no"; then
     pbxlibdir=""
     # if --with-CURSES=DIR has been specified, use it.
-@@ -40874,31 +41226,137 @@ _ACEOF
+@@ -40874,31 +41260,137 @@ _ACEOF
  
  fi
  
@@ -531,8 +586,7 @@ index 4199e72..9ecb39b 100755
 +echo "${ECHO_T}no" >&6; }
 +fi
 +
- 
--if test "x${PBX_LUA}" != "x1" -a "${USE_LUA}" != "no"; then
++
 +fi
 +if test -z "$ac_cv_prog_PKGCONFIG"; then
 +  ac_ct_PKGCONFIG=$PKGCONFIG
@@ -602,7 +656,8 @@ index 4199e72..9ecb39b 100755
 +
 +fi
 +
-+
+ 
+-if test "x${PBX_LUA}" != "x1" -a "${USE_LUA}" != "no"; then
 +if test "x${PBX_RADIUS}" != "x1" -a "${USE_RADIUS}" != "no"; then
     pbxlibdir=""
 -   # if --with-LUA=DIR has been specified, use it.
@@ -639,7 +694,7 @@ index 4199e72..9ecb39b 100755
  cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
  _ACEOF
-@@ -40955,38 +41413,38 @@ ac_res=`eval echo '${'$as_ac_Lib'}'`
+@@ -40955,38 +41447,38 @@ ac_res=`eval echo '${'$as_ac_Lib'}'`
  	       { echo "$as_me:$LINENO: result: $ac_res" >&5
  echo "${ECHO_T}$ac_res" >&6; }
  if test `eval echo '${'$as_ac_Lib'}'` = yes; then
@@ -698,7 +753,7 @@ index 4199e72..9ecb39b 100755
  cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
  _ACEOF
-@@ -40994,7 +41452,7 @@ cat confdefs.h >>conftest.$ac_ext
+@@ -40994,7 +41486,7 @@ cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
  $ac_includes_default
@@ -707,7 +762,7 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  rm -f conftest.$ac_objext
  if { (ac_try="$ac_compile"
-@@ -41026,15 +41484,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+@@ -41026,15 +41518,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
  echo "${ECHO_T}$ac_header_compiler" >&6; }
  
  # Is the header present?
@@ -726,7 +781,7 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  if { (ac_try="$ac_cpp conftest.$ac_ext"
  case "(($ac_try" in
-@@ -41067,25 +41525,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
+@@ -41067,25 +41559,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
  # So?  What about this header?
  case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
    yes:no: )
@@ -768,7 +823,7 @@ index 4199e72..9ecb39b 100755
      ( cat <<\_ASBOX
  ## ------------------------------- ##
  ## Report this to www.asterisk.org ##
-@@ -41094,43 +41552,43 @@ _ASBOX
+@@ -41094,43 +41586,43 @@ _ASBOX
       ) | sed "s/^/$as_me: WARNING:     /" >&2
      ;;
  esac
@@ -828,7 +883,7 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  
        fi
-@@ -41139,28 +41597,28 @@ fi
+@@ -41139,28 +41631,28 @@ fi
  
  
  
@@ -869,7 +924,7 @@ index 4199e72..9ecb39b 100755
  cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
  _ACEOF
-@@ -41217,38 +41675,38 @@ ac_res=`eval echo '${'$as_ac_Lib'}'`
+@@ -41217,38 +41709,38 @@ ac_res=`eval echo '${'$as_ac_Lib'}'`
  	       { echo "$as_me:$LINENO: result: $ac_res" >&5
  echo "${ECHO_T}$ac_res" >&6; }
  if test `eval echo '${'$as_ac_Lib'}'` = yes; then
@@ -928,7 +983,7 @@ index 4199e72..9ecb39b 100755
  cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
  _ACEOF
-@@ -41256,7 +41714,7 @@ cat confdefs.h >>conftest.$ac_ext
+@@ -41256,7 +41748,7 @@ cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
  $ac_includes_default
@@ -937,7 +992,7 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  rm -f conftest.$ac_objext
  if { (ac_try="$ac_compile"
-@@ -41288,15 +41746,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+@@ -41288,15 +41780,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
  echo "${ECHO_T}$ac_header_compiler" >&6; }
  
  # Is the header present?
@@ -956,7 +1011,7 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  if { (ac_try="$ac_cpp conftest.$ac_ext"
  case "(($ac_try" in
-@@ -41329,25 +41787,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
+@@ -41329,25 +41821,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
  # So?  What about this header?
  case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
    yes:no: )
@@ -998,7 +1053,7 @@ index 4199e72..9ecb39b 100755
      ( cat <<\_ASBOX
  ## ------------------------------- ##
  ## Report this to www.asterisk.org ##
-@@ -41356,43 +41814,43 @@ _ASBOX
+@@ -41356,43 +41848,43 @@ _ASBOX
       ) | sed "s/^/$as_me: WARNING:     /" >&2
      ;;
  esac
@@ -1058,7 +1113,134 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  
        fi
-@@ -50320,14 +50778,18 @@ BKTR_LIB!$BKTR_LIB$ac_delim
+@@ -49346,6 +49838,126 @@ fi
+ 
+ 
+ 
++PBX_LIBEDIT=0
++LIBEDIT_INCLUDE=-Ieditline/readline
++LIBEDIT_LIB=
++LIBEDIT_OBJ=editline/libedit.a
++if test  "${USE_LIBEDIT}" != "no"; then
++   if test -n "$ac_tool_prefix"; then
++  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
++set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
++{ echo "$as_me:$LINENO: checking for $ac_word" >&5
++echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
++if test "${ac_cv_prog_PKGCONFIG+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  if test -n "$PKGCONFIG"; then
++  ac_cv_prog_PKGCONFIG="$PKGCONFIG" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++  for ac_exec_ext in '' $ac_executable_extensions; do
++  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
++    ac_cv_prog_PKGCONFIG="${ac_tool_prefix}pkg-config"
++    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++done
++IFS=$as_save_IFS
++
++fi
++fi
++PKGCONFIG=$ac_cv_prog_PKGCONFIG
++if test -n "$PKGCONFIG"; then
++  { echo "$as_me:$LINENO: result: $PKGCONFIG" >&5
++echo "${ECHO_T}$PKGCONFIG" >&6; }
++else
++  { echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6; }
++fi
++
++
++fi
++if test -z "$ac_cv_prog_PKGCONFIG"; then
++  ac_ct_PKGCONFIG=$PKGCONFIG
++  # Extract the first word of "pkg-config", so it can be a program name with args.
++set dummy pkg-config; ac_word=$2
++{ echo "$as_me:$LINENO: checking for $ac_word" >&5
++echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
++if test "${ac_cv_prog_ac_ct_PKGCONFIG+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  if test -n "$ac_ct_PKGCONFIG"; then
++  ac_cv_prog_ac_ct_PKGCONFIG="$ac_ct_PKGCONFIG" # Let the user override the test.
++else
++as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++  for ac_exec_ext in '' $ac_executable_extensions; do
++  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
++    ac_cv_prog_ac_ct_PKGCONFIG="pkg-config"
++    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++done
++IFS=$as_save_IFS
++
++fi
++fi
++ac_ct_PKGCONFIG=$ac_cv_prog_ac_ct_PKGCONFIG
++if test -n "$ac_ct_PKGCONFIG"; then
++  { echo "$as_me:$LINENO: result: $ac_ct_PKGCONFIG" >&5
++echo "${ECHO_T}$ac_ct_PKGCONFIG" >&6; }
++else
++  { echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6; }
++fi
++
++  if test "x$ac_ct_PKGCONFIG" = x; then
++    PKGCONFIG="no"
++  else
++    case $cross_compiling:$ac_tool_warned in
++yes:)
++{ echo "$as_me:$LINENO: WARNING: In the future, Autoconf will not detect cross-tools
++whose name does not start with the host triplet.  If you think this
++configuration is useful to you, please write to autoconf@gnu.org." >&5
++echo "$as_me: WARNING: In the future, Autoconf will not detect cross-tools
++whose name does not start with the host triplet.  If you think this
++configuration is useful to you, please write to autoconf@gnu.org." >&2;}
++ac_tool_warned=yes ;;
++esac
++    PKGCONFIG=$ac_ct_PKGCONFIG
++  fi
++else
++  PKGCONFIG="$ac_cv_prog_PKGCONFIG"
++fi
++
++   if test "${PKGCONFIG}" != "no"; then
++      if ${PKGCONFIG} --exists libedit; then
++         LIBEDIT_INCLUDE=$(${PKGCONFIG} libedit --cflags)
++	 LIBEDIT_LIB=$(${PKGCONFIG} libedit --libs)
++         LIBEDIT_OBJ=
++         PBX_LIBEDIT=1
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_LIBEDIT 1
++_ACEOF
++
++      fi
++   fi
++fi
++
++
++
++
++
+ if test "${USE_CURL}" != "no"; then
+    if test -n "$ac_tool_prefix"; then
+   # Extract the first word of "${ac_tool_prefix}curl-config", so it can be a program name with args.
+@@ -50320,14 +50932,18 @@ BKTR_LIB!$BKTR_LIB$ac_delim
  BKTR_INCLUDE!$BKTR_INCLUDE$ac_delim
  BKTR_DIR!$BKTR_DIR$ac_delim
  PBX_BKTR!$PBX_BKTR$ac_delim
@@ -1081,10 +1263,25 @@ index 4199e72..9ecb39b 100755
  CURSES_LIB!$CURSES_LIB$ac_delim
  CURSES_INCLUDE!$CURSES_INCLUDE$ac_delim
  CURSES_DIR!$CURSES_DIR$ac_delim
-@@ -50401,10 +50863,6 @@ NCURSES_INCLUDE!$NCURSES_INCLUDE$ac_delim
- NCURSES_DIR!$NCURSES_DIR$ac_delim
- PBX_NCURSES!$PBX_NCURSES$ac_delim
- NETSNMP_LIB!$NETSNMP_LIB$ac_delim
+@@ -50380,6 +50996,10 @@ LDAP_LIB!$LDAP_LIB$ac_delim
+ LDAP_INCLUDE!$LDAP_INCLUDE$ac_delim
+ LDAP_DIR!$LDAP_DIR$ac_delim
+ PBX_LDAP!$PBX_LDAP$ac_delim
++LIBEDIT_LIB!$LIBEDIT_LIB$ac_delim
++LIBEDIT_INCLUDE!$LIBEDIT_INCLUDE$ac_delim
++LIBEDIT_DIR!$LIBEDIT_DIR$ac_delim
++PBX_LIBEDIT!$PBX_LIBEDIT$ac_delim
+ LTDL_LIB!$LTDL_LIB$ac_delim
+ LTDL_INCLUDE!$LTDL_INCLUDE$ac_delim
+ LTDL_DIR!$LTDL_DIR$ac_delim
+@@ -50397,14 +51017,6 @@ NBS_INCLUDE!$NBS_INCLUDE$ac_delim
+ NBS_DIR!$NBS_DIR$ac_delim
+ PBX_NBS!$PBX_NBS$ac_delim
+ NCURSES_LIB!$NCURSES_LIB$ac_delim
+-NCURSES_INCLUDE!$NCURSES_INCLUDE$ac_delim
+-NCURSES_DIR!$NCURSES_DIR$ac_delim
+-PBX_NCURSES!$PBX_NCURSES$ac_delim
+-NETSNMP_LIB!$NETSNMP_LIB$ac_delim
 -NETSNMP_INCLUDE!$NETSNMP_INCLUDE$ac_delim
 -NETSNMP_DIR!$NETSNMP_DIR$ac_delim
 -PBX_NETSNMP!$PBX_NETSNMP$ac_delim
@@ -1092,10 +1289,14 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  
    if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
-@@ -50446,6 +50904,10 @@ _ACEOF
+@@ -50446,6 +51058,14 @@ _ACEOF
  ac_delim='%!_!# '
  for ac_last_try in false false false false false :; do
    cat >conf$$subs.sed <<_ACEOF
++NCURSES_INCLUDE!$NCURSES_INCLUDE$ac_delim
++NCURSES_DIR!$NCURSES_DIR$ac_delim
++PBX_NCURSES!$PBX_NCURSES$ac_delim
++NETSNMP_LIB!$NETSNMP_LIB$ac_delim
 +NETSNMP_INCLUDE!$NETSNMP_INCLUDE$ac_delim
 +NETSNMP_DIR!$NETSNMP_DIR$ac_delim
 +PBX_NETSNMP!$PBX_NETSNMP$ac_delim
@@ -1103,7 +1304,7 @@ index 4199e72..9ecb39b 100755
  NEWT_INCLUDE!$NEWT_INCLUDE$ac_delim
  NEWT_DIR!$NEWT_DIR$ac_delim
  PBX_NEWT!$PBX_NEWT$ac_delim
-@@ -50505,6 +50967,10 @@ SDL_IMAGE_LIB!$SDL_IMAGE_LIB$ac_delim
+@@ -50505,6 +51125,10 @@ SDL_IMAGE_LIB!$SDL_IMAGE_LIB$ac_delim
  SDL_IMAGE_INCLUDE!$SDL_IMAGE_INCLUDE$ac_delim
  SDL_IMAGE_DIR!$SDL_IMAGE_DIR$ac_delim
  PBX_SDL_IMAGE!$PBX_SDL_IMAGE$ac_delim
@@ -1114,10 +1315,14 @@ index 4199e72..9ecb39b 100755
  SPEEX_LIB!$SPEEX_LIB$ac_delim
  SPEEX_INCLUDE!$SPEEX_INCLUDE$ac_delim
  SPEEX_DIR!$SPEEX_DIR$ac_delim
-@@ -50535,14 +51001,6 @@ FREETDS_DIR!$FREETDS_DIR$ac_delim
- PBX_FREETDS!$PBX_FREETDS$ac_delim
- TERMCAP_LIB!$TERMCAP_LIB$ac_delim
- TERMCAP_INCLUDE!$TERMCAP_INCLUDE$ac_delim
+@@ -50531,18 +51155,6 @@ OPENSSL_DIR!$OPENSSL_DIR$ac_delim
+ PBX_OPENSSL!$PBX_OPENSSL$ac_delim
+ FREETDS_LIB!$FREETDS_LIB$ac_delim
+ FREETDS_INCLUDE!$FREETDS_INCLUDE$ac_delim
+-FREETDS_DIR!$FREETDS_DIR$ac_delim
+-PBX_FREETDS!$PBX_FREETDS$ac_delim
+-TERMCAP_LIB!$TERMCAP_LIB$ac_delim
+-TERMCAP_INCLUDE!$TERMCAP_INCLUDE$ac_delim
 -TERMCAP_DIR!$TERMCAP_DIR$ac_delim
 -PBX_TERMCAP!$PBX_TERMCAP$ac_delim
 -TINFO_LIB!$TINFO_LIB$ac_delim
@@ -1129,10 +1334,14 @@ index 4199e72..9ecb39b 100755
  _ACEOF
  
    if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
-@@ -50584,6 +51042,14 @@ _ACEOF
+@@ -50584,6 +51196,18 @@ _ACEOF
  ac_delim='%!_!# '
  for ac_last_try in false false false false false :; do
    cat >conf$$subs.sed <<_ACEOF
++FREETDS_DIR!$FREETDS_DIR$ac_delim
++PBX_FREETDS!$PBX_FREETDS$ac_delim
++TERMCAP_LIB!$TERMCAP_LIB$ac_delim
++TERMCAP_INCLUDE!$TERMCAP_INCLUDE$ac_delim
 +TERMCAP_DIR!$TERMCAP_DIR$ac_delim
 +PBX_TERMCAP!$PBX_TERMCAP$ac_delim
 +TINFO_LIB!$TINFO_LIB$ac_delim
@@ -1144,7 +1353,7 @@ index 4199e72..9ecb39b 100755
  TONEZONE_DIR!$TONEZONE_DIR$ac_delim
  PBX_TONEZONE!$PBX_TONEZONE$ac_delim
  USB_LIB!$USB_LIB$ac_delim
-@@ -50637,6 +51103,7 @@ OPENH323_INCDIR!$OPENH323_INCDIR$ac_delim
+@@ -50637,6 +51261,7 @@ OPENH323_INCDIR!$OPENH323_INCDIR$ac_delim
  OPENH323_LIBDIR!$OPENH323_LIBDIR$ac_delim
  OPENH323_SUFFIX!$OPENH323_SUFFIX$ac_delim
  OPENH323_BUILD!$OPENH323_BUILD$ac_delim
@@ -1152,22 +1361,23 @@ index 4199e72..9ecb39b 100755
  CONFIG_GMIME!$CONFIG_GMIME$ac_delim
  PBX_ZAPTEL_VLDTMF!$PBX_ZAPTEL_VLDTMF$ac_delim
  PBX_ZAPTEL_ECHOCANPARAMS!$PBX_ZAPTEL_ECHOCANPARAMS$ac_delim
-@@ -50648,12 +51115,11 @@ PBX_H323!$PBX_H323$ac_delim
+@@ -50648,12 +51273,12 @@ PBX_H323!$PBX_H323$ac_delim
  PBX_IXJUSER!$PBX_IXJUSER$ac_delim
  CONFIG_SDL!$CONFIG_SDL$ac_delim
  CONFIG_GTK!$CONFIG_GTK$ac_delim
 -PKGCONFIG!$PKGCONFIG$ac_delim
++LIBEDIT_OBJ!$LIBEDIT_OBJ$ac_delim
  CURL_CONFIG!$CURL_CONFIG$ac_delim
  LTLIBOBJS!$LTLIBOBJS$ac_delim
  _ACEOF
  
 -  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 67; then
-+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 75; then
++  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 80; then
      break
    elif $ac_last_try; then
      { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
 diff --git a/include/asterisk/autoconfig.h.in b/include/asterisk/autoconfig.h.in
-index 087a6a0..8b3d70a 100644
+index 087a6a0..1fb7355 100644
 --- a/include/asterisk/autoconfig.h.in
 +++ b/include/asterisk/autoconfig.h.in
 @@ -113,6 +113,12 @@
@@ -1183,7 +1393,17 @@ index 087a6a0..8b3d70a 100644
  /* Define to 1 if byteswap.h macros are available. */
  #undef HAVE_BYTESWAP_H
  
-@@ -439,12 +445,9 @@
+@@ -382,6 +388,9 @@
+ /* Define to indicate the ${LDAP_DESCRIP} library version */
+ #undef HAVE_LDAP_VERSION
+ 
++/* Define if your system has the NetBSD Editline libraries. */
++#undef HAVE_LIBEDIT
++
+ /* Define to 1 if you have the <libintl.h> header file. */
+ #undef HAVE_LIBINTL_H
+ 
+@@ -439,12 +448,9 @@
  /* Define to indicate the ${LTDL_DESCRIP} library version */
  #undef HAVE_LTDL_VERSION
  
@@ -1197,7 +1417,7 @@ index 087a6a0..8b3d70a 100644
  /* Define to 1 if you have the <malloc.h> header file. */
  #undef HAVE_MALLOC_H
  
-@@ -712,6 +715,12 @@
+@@ -712,6 +718,12 @@
  /* Define to 1 if your system has soxmix application. */
  #undef HAVE_SOXMIX
  
