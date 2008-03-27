@@ -4,7 +4,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.8.beta%{beta}%{?dist}
+Release: 0.9.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -939,6 +939,8 @@ fi
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
 %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
+%doc contrib/scripts/postgres_cdr.sql
+%doc contrib/scripts/realtime_pgsql.sql
 %{_libdir}/asterisk/modules/cdr_pgsql.so
 %{_libdir}/asterisk/modules/res_config_pgsql.so
 
@@ -1017,6 +1019,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Thu Mar 27 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.9.beta6
+- Add Postgresql schemas from contrib as documentation to the Postgresql subpackage.
+
 * Tue Mar 25 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.8.beta6
 - Update patches.
 - Add patch to compile against external libedit rather than using the
