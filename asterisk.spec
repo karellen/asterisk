@@ -1,36 +1,18 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 6
+%define beta 7
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.9.beta%{beta}%{?dist}
+Release: 0.10.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
 
-# The asterisk tarball contains some items that we don't want in there,
-# so start with the original tarball from here:
-# http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}.tar.gz
-# Then run the included script file to build the stripped tarball:
-#
-# sh asterisk-strip.sh %{version}
-#
-# MD5 Sums
-# ========
-# aa5d2cf5c822bc5b542f58d21a2dc086  asterisk-1.6.0-beta6.tar.gz
-# 4415aa27d70796046c330a2f9d43a752  asterisk-1.6.0-beta6-stripped.tar.gz
-#
-# SHA1 Sums
-# =========
-# 52c7eaf2ff6e80644d8b7ef7a8f70520ca2a1396  asterisk-1.6.0-beta6.tar.gz
-# 4f309a4b6bf00a9d1f18d26cc9fd540b756bbbd9  asterisk-1.6.0-beta6-stripped.tar.gz
-
-Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
+Source0: http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
-Source4: asterisk-strip.sh
 
 Patch1:  asterisk-1.6.0-beta6-initscripts.patch
 Patch2:  asterisk-1.6.0-beta6-alternate-voicemail.patch
@@ -42,6 +24,7 @@ Patch7:  asterisk-1.6.0-beta6-chanmobile.patch
 Patch8:  asterisk-1.6.0-beta6-lua.patch
 Patch9:  asterisk-1.6.0-beta6-editline.patch
 Patch10: asterisk-1.6.0-beta6-autoconf.patch
+Patch11: asterisk-1.6.0-beta7-chanusbradiofix.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -408,6 +391,7 @@ Modules for Asterisk that use Zaptel.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -672,6 +656,7 @@ fi
 %{_libdir}/asterisk/modules/func_callerid.so
 %{_libdir}/asterisk/modules/func_cdr.so
 %{_libdir}/asterisk/modules/func_channel.so
+%{_libdir}/asterisk/modules/func_config.so
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/func_cut.so
 %{_libdir}/asterisk/modules/func_db.so
@@ -753,7 +738,9 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
 %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
 %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
+%config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
+%config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
 %config(noreplace) %{_sysconfdir}/asterisk/enum.conf
 %config(noreplace) %{_sysconfdir}/asterisk/extconfig.conf
@@ -1019,6 +1006,17 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Fri Mar 28 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.10.beta7
+- Update to 1.6.0-beta7
+- The Asterisk tarball no longer contains the iLBC code, so we can
+  directly use the upstream tarball without having to modify it.
+- Get rid of the asterisk-strip.sh script since it's no longer needed.
+- Diable build of codec_ilbc and format_ilbc (these do not contain any
+  legally suspect code so they can be included in the tarball but it's
+  pointless building them).
+- Update chan_mobile patch to fix API breakages.
+- Add a patch to chan_usbradio to fix API breakages.
+
 * Thu Mar 27 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.9.beta6
 - Add Postgresql schemas from contrib as documentation to the Postgresql subpackage.
 

@@ -1,8 +1,8 @@
 MENUSELECT_APPS=app_ivrdemo app_mp3 app_osplookup app_rpt app_skel 
 MENUSELECT_CDR=cdr_sqlite
 MENUSELECT_CHANNELS=chan_h323 chan_nbs chan_vpb 
-MENUSELECT_CODECS=
-MENUSELECT_FORMATS=
+MENUSELECT_CODECS=codec_ilbc
+MENUSELECT_FORMATS=format_ilbc
 MENUSELECT_FUNCS=
 MENUSELECT_PBX=pbx_gtkconsole
 MENUSELECT_RES=res_config_sqlite

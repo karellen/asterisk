@@ -1,0 +1,25 @@
+From d1a67f08305dacfee89bc40b498c3947feeb1a21 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Fri, 28 Mar 2008 22:55:30 -0500
+Subject: [PATCH] Fix API breakage in chan_usbradio
+
+---
+ channels/chan_usbradio.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/channels/chan_usbradio.c b/channels/chan_usbradio.c
+index 84a2ce2..f7c05a6 100644
+--- a/channels/chan_usbradio.c
++++ b/channels/chan_usbradio.c
+@@ -2282,7 +2282,7 @@ static struct chan_usbradio_pvt *store_config(struct ast_config *cfg, char *ctg)
+ 	o->lastopen = ast_tvnow();	/* don't leave it 0 or tvdiff may wrap */
+ 	o->dsp = ast_dsp_new();
+ 	if (o->dsp) {
+-		ast_dsp_set_features(o->dsp, DSP_FEATURE_DTMF_DETECT);
++		ast_dsp_set_features(o->dsp, DSP_FEATURE_DIGIT_DETECT);
+ 		ast_dsp_set_digitmode(o->dsp, DSP_DIGITMODE_DTMF | DSP_DIGITMODE_MUTECONF | DSP_DIGITMODE_RELAXDTMF);
+ 	}
+ 
+-- 
+1.5.4.3
+

@@ -1,23 +1,5 @@
-From 3f5b21bd6efb829d144605c431a87c13936ecb5e Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Mon, 25 Feb 2008 09:23:28 -0600
-Subject: [PATCH] Add chan_mobile from asterisk-addons.
-
----
- build_tools/menuselect-deps.in |    1 +
- channels/Makefile              |    2 +
- channels/chan_mobile.c         | 2118 ++++++++++++++++++++++++++++++++++++++++
- configs/mobile.conf.sample     |   60 ++
- configure.ac                   |    4 +
- doc/chan_mobile.txt            |  240 +++++
- makeopts.in                    |    3 +
- 7 files changed, 2428 insertions(+), 0 deletions(-)
- create mode 100644 channels/chan_mobile.c
- create mode 100644 configs/mobile.conf.sample
- create mode 100644 doc/chan_mobile.txt
-
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 8be9081..6349e71 100644
+index f724fe3..cd079c1 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
 @@ -1,5 +1,6 @@
@@ -39,7 +21,7 @@ index 34bd8e0..d8e691a 100644
 +chan_mobile.so: LIBS+=$(BLUETOOTH_LIB)
 diff --git a/channels/chan_mobile.c b/channels/chan_mobile.c
 new file mode 100644
-index 0000000..1312ea9
+index 0000000..b8fd9af
 --- /dev/null
 +++ b/channels/chan_mobile.c
 @@ -0,0 +1,2118 @@
@@ -2042,8 +2024,8 @@ index 0000000..1312ea9
 +							pvt->dtmf_skip = 200;
 +					} else
 +						pvt->dtmf_skip = 200;
-+					ast_dsp_set_features(pvt->dsp, DSP_FEATURE_DTMF_DETECT);
-+					ast_dsp_digitmode(pvt->dsp, DSP_DIGITMODE_DTMF | DSP_DIGITMODE_RELAXDTMF);
++					ast_dsp_set_features(pvt->dsp, DSP_FEATURE_DIGIT_DETECT);
++					ast_dsp_set_digitmode(pvt->dsp, DSP_DIGITMODE_DTMF | DSP_DIGITMODE_RELAXDTMF);
 +					pvt->adapter = adapter;
 +					AST_LIST_INSERT_HEAD(&devices, pvt, entry);
 +				}
@@ -2228,7 +2210,7 @@ index 0000000..7ef26d8
 +type=headset
 +adapter=dlink
 diff --git a/configure.ac b/configure.ac
-index 09e445a..13e82da 100644
+index 498bf69..e92f97f 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -203,6 +203,8 @@ AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
@@ -2240,7 +2222,7 @@ index 09e445a..13e82da 100644
  AST_EXT_LIB_SETUP([CAP], [POSIX 1.e capabilities], [cap])
  AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
  AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
-@@ -521,6 +523,8 @@ AC_CHECK_SIZEOF(int)
+@@ -520,6 +522,8 @@ AC_CHECK_SIZEOF(int)
  
  AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -ldl])
  
@@ -2496,7 +2478,7 @@ index 0000000..32fcfd4
 +
 +email me at   david.bowerman at gmail.com   or dseeb_ on #asterisk & #asterisk-dev irc.
 diff --git a/makeopts.in b/makeopts.in
-index 3d564b7..a394c18 100644
+index 3bf203e..9e99a6f 100644
 --- a/makeopts.in
 +++ b/makeopts.in
 @@ -69,6 +69,9 @@ AST_NO_STRICT_OVERFLOW=@AST_NO_STRICT_OVERFLOW@
@@ -2509,6 +2491,3 @@ index 3d564b7..a394c18 100644
  CURL_INCLUDE=@CURL_INCLUDE@
  CURL_LIB=@CURL_LIB@
  
--- 
-1.5.4.3
-
