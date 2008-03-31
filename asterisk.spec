@@ -1,10 +1,10 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 7
+%define beta 7.1
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.10.beta%{beta}%{?dist}
+Release: 0.11.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -14,17 +14,16 @@ Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 
-Patch1:  asterisk-1.6.0-beta6-initscripts.patch
-Patch2:  asterisk-1.6.0-beta6-alternate-voicemail.patch
-Patch3:  asterisk-1.6.0-beta6-spandspfax.patch
-Patch4:  asterisk-1.6.0-beta6-appconference.patch
-Patch5:  asterisk-1.6.0-beta6-alternate-extensions.patch
-Patch6:  asterisk-1.6.0-beta6-optimization.patch
-Patch7:  asterisk-1.6.0-beta6-chanmobile.patch
-Patch8:  asterisk-1.6.0-beta6-lua.patch
-Patch9:  asterisk-1.6.0-beta6-editline.patch
-Patch10: asterisk-1.6.0-beta6-autoconf.patch
-Patch11: asterisk-1.6.0-beta7-chanusbradiofix.patch
+Patch1:  asterisk-1.6.0-beta7.1-initscripts.patch
+Patch2:  asterisk-1.6.0-beta7.1-alternate-voicemail.patch
+Patch3:  asterisk-1.6.0-beta7.1-spandspfax.patch
+Patch4:  asterisk-1.6.0-beta7.1-appconference.patch
+Patch5:  asterisk-1.6.0-beta7.1-alternate-extensions.patch
+Patch6:  asterisk-1.6.0-beta7.1-optimization.patch
+Patch7:  asterisk-1.6.0-beta7.1-chanmobile.patch
+Patch8:  asterisk-1.6.0-beta7.1-lua.patch
+Patch9:  asterisk-1.6.0-beta7.1-editline.patch
+Patch10: asterisk-1.6.0-beta7.1-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -391,7 +390,6 @@ Modules for Asterisk that use Zaptel.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -656,7 +654,6 @@ fi
 %{_libdir}/asterisk/modules/func_callerid.so
 %{_libdir}/asterisk/modules/func_cdr.so
 %{_libdir}/asterisk/modules/func_channel.so
-%{_libdir}/asterisk/modules/func_config.so
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/func_cut.so
 %{_libdir}/asterisk/modules/func_db.so
@@ -738,9 +735,7 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
 %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
 %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
-%config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
-%config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
 %config(noreplace) %{_sysconfdir}/asterisk/enum.conf
 %config(noreplace) %{_sysconfdir}/asterisk/extconfig.conf
@@ -1006,6 +1001,12 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Sun Mar 30 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.11.beta7.1
+- Update to 1.6.0-beta7.1
+- Update patches
+- Back out some changes that were made because beta7 was tagged from
+  the wrong branch.
+
 * Fri Mar 28 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.10.beta7
 - Update to 1.6.0-beta7
 - The Asterisk tarball no longer contains the iLBC code, so we can

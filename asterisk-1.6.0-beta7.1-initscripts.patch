@@ -1,4 +1,4 @@
-From 1ce7c164c8d0ce615923a32e473a81c73e20bbdc Mon Sep 17 00:00:00 2001
+From 33888a4d7d0996f64c0313a0d85fd87d307402f4 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 21:47:59 -0600
 Subject: [PATCH] Modify init scripts for better Fedora compatibility.
