@@ -4,12 +4,30 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.11.beta%{beta}%{?dist}
+Release: 0.12.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
 
-Source0: http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
+# The Asterisk tarball contains some items that we don't want in there,
+# so start with the original tarball from here:
+# http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
+# Then run the included script file to build the stripped tarball:
+#
+# sh asterisk-strip.sh %{version}
+
+# MD5 Sums
+# ========
+# 26b035dcdbbd4b8fdefbddb243ac3b57  asterisk-1.6.0-beta7.1.tar.gz
+# c83860aa75b95aa3a0e826c88821e115  asterisk-1.6.0-beta7.1-stripped.tar.gz
+#
+# SHA1 Sums
+# =========
+# 4d108b0be7044c19ca016b580c6839f98f5eeb1c  asterisk-1.6.0-beta7.1.tar.gz
+# 5f889c572e448f39f42872886260f6a49ae6bd5f  asterisk-1.6.0-beta7.1-stripped.tar.gz
+
+#Source0: http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
+Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
@@ -1001,6 +1019,10 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Apr  2 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.12.beta7.1
+- Return to stripped tarballs since there's more non-free content in
+  the Asterisk tarballs than I thought.
+
 * Sun Mar 30 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.11.beta7.1
 - Update to 1.6.0-beta7.1
 - Update patches
