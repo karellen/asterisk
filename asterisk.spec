@@ -1,10 +1,10 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 7.1
+%define beta 8
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.12.beta%{beta}%{?dist}
+Release: 0.13.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -18,13 +18,13 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 26b035dcdbbd4b8fdefbddb243ac3b57  asterisk-1.6.0-beta7.1.tar.gz
-# c83860aa75b95aa3a0e826c88821e115  asterisk-1.6.0-beta7.1-stripped.tar.gz
-#
+# cc8386d74002b0e629b9dc97f748d0e7  asterisk-1.6.0-beta8.tar.gz
+# 0ec53508b409da04c754d1e95b877085  asterisk-1.6.0-beta8-stripped.tar.gz
+# 
 # SHA1 Sums
 # =========
-# 4d108b0be7044c19ca016b580c6839f98f5eeb1c  asterisk-1.6.0-beta7.1.tar.gz
-# 5f889c572e448f39f42872886260f6a49ae6bd5f  asterisk-1.6.0-beta7.1-stripped.tar.gz
+# 59d44678a7cc2e138edf25ff7ce664182e602208  asterisk-1.6.0-beta8.tar.gz
+# 55d529f0bac419b10394a9e1caee607cd4c9409d  asterisk-1.6.0-beta8-stripped.tar.gz
 
 #Source0: http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
 Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
@@ -1019,6 +1019,10 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Tue Apr 22 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.13.beta8
+- Update to 1.6.0-beta8
+- Contains fixes for AST-2008-006 / CVE-2008-1897
+
 * Wed Apr  2 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.12.beta7.1
 - Return to stripped tarballs since there's more non-free content in
   the Asterisk tarballs than I thought.
