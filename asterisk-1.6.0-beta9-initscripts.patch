@@ -1,4 +1,4 @@
-From 33888a4d7d0996f64c0313a0d85fd87d307402f4 Mon Sep 17 00:00:00 2001
+From 4b1248e7e51595760d8e4da1f87fa3bfce43140f Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 21:47:59 -0600
 Subject: [PATCH] Modify init scripts for better Fedora compatibility.
@@ -10,7 +10,7 @@ Subject: [PATCH] Modify init scripts for better Fedora compatibility.
  create mode 100644 contrib/sysconfig/asterisk
 
 diff --git a/contrib/init.d/rc.redhat.asterisk b/contrib/init.d/rc.redhat.asterisk
-index 27d633e..6756002 100755
+index de821fe..ddb1d64 100755
 --- a/contrib/init.d/rc.redhat.asterisk
 +++ b/contrib/init.d/rc.redhat.asterisk
 @@ -3,7 +3,7 @@
@@ -22,7 +22,7 @@ index 27d633e..6756002 100755
  # description: Asterisk PBX and telephony daemon.
  # processname: asterisk
  # pidfile: /var/run/asterisk.pid
-@@ -20,59 +20,56 @@
+@@ -20,51 +20,51 @@
  # - Added support for -U and -G command line options
  # - Modified "reload" to call asterisk -rx 'reload' 
  
@@ -100,6 +100,8 @@ index 27d633e..6756002 100755
  RETVAL=0
  
  start() {
+@@ -78,9 +78,6 @@ start() {
+ 
  	# Start daemons.
  	echo -n $"Starting asterisk: "
 -        if [ -f $SAFE_ASTERISK ] ; then
@@ -108,7 +110,7 @@ index 27d633e..6756002 100755
  	if [ $AST_USER ] ; then
  		ASTARGS="-U $AST_USER"
  	fi
-@@ -91,7 +88,7 @@ start() {
+@@ -99,7 +96,7 @@ start() {
  
  stop() {
  	# Stop daemons.

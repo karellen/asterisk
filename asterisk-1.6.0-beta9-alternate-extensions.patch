@@ -1,4 +1,4 @@
-From 7651115c06bdca45a58de04925cb62bec1e12771 Mon Sep 17 00:00:00 2001
+From 2cd10f7308ae4d68b0265e32e1b9c39abae0db6f Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 16:32:56 -0600
 Subject: [PATCH] Allow alternate extensions to be specified in users.conf

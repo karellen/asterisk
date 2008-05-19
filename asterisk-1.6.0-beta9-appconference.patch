@@ -1,29 +1,29 @@
-From debb84e1e87d6cd6c2a49a5a165f6fde33815bd9 Mon Sep 17 00:00:00 2001
+From e55ba5154efbfa3f5f7dcc32f87655d5d95b25ed Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Mon, 24 Mar 2008 23:25:39 -0500
-Subject: [PATCH] Applying latest appconference.
+Date: Mon, 18 Feb 2008 08:58:05 -0600
+Subject: [PATCH] Latest updates for app_conference.
 
 ---
- apps/Makefile                      |   13 +
- apps/app_conference.c              |  106 ++
- apps/conference/CLI.txt            |   96 +
- apps/conference/Flags.txt          |   35 +
+ apps/Makefile                      |   14 +
+ apps/app_conference.c              |  113 ++
+ apps/conference/CLI.txt            |   95 +
+ apps/conference/Flags.txt          |   34 +
  apps/conference/LICENSE            |  341 ++++
  apps/conference/README             |  125 ++
- apps/conference/README.videoswitch |   87 +
+ apps/conference/README.videoswitch |   85 +
  apps/conference/TODO               |    4 +
- apps/conference/app_conference.h   |  249 +++
- apps/conference/cli.c              | 1116 ++++++++++++
- apps/conference/cli.h              |   51 +
+ apps/conference/app_conference.h   |  246 +++
+ apps/conference/cli.c              | 1265 ++++++++++++++
+ apps/conference/cli.h              |   99 ++
  apps/conference/common.h           |   63 +
  apps/conference/conf_frame.h       |   73 +
- apps/conference/conference.c       | 3024 ++++++++++++++++++++++++++++++++
+ apps/conference/conference.c       | 3021 ++++++++++++++++++++++++++++++++
  apps/conference/conference.h       |  190 ++
- apps/conference/frame.c            |  683 ++++++++
+ apps/conference/frame.c            |  666 +++++++
  apps/conference/frame.h            |   75 +
- apps/conference/member.c           | 3379 ++++++++++++++++++++++++++++++++++++
+ apps/conference/member.c           | 3375 ++++++++++++++++++++++++++++++++++++
  apps/conference/member.h           |  336 ++++
- 19 files changed, 10046 insertions(+), 0 deletions(-)
+ 19 files changed, 10220 insertions(+), 0 deletions(-)
  create mode 100644 apps/app_conference.c
  create mode 100644 apps/conference/CLI.txt
  create mode 100644 apps/conference/Flags.txt
@@ -44,12 +44,12 @@ Subject: [PATCH] Applying latest appconference.
  create mode 100644 apps/conference/member.h
 
 diff --git a/apps/Makefile b/apps/Makefile
-index 22b8f6d..d2be277 100644
+index 22b8f6d..f52fe9e 100644
 --- a/apps/Makefile
 +++ b/apps/Makefile
-@@ -39,3 +39,16 @@ ifneq ($(findstring $(OSARCH), mingw32 cygwin ),)
-   LIBS+= -lres_smdi.so
- endif
+@@ -32,6 +32,20 @@ endif
+ 
+ all: _all
  
 +app_conference.o: ASTCFLAGS+=-DSILDET=2 -Iconference
 +
@@ -64,12 +64,16 @@ index 22b8f6d..d2be277 100644
 +app_conference.so: app_conference.o conference/conference.o conference/member.o conference/frame.o conference/cli.o
 +	$(ECHO_PREFIX) echo "   [LD] $^ -> $@"
 +	$(CMD_PREFIX) $(CXX) $(PTHREAD_CFLAGS) $(ASTLDFLAGS) $(SOLINK) -o $@ $^ -lspeex
++
+ include $(ASTTOPDIR)/Makefile.moddir_rules
+ 
+ ifneq ($(findstring $(OSARCH), mingw32 cygwin ),)
 diff --git a/apps/app_conference.c b/apps/app_conference.c
 new file mode 100644
-index 0000000..3c7205b
+index 0000000..824d5dd
 --- /dev/null
 +++ b/apps/app_conference.c
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,113 @@
 +/*
 + * app_conference
 + *
@@ -99,7 +103,14 @@ index 0000000..3c7205b
 +
 +#include "asterisk.h"
 +
-+ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
++// SVN revision number, provided by make
++#ifndef REVISION
++#define REVISION "unknown"
++#endif
++
++static char *revision = REVISION;
++
++ASTERISK_FILE_VERSION(__FILE__, REVISION)
 +
 +#include "app_conference.h"
 +#include "common.h"
@@ -149,7 +160,7 @@ index 0000000..3c7205b
 +
 +static int load_module( void )
 +{
-+	ast_log( LOG_NOTICE, "Loading app_conference module\n") ;
++	ast_log( LOG_NOTICE, "Loading app_conference module, revision=%s\n", revision) ;
 +
 +	init_conference() ;
 +
@@ -178,10 +189,10 @@ index 0000000..3c7205b
 +		"Channel Independent Conference Application");
 diff --git a/apps/conference/CLI.txt b/apps/conference/CLI.txt
 new file mode 100644
-index 0000000..48acf5a
+index 0000000..d54f9d1
 --- /dev/null
 +++ b/apps/conference/CLI.txt
-@@ -0,0 +1,96 @@
+@@ -0,0 +1,95 @@
 +Current command line used by app_conference
 +Please note that app_conference is still work in progress, so this document might be outdated. As always, the source code is the definitive reference (cli.[ch] and conference.[ch]).  You can also obtain help/usage information by using Asterisk CLI help system ("help conference")
 +
@@ -223,7 +234,7 @@ index 0000000..48acf5a
 +
 +- conference restart: kick all users in all conferences
 +  usage: conference restart
-+  
++
 +- conference set default: sets default video source
 +  usage: conference set default <conference name> <member>
 +  use a negative value for member if you want to clear the default
@@ -277,13 +288,12 @@ index 0000000..48acf5a
 +- conference drivechannel: drive VAD video switching of destination channel using audio from source channel
 +  usage: conference drivechannel <conference name> <source channel> [destination channel]
 +  If destination channel is missing, break existing connection
-+ 
 diff --git a/apps/conference/Flags.txt b/apps/conference/Flags.txt
 new file mode 100644
-index 0000000..b888421
+index 0000000..deef45d
 --- /dev/null
 +++ b/apps/conference/Flags.txt
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,34 @@
 +Current dialplan flags used by app_conference
 +Please note that app_conference is still work in progress, so this document might be outdated. As always, the source code is the definitive reference (member.c in create_member())
 +
@@ -294,7 +304,7 @@ index 0000000..b888421
 +'l' : member starts unable to receive audio
 +
 +Speex preprocessing options (right now app_conference does preprocessing only for Zaptel members):
-+'V' : enable speex preprocessing Voice Activity Detection 
++'V' : enable speex preprocessing Voice Activity Detection
 +'D' : enable speex preprocessing De-noise
 +'A' : enable speex preprocessing Automatic Gain Control
 +'T' : member connects through Zaptel, so speex preprocessing should be enabled
@@ -308,7 +318,7 @@ index 0000000..b888421
 +'M' : member is a "moderator". When a moderator quits, all members are kicked and the conference is disabled.
 +'S' : member accepts VAD controlled video switching.  Do not use with 'X'.
 +'z' : member can "linger". When the member is currently transmitting video and becomes silent and nobody else is speaking, we stay on it.
-+'o' : enable special behavior when in 1 and 2 member situation (one on one video). The conference observes the 'o' status of the last 
++'o' : enable special behavior when in 1 and 2 member situation (one on one video). The conference observes the 'o' status of the last
 +      member to join it
 +'F' : force switch mode: if the member is talking, force a switch to it even when there is no video
 +
@@ -318,7 +328,6 @@ index 0000000..b888421
 +
 +Future development (these are not implemented yet):
 +'x' : marked member.  We plan to change the behavior so that when ALL moderators quit, all members that are marked will get kicked. Other members in the conference are not affected.
-+
 diff --git a/apps/conference/LICENSE b/apps/conference/LICENSE
 new file mode 100644
 index 0000000..a52b16e
@@ -668,7 +677,7 @@ index 0000000..a52b16e
 +Public License instead of this License.
 diff --git a/apps/conference/README b/apps/conference/README
 new file mode 100644
-index 0000000..4c103ce
+index 0000000..5a29d2c
 --- /dev/null
 +++ b/apps/conference/README
 @@ -0,0 +1,125 @@
@@ -676,7 +685,7 @@ index 0000000..4c103ce
 +
 +App_conference is a channel-independent conference application.
 +It features efficient audio mixing algorithms as well as video selection
-+support based on VAD, DTMF or CLI. 
++support based on VAD, DTMF or CLI.
 +
 +
 +Design goals
@@ -687,23 +696,23 @@ index 0000000..4c103ce
 +    * It is very efficient when used with channels which support DTX (silence
 +	detection/discontinuous transmission).
 +
-+    * It can do VAD on channels which do not support DTX (although this 
++    * It can do VAD on channels which do not support DTX (although this
 +	is more expensive than just mixing them, but less expensive then
-+	encoding; therefore it might still be a win). 
-+    * It presents messages on the Monitor interface for determine which 
-+	speakers are active. 
++	encoding; therefore it might still be a win).
++    * It presents messages on the Monitor interface for determine which
++	speakers are active.
 +
 +Mixing design
 +
 +    * Minimize encoding/decoding, minimize mixing.
 +    * Minimize generational loss from trancoding.
 +    * Usual cases are handled very efficiently:
-+          o One speaker: That speaker's frame is sent directly to each 
-+		participant which uses the same codec. It is trancoded 
++          o One speaker: That speaker's frame is sent directly to each
++		participant which uses the same codec. It is trancoded
 +		_once_ for each additional codec type used by participants.
-+          o Two speakers: Each speaker gets the other speaker's frames.  
-+		The two speaker's frames are decoded and mixed, and then 
-+		encoded _once_ for each codec type used by participants. 
++          o Two speakers: Each speaker gets the other speaker's frames.
++		The two speaker's frames are decoded and mixed, and then
++		encoded _once_ for each codec type used by participants.
 +
 +Video features
 +
@@ -712,13 +721,13 @@ index 0000000..4c103ce
 +    * Multiple ways to select video
 +        - VAD
 +	- DTMF from conference members
-+	- CLI 
++	- CLI
 +    * Ability to set default video sources and to lock/unlock video sources.
 +
 +
 +License
 +
-+Naturally, app_conference is GPL. The SVN repository also includes parts of 
++Naturally, app_conference is GPL. The SVN repository also includes parts of
 +libspeex, which is distributed under a BSD-style license. See LICENSE for more
 +details.
 +
@@ -735,7 +744,7 @@ index 0000000..4c103ce
 +    * Checkout sources
 +    * Modify Makefile to point to your Asterisk include directory
 +    * make
-+    * sudo make install 
++    * sudo make install
 +
 +
 +Using app_conference
@@ -746,11 +755,11 @@ index 0000000..4c103ce
 +
 +    * ConferenceName: Whatever you want to name the conference
 +    * Flags: please see Flags.txt for a comprehensive list of dialplan flags
-+    * Priority: Currently ignored; was to be a "speaking priority" so a 
++    * Priority: Currently ignored; was to be a "speaking priority" so a
 +	higher priority caller could "override" others.
 +    * VADSTART: Optional: "probability" to use to detect start of speech.
-+    * VADCONTINUE: Optional: "probability" to use to detect continuation 
-+	of speech. 
++    * VADCONTINUE: Optional: "probability" to use to detect continuation
++	of speech.
 +
 +
 +CLI Commands
@@ -772,17 +781,17 @@ index 0000000..4c103ce
 +	Channel: The channel
 +	Key: The DTMF key send [0-9*#]
 +
-+    * ConferenceSoundComplete: send when the conference has finished playing 
-+		a sound to a user	
++    * ConferenceSoundComplete: send when the conference has finished playing
++		a sound to a user
 +	Channel: The channel
-+	Sound: The first 255 bytes of the file requested in conference play 
-+		sound CLI/Mgr command.	
++	Sound: The first 255 bytes of the file requested in conference play
++		sound CLI/Mgr command.
 +
 +
 +Benchmarking
 +
-+It would be nice to have solid benchmarks to present, but a good size 
-+machine should be able to handle many callers when either (a) they are 
++It would be nice to have solid benchmarks to present, but a good size
++machine should be able to handle many callers when either (a) they are
 +using DTX, or (b) they are listen-only.  It's used often with hundreds of
 +simultaneous callers.
 +
@@ -790,7 +799,7 @@ index 0000000..4c103ce
 +Discussion
 +
 +The appconference-devel mailing list is the place to discuss everything related
-+to app_conference.  The bug tracker on SourceForge gets a little bit of 
++to app_conference.  The bug tracker on SourceForge gets a little bit of
 +attention now and then.
 +
 +
@@ -799,10 +808,10 @@ index 0000000..4c103ce
 +app_conference is brought to you by the letter q, and the number e
 diff --git a/apps/conference/README.videoswitch b/apps/conference/README.videoswitch
 new file mode 100644
-index 0000000..2612194
+index 0000000..ccc0978
 --- /dev/null
 +++ b/apps/conference/README.videoswitch
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,85 @@
 +VideoSwitch
 +-----------
 +(c) Vipadia Limited 2005-2006
@@ -832,7 +841,7 @@ index 0000000..2612194
 +Both are optional.
 +
 +0-9 - Set initial receive stream to n
-+0-9 - Set this stream id to n (will stop any other video with that id already) 
++0-9 - Set this stream id to n (will stop any other video with that id already)
 +
 +eg: Videoswitch(test/01) will set our id to 1, and we will receive id 0's video
 +
@@ -853,7 +862,7 @@ index 0000000..2612194
 +  videoswitch viewchannel  switch channel in a videoswitch
 +   videoswitch viewstream  switch view in a videoswitch
 +
-+fidwell*CLI> help videoswitch debug 
++fidwell*CLI> help videoswitch debug
 +usage: videoswitch debug <videoswitch_name> [ on | off ]
 +       enable debugging for a videoswitch
 +
@@ -888,8 +897,6 @@ index 0000000..2612194
 +fidwell*CLI> help videoswitch viewstream
 +usage: videoswitch viewstream <videoswitch_name> <member no> <stream no>
 +       member <member no> will receive video stream <stream no>
-+
-+
 diff --git a/apps/conference/TODO b/apps/conference/TODO
 new file mode 100644
 index 0000000..121e83e
@@ -902,10 +909,10 @@ index 0000000..121e83e
 +- Documentation!
 diff --git a/apps/conference/app_conference.h b/apps/conference/app_conference.h
 new file mode 100644
-index 0000000..e3415c4
+index 0000000..03ed638
 --- /dev/null
 +++ b/apps/conference/app_conference.h
-@@ -0,0 +1,249 @@
+@@ -0,0 +1,246 @@
 +
 +// $Id: app_conference.h 839 2007-01-17 22:32:03Z sbalea $
 +
@@ -939,7 +946,6 @@ index 0000000..e3415c4
 +#ifndef _ASTERISK_CONF_H
 +#define _ASTERISK_CONF_H
 +
-+#include "asterisk.h"
 +
 +/* standard includes */
 +#include <stdlib.h>
@@ -949,23 +955,23 @@ index 0000000..e3415c4
 +#include <math.h>
 +#include <stdio.h>
 +
++
 +#include <pthread.h>
 +
 +/* asterisk includes */
-+#include "asterisk/channel.h"
-+#include "asterisk/utils.h"
-+#include "asterisk/pbx.h"
-+#include "asterisk/module.h"
-+#include "asterisk/logger.h"
-+#include "asterisk/lock.h"
-+#include "asterisk/frame.h"
-+#include "asterisk/manager.h"
-+#include "asterisk/dsp.h"
-+#include "asterisk/translate.h"
-+#include "asterisk/channel.h"
-+#include "asterisk/file.h"
-+//#include "asterisk/channel_pvt.h"
-+#include "asterisk/cli.h"
++#include <asterisk/utils.h>
++#include <asterisk/pbx.h>
++#include <asterisk/module.h>
++#include <asterisk/logger.h>
++#include <asterisk/lock.h>
++#include <asterisk/frame.h>
++#include <asterisk/manager.h>
++#include <asterisk/dsp.h>
++#include <asterisk/translate.h>
++#include <asterisk/channel.h>
++#include <asterisk/file.h>
++//#include <asterisk/channel_pvt.h>
++#include <asterisk/cli.h>
 +
 +
 +#if (SILDET == 2)
@@ -1153,14 +1159,12 @@ index 0000000..e3415c4
 +void add_milliseconds( struct timeval* tv, long ms ) ;
 +
 +#endif
-+
-+
 diff --git a/apps/conference/cli.c b/apps/conference/cli.c
 new file mode 100644
-index 0000000..1f84cd4
+index 0000000..84b14a9
 --- /dev/null
 +++ b/apps/conference/cli.c
-@@ -0,0 +1,1116 @@
+@@ -0,0 +1,1265 @@
 +
 +// $Id: cli.c 884 2007-06-27 14:56:21Z sbalea $
 +
@@ -1191,121 +1195,125 @@ index 0000000..1f84cd4
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
 +
-+#include "asterisk.h"
-+
-+ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
-+
 +#include "asterisk/autoconfig.h"
 +#include "cli.h"
 +
-+static char *handle_cli_app_conference_restart(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference restart";
-+		e->usage = "usage: conference restart\n"
-+			" restart a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_restart_usage[] =
++	"usage: conference restart\n"
++	"       kick all users in all conferences\n"
++;
 +
-+	if ( a->argc < 2 )
-+		return CLI_SHOWUSAGE;
-+	
++static struct ast_cli_entry cli_restart = {
++	{ "conference", "restart", NULL },
++	conference_restart,
++	"restart a conference",
++	conference_restart_usage
++} ;
++
++
++int conference_restart( int fd, int argc, char *argv[] )
++{
++	if ( argc < 2 )
++		return RESULT_SHOWUSAGE ;
++
 +	kick_all();
-+	
-+	return CLI_SUCCESS;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_debug(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
++
++//
++// debug functions
++//
++
++static char conference_debug_usage[] =
++	"usage: conference debug <conference_name> [ on | off ]\n"
++	"       enable debugging for a conference\n"
++;
++
++static struct ast_cli_entry cli_debug = {
++	{ "conference", "debug", NULL },
++	conference_debug,
++	"enable debugging for a conference",
++	conference_debug_usage
++} ;
++
++
++int conference_debug( int fd, int argc, char *argv[] )
 +{
-+
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference debug";
-+		e->usage = "usage: conference debug <conference_name> [ on | off ]\n"
-+			" enable debugging for a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	if ( a->argc < 3)
-+		return CLI_SHOWUSAGE;
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get the conference name
-+	const char* name = a->argv[2] ;
++	const char* name = argv[2] ;
 +
-+   	// get the new state
++	// get the new state
 +	int state = 0 ;
 +
-+	if ( a->argc == 3 )
++	if ( argc == 3 )
 +	{
 +		// no state specified, so toggle it
 +		state = -1 ;
 +	}
 +	else
 +	{
-+		if ( strncasecmp( a->argv[3], "on", 4 ) == 0 )
++		if ( strncasecmp( argv[3], "on", 4 ) == 0 )
 +			state = 1 ;
-+		else if ( strncasecmp( a->argv[3], "off", 3 ) == 0 )
++		else if ( strncasecmp( argv[3], "off", 3 ) == 0 )
 +			state = 0 ;
 +		else
-+			return CLI_SHOWUSAGE ;
++			return RESULT_SHOWUSAGE ;
 +	}
 +
 +	int new_state = set_conference_debugging( name, state ) ;
 +
 +	if ( new_state == 1 )
 +	{
-+		ast_cli( a->fd, "enabled conference debugging, name => %s, new_state => %d\n",
-+			 name, new_state ) ;
++		ast_cli( fd, "enabled conference debugging, name => %s, new_state => %d\n",
++			name, new_state ) ;
 +	}
 +	else if ( new_state == 0 )
 +	{
-+		ast_cli( a->fd, "disabled conference debugging, name => %s, new_state => %d\n",
++		ast_cli( fd, "disabled conference debugging, name => %s, new_state => %d\n",
 +			name, new_state ) ;
 +	}
 +	else
 +	{
 +		// error setting state
-+		ast_cli( a->fd, "\nunable to set debugging state, name => %s\n\n", name ) ;
++		ast_cli( fd, "\nunable to set debugging state, name => %s\n\n", name ) ;
 +	}
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static int conference_show_stats_name( int fd, const char* name )
++//
++// stats functions
++//
++
++static char conference_show_stats_usage[] =
++	"usage: conference show stats\n"
++	"       display stats for active conferences.\n"
++;
++
++static struct ast_cli_entry cli_show_stats = {
++	{ "conference", "show", "stats", NULL },
++	conference_show_stats,
++	"show conference stats",
++	conference_show_stats_usage
++} ;
++
++int conference_show_stats( int fd, int argc, char *argv[] )
 +{
-+	// not implemented yet
-+	return CLI_SUCCESS ;
-+}
-+
-+static char *handle_cli_app_conference_show_stats(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference show stats";
-+		e->usage = "usage: conference show stats\n"
-+			" display stats for active conferences.\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	if ( a->argc < 3 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get count of active conferences
 +	int count = get_conference_count() ;
 +
-+	ast_cli( a->fd, "\n\nCONFERENCE STATS, ACTIVE( %d )\n\n", count ) ;
++	ast_cli( fd, "\n\nCONFERENCE STATS, ACTIVE( %d )\n\n", count ) ;
 +
 +	// if zero, go no further
 +	if ( count <= 0 )
-+		return CLI_SUCCESS ;
++		return RESULT_SUCCESS ;
 +
 +	//
 +	// get the conference stats
@@ -1320,8 +1328,8 @@ index 0000000..1f84cd4
 +	// make sure we were able to fetch some
 +	if ( count <= 0 )
 +	{
-+		ast_cli( a->fd, "!!! error fetching conference stats, available => %d !!!\n", count ) ;
-+		return CLI_SUCCESS ;
++		ast_cli( fd, "!!! error fetching conference stats, available => %d !!!\n", count ) ;
++		return RESULT_SUCCESS ;
 +	}
 +
 +	//
@@ -1329,8 +1337,8 @@ index 0000000..1f84cd4
 +	//
 +
 +	// output header
-+	ast_cli( a->fd, "%-20.20s  %-40.40s\n", "Name", "Stats") ;
-+	ast_cli( a->fd, "%-20.20s  %-40.40s\n", "----", "-----") ;
++	ast_cli( fd, "%-20.20s  %-40.40s\n", "Name", "Stats") ;
++	ast_cli( fd, "%-20.20s  %-40.40s\n", "----", "-----") ;
 +
 +	ast_conference_stats* s = NULL ;
 +
@@ -1341,896 +1349,470 @@ index 0000000..1f84cd4
 +		s = &(stats[i]) ;
 +
 +		// output this conferences stats
-+		ast_cli( a->fd, "%-20.20s\n", (char*)( &(s->name) )) ;
++		ast_cli( fd, "%-20.20s\n", (char*)( &(s->name) )) ;
 +	}
 +
-+	ast_cli( a->fd, "\n" ) ;
++	ast_cli( fd, "\n" ) ;
 +
 +	//
 +	// drill down to specific stats
 +	//
 +
-+	if ( a->argc == 4 )
++	if ( argc == 4 )
 +	{
 +		// show stats for a particular conference
-+		conference_show_stats_name( a->fd, a->argv[3] ) ;
++		conference_show_stats_name( fd, argv[3] ) ;
 +	}
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_list(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
++int conference_show_stats_name( int fd, const char* name )
 +{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference list";
-+		e->usage = "usage: conference list {<conference_name>}\n"
-+			" list members of a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++	// not implemented yet
++	return RESULT_SUCCESS ;
++}
 +
++static char conference_list_usage[] =
++	"usage: conference list {<conference_name>}\n"
++	"       list members of a conference\n"
++;
++
++static struct ast_cli_entry cli_list = {
++	{ "conference", "list", NULL },
++	conference_list,
++	"list members of a conference",
++	conference_list_usage
++} ;
++
++
++
++int conference_list( int fd, int argc, char *argv[] )
++{
 +	int index;
 +
-+	if ( a->argc < 2 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 2 )
++		return RESULT_SHOWUSAGE ;
 +
-+	if (a->argc >= 3)
++	if (argc >= 3)
 +	{
-+		for (index = 2; index < a->argc; index++)
++		for (index = 2; index < argc; index++)
 +		{
 +			// get the conference name
-+			const char* name = a->argv[index] ;
-+			show_conference_list( a->fd, name );
++			const char* name = argv[index] ;
++			show_conference_list( fd, name );
 +		}
 +	}
 +	else
 +	{
-+		show_conference_stats(a->fd);
++		show_conference_stats(fd);
 +	}
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
 +
-+static char *handle_cli_app_conference_kick(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
++int conference_kick( int fd, int argc, char *argv[] )
 +{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference kick";
-+		e->usage = "usage: conference kick <conference> <member id>\n"
-+			" kick member <member id> from conference <conference>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+	
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get the conference name
-+	const char* name = a->argv[2] ;
++	const char* name = argv[2] ;
 +
 +	int member_id;
-+	sscanf(a->argv[3], "%d", &member_id);
++	sscanf(argv[3], "%d", &member_id);
 +
 +	int res = kick_member( name, member_id );
 +
-+	if (res) ast_cli( a->fd, "User #: %d kicked\n", member_id) ;
++	if (res) ast_cli( fd, "User #: %d kicked\n", member_id) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_kickchannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference kickchannel";
-+		e->usage = "usage: conference kickchannel <conference_name> <channel>\n"
-+			" kick channel from conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+	
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE ;
++static char conference_kick_usage[] =
++	"usage: conference kick <conference> <member id>\n"
++	"       kick member <member id> from conference <conference>\n"
++;
 +
-+	const char *name = a->argv[2] ;
-+	const char *channel = a->argv[3];
++static struct ast_cli_entry cli_kick = {
++	{ "conference", "kick", NULL },
++	conference_kick,
++	"kick member from a conference",
++	conference_kick_usage
++} ;
++
++int conference_kickchannel( int fd, int argc, char *argv[] )
++{
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE ;
++
++	const char *name = argv[2] ;
++	const char *channel = argv[3];
 +
 +	int res = kick_channel( name, channel );
 +
 +	if ( !res )
 +	{
-+		ast_cli( a->fd, "Cannot kick channel %s in conference %s\n", channel, name);
-+		return CLI_FAILURE;
++		ast_cli( fd, "Cannot kick channel %s in conference %s\n", channel, name);
++		return RESULT_FAILURE;
 +	}
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_exit(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
++static char conference_kickchannel_usage[] =
++	"usage: conference kickchannel <conference_name> <channel>\n"
++	"       kick channel from conference\n"
++;
++
++static struct ast_cli_entry cli_kickchannel = {
++	{ "conference", "kickchannel", NULL },
++	conference_kickchannel,
++	"kick channel from conference",
++	conference_kickchannel_usage
++} ;
++
++int conference_exit( int fd, int argc, char *argv[] )
 +{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference exit";
-+		e->usage = "usage: conference exit <channel>\n"
-+			" exit channel from any conference where it in\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
-+	if ( a->argc < 3 )
-+		return CLI_SHOWUSAGE ;
-+
-+	const char *channel = a->argv[2];
++	const char *channel = argv[2];
 +
 +	struct ast_conf_member *member = find_member(channel, 1);
 +	if(!member)
 +	{
-+		ast_cli( a->fd, "Member %s not found\n", channel);
-+		return CLI_FAILURE;
++		ast_cli(fd, "Member %s not found\n", channel);
++		return RESULT_FAILURE;
 +	}
 +	const char * name = member->conf_name;
 +	int res = kick_channel( name, channel );
-+	
++
 +	if ( !res )
 +	{
-+		ast_cli( a->fd, "Cannot exit channel %s from conference %s\n", channel, name);
++		ast_cli(fd, "Cannot exit channel %s from conference %s\n", channel, name);
 +		ast_mutex_unlock(&member->lock);
-+		return CLI_FAILURE;
++		return RESULT_FAILURE;
 +	}
 +
 +	ast_mutex_unlock( &member->lock ) ;
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_mute(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference mute";
-+		e->usage = "usage: conference mute <conference_name> <member id>\n"
-+			" mute member in a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_exit_usage[] =
++	"usage: conference exit <channel>\n"
++	"       exit channel from any conference where it in\n";
 +
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE ;
++static struct ast_cli_entry cli_exit = {
++	{ "conference", "exit", NULL },
++	conference_exit,
++	"exit channel from any conference where it in",
++	conference_exit_usage
++};
++
++int conference_mute( int fd, int argc, char *argv[] )
++{
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get the conference name
-+	const char* name = a->argv[2] ;
++	const char* name = argv[2] ;
 +
 +	int member_id;
-+	sscanf(a->argv[3], "%d", &member_id);
++	sscanf(argv[3], "%d", &member_id);
 +
 +	int res = mute_member( name, member_id );
 +
-+	if (res) ast_cli( a->fd, "User #: %d muted\n", member_id) ;
++	if (res) ast_cli( fd, "User #: %d muted\n", member_id) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_mutechannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference mutechannel";
-+		e->usage = "usage: conference mutechannel <channel>\n"
-+			" mute channel in a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_mute_usage[] =
++	"usage: conference mute <conference_name> <member id>\n"
++	"       mute member in a conference\n"
++;
 +
-+  	struct ast_conf_member *member;
++static struct ast_cli_entry cli_mute = {
++	{ "conference", "mute", NULL },
++	conference_mute,
++	"mute member in a conference",
++	conference_mute_usage
++} ;
++
++int conference_mutechannel( int fd, int argc, char *argv[] )
++{
++	struct ast_conf_member *member;
 +	char *channel;
 +
-+	if ( a->argc < 3 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
-+	channel = a->argv[2];
++	channel = argv[2];
 +
 +	member = find_member(channel, 1);
 +	if(!member) {
-+	    ast_cli( a->fd, "Member %s not found\n", channel);
-+	    return CLI_FAILURE;
++	    ast_cli(fd, "Member %s not found\n", channel);
++	    return RESULT_FAILURE;
 +	}
 +
 +	member->mute_audio = 1;
 +	ast_mutex_unlock( &member->lock ) ;
 +
-+	ast_cli( a->fd, "Channel #: %s muted\n", a->argv[2]) ;
++	ast_cli( fd, "Channel #: %s muted\n", argv[2]) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_viewstream(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference viewstream";
-+		e->usage = "usage: conference viewstream <conference_name> <member id> <stream no>\n"
-+			" member <member id> will receive video stream <stream no>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_mutechannel_usage[] =
++	"usage: conference mutechannel <channel>\n"
++	"       mute channel in a conference\n"
++;
 +
++static struct ast_cli_entry cli_mutechannel = {
++	{ "conference", "mutechannel", NULL },
++	conference_mutechannel,
++	"mute channel in a conference",
++	conference_mutechannel_usage
++} ;
++
++int conference_viewstream( int fd, int argc, char *argv[] )
++{
 +	int res;
 +
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get the conference name
-+	const char* switch_name = a->argv[2] ;
++	const char* switch_name = argv[2] ;
 +
 +	int member_id, viewstream_id;
-+	sscanf(a->argv[3], "%d", &member_id);
-+	sscanf(a->argv[4], "%d", &viewstream_id);
++	sscanf(argv[3], "%d", &member_id);
++	sscanf(argv[4], "%d", &viewstream_id);
 +
 +	res = viewstream_switch( switch_name, member_id, viewstream_id );
 +
-+	if (res) ast_cli( a->fd, "User #: %d viewing %d\n", member_id, viewstream_id) ;
++	if (res) ast_cli( fd, "User #: %d viewing %d\n", member_id, viewstream_id) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_viewchannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference viewchannel";
-+		e->usage = "usage: conference viewchannel <conference_name> <dest channel> <src channel>\n"
-+			" channel <dest channel> will receive video stream <src channel>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_viewstream_usage[] =
++	"usage: conference viewstream <conference_name> <member id> <stream no>\n"
++	"       member <member id> will receive video stream <stream no>\n"
++;
 +
++static struct ast_cli_entry cli_viewstream = {
++	{ "conference", "viewstream", NULL },
++	conference_viewstream,
++	"switch view in a conference",
++	conference_viewstream_usage
++} ;
++
++int conference_viewchannel( int fd, int argc, char *argv[] )
++{
 +	int res;
 +
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get the conference name
-+	const char* switch_name = a->argv[2] ;
++	const char* switch_name = argv[2] ;
 +
-+	res = viewchannel_switch( switch_name, a->argv[3], a->argv[4] );
++	res = viewchannel_switch( switch_name, argv[3], argv[4] );
 +
-+	if (res) ast_cli( a->fd, "Channel #: %s viewing %s\n", a->argv[3], a->argv[4]) ;
++	if (res) ast_cli( fd, "Channel #: %s viewing %s\n", argv[3], argv[4]) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_unmute(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference unmute";
-+		e->usage = "usage: conference unmute <conference_name> <member id>\n"
-+			" unmute member in a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_viewchannel_usage[] =
++	"usage: conference viewchannel <conference_name> <dest channel> <src channel>\n"
++	"       channel <dest channel> will receive video stream <src channel>\n"
++;
 +
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE ;
++static struct ast_cli_entry cli_viewchannel = {
++	{ "conference", "viewchannel", NULL },
++	conference_viewchannel,
++	"switch channel in a conference",
++	conference_viewchannel_usage
++} ;
++
++int conference_unmute( int fd, int argc, char *argv[] )
++{
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// get the conference name
-+	const char* name = a->argv[2] ;
++	const char* name = argv[2] ;
 +
 +	int member_id;
-+	sscanf(a->argv[3], "%d", &member_id);
++	sscanf(argv[3], "%d", &member_id);
 +
 +	int res = unmute_member( name, member_id );
 +
-+	if (res) ast_cli( a->fd, "User #: %d unmuted\n", member_id) ;
++	if (res) ast_cli( fd, "User #: %d unmuted\n", member_id) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_unmutechannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference unmutechannel";
-+		e->usage = "usage: conference unmutechannel <channel>\n"
-+			" unmute channel in a conference\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_unmute_usage[] =
++	"usage: conference unmute <conference_name> <member id>\n"
++	"       unmute member in a conference\n"
++;
 +
++static struct ast_cli_entry cli_unmute = {
++	{ "conference", "unmute", NULL },
++	conference_unmute,
++	"unmute member in a conference",
++	conference_unmute_usage
++} ;
++
++int conference_unmutechannel( int fd, int argc, char *argv[] )
++{
 +	struct ast_conf_member *member;
 +	char *channel;
 +
-+	if ( a->argc < 3 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
-+	channel = a->argv[2];
++	channel = argv[2];
 +
 +	member = find_member(channel, 1);
 +	if(!member) {
-+	    ast_cli( a->fd, "Member %s not found\n", channel);
-+	    return CLI_FAILURE;
++	    ast_cli(fd, "Member %s not found\n", channel);
++	    return RESULT_FAILURE;
 +	}
 +
 +	member->mute_audio = 0;
 +	ast_mutex_unlock( &member->lock ) ;
 +
-+	ast_cli( a->fd, "Channel #: %s unmuted\n", a->argv[2]) ;
++	ast_cli( fd, "Channel #: %s unmuted\n", argv[2]) ;
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_play_sound(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference play sound";
-+		e->usage = "usage: conference play sound <channel-id> <sound-file> [mute]\n"
-+			" play sound <sound-file> to conference member <channel-id>.\n"
-+			" If mute is specified, all other audio is muted while the sound is played back.\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++static char conference_unmutechannel_usage[] =
++	"usage: conference unmutechannel <channel>\n"
++	"       unmute channel in a conference\n"
++;
 +
++static struct ast_cli_entry cli_unmutechannel = {
++	{ "conference", "unmutechannel", NULL },
++	conference_unmutechannel,
++	"unmute channel in a conference",
++	conference_unmutechannel_usage
++} ;
++
++//
++// play sound
++//
++static char conference_play_sound_usage[] =
++	"usage: conference play sound <channel-id> <sound-file> [mute]\n"
++	"       play sound <sound-file> to conference member <channel-id>.\n"
++	"       If mute is specified, all other audio is muted while the sound is played back.\n"
++;
++
++static struct ast_cli_entry cli_play_sound = {
++	{ "conference", "play", "sound", NULL },
++	conference_play_sound,
++	"play a sound to a conference member",
++	conference_play_sound_usage
++} ;
++
++int conference_play_sound( int fd, int argc, char *argv[] )
++{
 +	char *channel, *file;
 +	int mute = 0;
 +
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE ;
 +
-+	channel = a->argv[3];
-+	file = a->argv[4];
++	channel = argv[3];
++	file = argv[4];
 +
-+	if(a->argc > 5 && !strcmp(a->argv[5], "mute"))
++	if(argc > 5 && !strcmp(argv[5], "mute"))
 +	    mute = 1;
 +
-+	int res = play_sound_channel(a->fd, channel, file, mute);
++	int res = play_sound_channel(fd, channel, file, mute);
 +
 +	if ( !res )
 +	{
-+		ast_cli( a->fd, "Sound playback failed failed\n");
-+		return CLI_FAILURE;
++		ast_cli(fd, "Sound playback failed failed\n");
++		return RESULT_FAILURE;
 +	}
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_stop_sounds(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference play sound";
-+		e->usage = "usage: conference stop sounds <channel-id>\n"
-+			" stop sounds for conference member <channel-id>.\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++//
++// stop sounds
++//
 +
++static char conference_stop_sounds_usage[] =
++	"usage: conference stop sounds <channel-id>\n"
++	"       stop sounds for conference member <channel-id>.\n"
++;
++
++static struct ast_cli_entry cli_stop_sounds = {
++	{ "conference", "stop", "sounds", NULL },
++	conference_stop_sounds,
++	"stop sounds for a conference member",
++	conference_stop_sounds_usage
++} ;
++
++int conference_stop_sounds( int fd, int argc, char *argv[] )
++{
 +	char *channel;
 +
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE ;
 +
-+	channel = a->argv[3];
++	channel = argv[3];
 +
-+	int res = stop_sound_channel( a->fd, channel);
++	int res = stop_sound_channel(fd, channel);
 +
 +	if ( !res )
 +	{
-+		ast_cli( a->fd, "Sound stop failed failed\n");
-+		return CLI_FAILURE;
++		ast_cli(fd, "Sound stop failed failed\n");
++		return RESULT_FAILURE;
 +	}
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
 +
-+static char *handle_cli_app_conference_end(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference end";
-+		e->usage = "usage: conference end <conference name>\n"
-+			" ends a conference.\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
++//
++// end conference
++//
 +
++static char conference_end_usage[] =
++	"usage: conference end <conference name>\n"
++	"       ends a conference.\n"
++;
++
++static struct ast_cli_entry cli_end = {
++	{ "conference", "end", NULL },
++	conference_end,
++	"stops a conference",
++	conference_end_usage
++} ;
++
++int conference_end( int fd, int argc, char *argv[] )
++{
 +	// check the args length
-+	if ( a->argc < 3 )
-+		return CLI_SHOWUSAGE ;
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE ;
 +
 +	// conference name
-+	const char* name = a->argv[2] ;
++	const char* name = argv[2] ;
 +
 +	// get the conference
 +	if ( end_conference( name, 1 ) != 0 )
 +	{
-+		ast_cli( a->fd, "unable to end the conference, name => %s\n", name ) ;
-+		return CLI_SHOWUSAGE ;
++		ast_cli( fd, "unable to end the conference, name => %s\n", name ) ;
++		return RESULT_SHOWUSAGE ;
 +	}
 +
-+	return CLI_SUCCESS ;
++	return RESULT_SUCCESS ;
 +}
-+
-+static char *handle_cli_app_conference_lock(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+	e->command = "conference lock";
-+	e->usage = "usage: conference lock <conference name> <member id>\n"
-+		" locks incoming video stream for conference <conference name> to member <member id>\n";
-+	return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	int member;
-+	sscanf(a->argv[3], "%d", &member);
-+
-+	int res = lock_conference(conference, member);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Locking failed\n");
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_lockchannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference lockchannel";
-+		e->usage = "usage: conference lockchannel <conference name> <channel>\n"
-+			" locks incoming video stream for conference <conference name> to channel <channel>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	const char *channel = a->argv[3];
-+
-+	int res = lock_conference_channel(conference, channel);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Locking failed\n");
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_unlock(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference unlock";
-+		e->usage = "usage: conference unlock <conference name>\n"
-+			" unlocks conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 3 )
-+		return CLI_SHOWUSAGE;
-+
-+
-+	const char *conference = a->argv[2];
-+
-+	int res = unlock_conference(conference);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Unlocking failed\n");
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_set_default(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference set default";
-+		e->usage = "usage: conference set default <conference name> <member id>\n"
-+			" sets the default video source for conference <conference name> to member <member id>\n"
-+			" Use a negative value for member if you want to clear the default\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[3];
-+	int member;
-+	sscanf(a->argv[4], "%d", &member);
-+
-+	int res = set_default_id(conference, member);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Setting default video id failed\n");
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_set_defaultchannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference set defaultchannel";
-+		e->usage = "usage: conference set defaultchannel <conference name> <channel>\n"
-+			" sets the default video source channel for conference <conference name> to channel <channel>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[3];
-+	const char *channel = a->argv[4];
-+
-+	int res = set_default_channel(conference, channel);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Setting default video id failed\n");
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_video_mute(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference video mute";
-+		e->usage = "usage: conference video mute <conference name> <member id>\n"
-+			" mutes video from member <member id> in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[3];
-+	int member;
-+	sscanf(a->argv[4], "%d", &member);
-+
-+	int res = video_mute_member(conference, member);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Muting video from member %d failed\n", member);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_video_unmute(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference video unmute";
-+		e->usage = "usage: conference video unmute <conference name> <member id>\n"
-+			" unmutes video from member <member id> in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[3];
-+	int member;
-+	sscanf(a->argv[4], "%d", &member);
-+
-+	int res = video_unmute_member(conference, member);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Unmuting video from member %d failed\n", member);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_video_mutechannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference video mutechannel";
-+		e->usage = "usage: conference video mutechannel <conference name> <channel>\n"
-+			" mutes video from channel <channel> in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[3];
-+	const char *channel = a->argv[4];
-+
-+	int res = video_mute_channel(conference, channel);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Muting video from channel %s failed\n", channel);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_video_unmutechannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference video unmutechannel";
-+		e->usage = "usage: conference video unmutechannel <conference name> <channel>\n"
-+			" unmutes video from channel <channel> in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[3];
-+	const char *channel = a->argv[4];
-+
-+	int res = video_unmute_channel(conference, channel);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Unmuting video from channel %s failed\n", channel);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_text(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference text";
-+		e->usage = "usage: conference text <conference name> <member id> <text>\n"
-+			" Sends text message <text> to member <member id> in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	int member;
-+	sscanf(a->argv[3], "%d", &member);
-+	const char *text = a->argv[4];
-+
-+	int res = send_text(conference, member, text);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Sending a text message to member %d failed\n", member);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_textchannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference textchannel";
-+		e->usage = "usage: conference textchannel <conference name> <channel> <text>\n"
-+			" Sends text message <text> to channel <channel> in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 5 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	const char *channel = a->argv[3];
-+	const char *text = a->argv[4];
-+
-+	int res = send_text_channel(conference, channel, text);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Sending a text message to channel %s failed\n", channel);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_textbroadcast(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference textbroadcast";
-+		e->usage = "usage: conference textbroadcast <conference name> <text>\n"
-+			" Sends text message <text> to all members in conference <conference name>\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	const char *text = a->argv[3];
-+
-+	int res = send_text_broadcast(conference, text);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Sending a text broadcast to conference %s failed\n", conference);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_drive(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference drive";
-+		e->usage = "usage: conference drive <conference name> <source member> [destination member]\n"
-+			" Drives VAD video switching of <destination member> using audio from <source member> in conference <conference name>\n"
-+			" If destination is missing or negative, break existing association\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	int src_member = -1;
-+	int dst_member = -1;
-+	sscanf(a->argv[3], "%d", &src_member);
-+	if ( a->argc > 4 )
-+		sscanf(a->argv[4], "%d", &dst_member);
-+
-+	int res = drive(conference, src_member, dst_member);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Pairing members %d and %d failed\n", src_member, dst_member);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static char *handle_cli_app_conference_drivechannel(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
-+{
-+	switch ( cmd ) {
-+	case CLI_INIT:
-+		e->command = "conference drivechannel";
-+		e->usage = "usage: conference drive <conference name> <source channel> [destination channel]\n"
-+			" Drives VAD video switching of <destination member> using audio from <source channel> in conference <conference channel>\n"
-+			" If destination is missing, break existing association\n";
-+		return NULL;
-+	case CLI_GENERATE:
-+		return NULL;
-+	}
-+
-+	// check args
-+	if ( a->argc < 4 )
-+		return CLI_SHOWUSAGE;
-+
-+	const char *conference = a->argv[2];
-+	const char *src_channel = a->argv[3];
-+	const char *dst_channel = NULL;
-+	if ( a->argc > 4 )
-+		dst_channel = a->argv[4];
-+
-+	int res = drive_channel(conference, src_channel, dst_channel);
-+
-+	if ( !res )
-+	{
-+		ast_cli( a->fd, "Pairing channels %s and %s failed\n", src_channel, dst_channel);
-+		return CLI_FAILURE;
-+	}
-+
-+	return CLI_SUCCESS;
-+}
-+
-+static struct ast_cli_entry app_conference_clis[] = {
-+	AST_CLI_DEFINE(handle_cli_app_conference_restart, "Restart a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_debug, "Enable debugging for a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_show_stats, "Display stats for active conferences"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_list, "List members of a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_kick, "Kick member from a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_kickchannel, "Kick channel from conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_exit, "Exit channel from any conference where it in"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_mute, "Mute member in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_mutechannel, "Mute channel in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_viewstream, "Switch view in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_viewchannel, "Switch channel in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_unmute, "Unmute member in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_unmutechannel, "Unmute channel in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_play_sound, "Play a sound to a conference member"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_stop_sounds, "Stop sounds for a conference member"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_end, "Stops a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_lock, "Locks incoming video to a member"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_lockchannel, "Locks incoming video to a channel"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_unlock, "Unlocks conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_set_default, "Sets default video sourcee"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_set_defaultchannel, "Sets default video source channel"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_video_mute, "Mutes video from a member"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_video_unmute, "Unmutes video from a member"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_video_mutechannel, "Mutes video from a channel"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_video_unmutechannel, "Unmutes video from a channel"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_text, "Sends a text message to a member"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_textchannel, "Sends a text message to a channel"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_textbroadcast, "Sends a text message to all members in a conference"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_drive, "Pairs two members to drive VAD-based video switching"),
-+	AST_CLI_DEFINE(handle_cli_app_conference_drivechannel, "Pairs two channels to drive VAD-based video switching"),
-+};
 +
 +//
 +// E.BUU - Manager conference end. Additional option to just kick everybody out
@@ -2258,6 +1840,519 @@ index 0000000..1f84cd4
 +	astman_send_ack(s, m, "Conference terminated");
 +	return RESULT_SUCCESS;
 +}
++//
++// lock conference to a video source
++//
++static char conference_lock_usage[] =
++	"usage: conference lock <conference name> <member id>\n"
++	"       locks incoming video stream for conference <conference name> to member <member id>\n"
++;
++
++static struct ast_cli_entry cli_lock = {
++	{ "conference", "lock", NULL },
++	conference_lock,
++	"locks incoming video to a member",
++	conference_lock_usage
++} ;
++
++int conference_lock( int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	int member;
++	sscanf(argv[3], "%d", &member);
++
++	int res = lock_conference(conference, member);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Locking failed\n");
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// lock conference to a video source channel
++//
++static char conference_lockchannel_usage[] =
++	"usage: conference lockchannel <conference name> <channel>\n"
++	"       locks incoming video stream for conference <conference name> to channel <channel>\n"
++;
++
++static struct ast_cli_entry cli_lockchannel = {
++	{ "conference", "lockchannel", NULL },
++	conference_lockchannel,
++	"locks incoming video to a channel",
++	conference_lockchannel_usage
++} ;
++
++int conference_lockchannel( int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	const char *channel = argv[3];
++
++	int res = lock_conference_channel(conference, channel);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Locking failed\n");
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// unlock conference
++//
++static char conference_unlock_usage[] =
++	"usage: conference unlock <conference name>\n"
++	"       unlocks conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_unlock = {
++	{ "conference", "unlock", NULL },
++	conference_unlock,
++	"unlocks conference",
++	conference_unlock_usage
++} ;
++
++int conference_unlock( int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 3 )
++		return RESULT_SHOWUSAGE;
++
++
++	const char *conference = argv[2];
++
++	int res = unlock_conference(conference);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Unlocking failed\n");
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Set conference default video source
++//
++static char conference_set_default_usage[] =
++	"usage: conference set default <conference name> <member id>\n"
++	"       sets the default video source for conference <conference name> to member <member id>\n"
++	"       Use a negative value for member if you want to clear the default\n"
++;
++
++static struct ast_cli_entry cli_set_default = {
++	{ "conference", "set", "default", NULL },
++	conference_set_default,
++	"sets default video source",
++	conference_set_default_usage
++} ;
++
++int conference_set_default(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[3];
++	int member;
++	sscanf(argv[4], "%d", &member);
++
++	int res = set_default_id(conference, member);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Setting default video id failed\n");
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Set conference default video source channel
++//
++static char conference_set_defaultchannel_usage[] =
++	"usage: conference set defaultchannel <conference name> <channel>\n"
++	"       sets the default video source channel for conference <conference name> to channel <channel>\n"
++;
++
++static struct ast_cli_entry cli_set_defaultchannel = {
++	{ "conference", "set", "defaultchannel", NULL },
++	conference_set_defaultchannel,
++	"sets default video source channel",
++	conference_set_defaultchannel_usage
++} ;
++
++int conference_set_defaultchannel(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[3];
++	const char *channel = argv[4];
++
++	int res = set_default_channel(conference, channel);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Setting default video id failed\n");
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Mute video from a member
++//
++static char conference_video_mute_usage[] =
++	"usage: conference video mute <conference name> <member id>\n"
++	"       mutes video from member <member id> in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_video_mute = {
++	{ "conference", "video", "mute", NULL },
++	conference_video_mute,
++	"mutes video from a member",
++	conference_video_mute_usage
++} ;
++
++int conference_video_mute(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[3];
++	int member;
++	sscanf(argv[4], "%d", &member);
++
++	int res = video_mute_member(conference, member);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Muting video from member %d failed\n", member);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Unmute video from a member
++//
++static char conference_video_unmute_usage[] =
++	"usage: conference video unmute <conference name> <member id>\n"
++	"       unmutes video from member <member id> in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_video_unmute = {
++	{ "conference", "video", "unmute", NULL },
++	conference_video_unmute,
++	"unmutes video from a member",
++	conference_video_unmute_usage
++} ;
++
++int conference_video_unmute(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[3];
++	int member;
++	sscanf(argv[4], "%d", &member);
++
++	int res = video_unmute_member(conference, member);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Unmuting video from member %d failed\n", member);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Mute video from a channel
++//
++static char conference_video_mutechannel_usage[] =
++	"usage: conference video mutechannel <conference name> <channel>\n"
++	"       mutes video from channel <channel> in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_video_mutechannel = {
++	{ "conference", "video", "mutechannel", NULL },
++	conference_video_mutechannel,
++	"mutes video from a channel",
++	conference_video_mutechannel_usage
++} ;
++
++int conference_video_mutechannel(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[3];
++	const char *channel = argv[4];
++
++	int res = video_mute_channel(conference, channel);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Muting video from channel %s failed\n", channel);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Unmute video from a channel
++//
++static char conference_video_unmutechannel_usage[] =
++	"usage: conference video unmutechannel <conference name> <channel>\n"
++	"       unmutes video from channel <channel> in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_video_unmutechannel = {
++	{ "conference", "video", "unmutechannel", NULL },
++	conference_video_unmutechannel,
++	"unmutes video from a channel",
++	conference_video_unmutechannel_usage
++} ;
++
++int conference_video_unmutechannel(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[3];
++	const char *channel = argv[4];
++
++	int res = video_unmute_channel(conference, channel);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Unmuting video from channel %s failed\n", channel);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++
++//
++// Text message functions
++// Send a text message to a member
++//
++static char conference_text_usage[] =
++	"usage: conference text <conference name> <member id> <text>\n"
++	"        Sends text message <text> to member <member id> in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_text = {
++	{ "conference", "text", NULL },
++	conference_text,
++	"sends a text message to a member",
++	conference_text_usage
++} ;
++
++int conference_text(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	int member;
++	sscanf(argv[3], "%d", &member);
++	const char *text = argv[4];
++
++	int res = send_text(conference, member, text);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Sending a text message to member %d failed\n", member);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Send a text message to a channel
++//
++static char conference_textchannel_usage[] =
++	"usage: conference textchannel <conference name> <channel> <text>\n"
++	"        Sends text message <text> to channel <channel> in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_textchannel = {
++	{ "conference", "textchannel", NULL },
++	conference_textchannel,
++	"sends a text message to a channel",
++	conference_textchannel_usage
++} ;
++
++int conference_textchannel(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 5 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	const char *channel = argv[3];
++	const char *text = argv[4];
++
++	int res = send_text_channel(conference, channel, text);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Sending a text message to channel %s failed\n", channel);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Send a text message to all members in a conference
++//
++static char conference_textbroadcast_usage[] =
++	"usage: conference textbroadcast <conference name> <text>\n"
++	"        Sends text message <text> to all members in conference <conference name>\n"
++;
++
++static struct ast_cli_entry cli_textbroadcast = {
++	{ "conference", "textbroadcast", NULL },
++	conference_textbroadcast,
++	"sends a text message to all members in a conference",
++	conference_textbroadcast_usage
++} ;
++
++int conference_textbroadcast(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	const char *text = argv[3];
++
++	int res = send_text_broadcast(conference, text);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Sending a text broadcast to conference %s failed\n", conference);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Associate two members
++// Audio from the source member will drive VAD based video switching for the destination member
++// If the destination member is missing or negative, break any existing association
++//
++static char conference_drive_usage[] =
++	"usage: conference drive <conference name> <source member> [destination member]\n"
++	"        Drives VAD video switching of <destination member> using audio from <source member> in conference <conference name>\n"
++	"        If destination is missing or negative, break existing association\n"
++;
++
++static struct ast_cli_entry cli_drive = {
++	{ "conference", "drive", NULL },
++	conference_drive,
++	"pairs two members to drive VAD-based video switching",
++	conference_drive_usage
++} ;
++
++int conference_drive(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	int src_member = -1;
++	int dst_member = -1;
++	sscanf(argv[3], "%d", &src_member);
++	if ( argc > 4 )
++		sscanf(argv[4], "%d", &dst_member);
++
++	int res = drive(conference, src_member, dst_member);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Pairing members %d and %d failed\n", src_member, dst_member);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
++//
++// Associate two channels
++// Audio from the source channel will drive VAD based video switching for the destination channel
++// If the destination channel is missing, break any existing association
++//
++static char conference_drivechannel_usage[] =
++	"usage: conference drive <conference name> <source channel> [destination channel]\n"
++	"        Drives VAD video switching of <destination member> using audio from <source channel> in conference <conference channel>\n"
++	"        If destination is missing, break existing association\n"
++;
++
++static struct ast_cli_entry cli_drivechannel = {
++	{ "conference", "drivechannel", NULL },
++	conference_drivechannel,
++	"pairs two channels to drive VAD-based video switching",
++	conference_drivechannel_usage
++} ;
++
++int conference_drivechannel(int fd, int argc, char *argv[] )
++{
++	// check args
++	if ( argc < 4 )
++		return RESULT_SHOWUSAGE;
++
++	const char *conference = argv[2];
++	const char *src_channel = argv[3];
++	const char *dst_channel = NULL;
++	if ( argc > 4 )
++		dst_channel = argv[4];
++
++	int res = drive_channel(conference, src_channel, dst_channel);
++
++	if ( !res )
++	{
++		ast_cli(fd, "Pairing channels %s and %s failed\n", src_channel, dst_channel);
++		return RESULT_FAILURE;
++	}
++
++	return RESULT_SUCCESS;
++}
++
 +
 +//
 +// cli initialization function
@@ -2265,7 +2360,36 @@ index 0000000..1f84cd4
 +
 +void register_conference_cli( void )
 +{
-+	ast_cli_register_multiple(app_conference_clis, sizeof(app_conference_clis) / sizeof(struct ast_cli_entry));
++	ast_cli_register( &cli_restart );
++	ast_cli_register( &cli_debug ) ;
++	ast_cli_register( &cli_show_stats ) ;
++	ast_cli_register( &cli_list );
++	ast_cli_register( &cli_kick );
++	ast_cli_register( &cli_kickchannel );
++	ast_cli_register( &cli_exit );
++	ast_cli_register( &cli_mute );
++	ast_cli_register( &cli_mutechannel );
++	ast_cli_register( &cli_viewstream );
++	ast_cli_register( &cli_viewchannel );
++	ast_cli_register( &cli_unmute );
++	ast_cli_register( &cli_unmutechannel );
++	ast_cli_register( &cli_play_sound ) ;
++	ast_cli_register( &cli_stop_sounds ) ;
++	ast_cli_register( &cli_end );
++	ast_cli_register( &cli_lock );
++	ast_cli_register( &cli_lockchannel );
++	ast_cli_register( &cli_unlock );
++	ast_cli_register( &cli_set_default );
++	ast_cli_register( &cli_set_defaultchannel );
++	ast_cli_register( &cli_video_mute ) ;
++	ast_cli_register( &cli_video_unmute ) ;
++	ast_cli_register( &cli_video_mutechannel ) ;
++	ast_cli_register( &cli_video_unmutechannel ) ;
++	ast_cli_register( &cli_text );
++	ast_cli_register( &cli_textchannel );
++	ast_cli_register( &cli_textbroadcast );
++	ast_cli_register( &cli_drive );
++	ast_cli_register( &cli_drivechannel );
 +	ast_manager_register( "ConferenceList", 0, manager_conference_list, "Conference List" );
 +	ast_manager_register( "ConferenceEnd", EVENT_FLAG_CALL, manager_conference_end, "Terminate a conference" );
 +
@@ -2273,16 +2397,45 @@ index 0000000..1f84cd4
 +
 +void unregister_conference_cli( void )
 +{
-+	ast_cli_unregister_multiple(app_conference_clis, sizeof(app_conference_clis) / sizeof(struct ast_cli_entry));
++	ast_cli_unregister( &cli_restart );
++	ast_cli_unregister( &cli_debug ) ;
++	ast_cli_unregister( &cli_show_stats ) ;
++	ast_cli_unregister( &cli_list );
++	ast_cli_unregister( &cli_kick );
++	ast_cli_unregister( &cli_kickchannel );
++	ast_cli_unregister( &cli_exit );
++	ast_cli_unregister( &cli_mute );
++	ast_cli_unregister( &cli_mutechannel );
++	ast_cli_unregister( &cli_viewstream );
++	ast_cli_unregister( &cli_viewchannel );
++	ast_cli_unregister( &cli_unmute );
++	ast_cli_unregister( &cli_unmutechannel );
++	ast_cli_unregister( &cli_play_sound ) ;
++	ast_cli_unregister( &cli_stop_sounds ) ;
++	ast_cli_unregister( &cli_end );
++	ast_cli_unregister( &cli_lock );
++	ast_cli_unregister( &cli_lockchannel );
++	ast_cli_unregister( &cli_unlock );
++	ast_cli_unregister( &cli_set_default );
++	ast_cli_unregister( &cli_set_defaultchannel );
++	ast_cli_unregister( &cli_video_mute ) ;
++	ast_cli_unregister( &cli_video_unmute ) ;
++	ast_cli_unregister( &cli_video_mutechannel ) ;
++	ast_cli_unregister( &cli_video_unmutechannel ) ;
++	ast_cli_unregister( &cli_text );
++	ast_cli_unregister( &cli_textchannel );
++	ast_cli_unregister( &cli_textbroadcast );
++	ast_cli_unregister( &cli_drive );
++	ast_cli_unregister( &cli_drivechannel );
 +	ast_manager_unregister( "ConferenceList" );
 +	ast_manager_unregister( "ConferenceEnd" );
 +}
 diff --git a/apps/conference/cli.h b/apps/conference/cli.h
 new file mode 100644
-index 0000000..f853ba4
+index 0000000..34b79d6
 --- /dev/null
 +++ b/apps/conference/cli.h
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,99 @@
 +
 +// $Id: cli.h 880 2007-04-25 15:23:59Z jpgrayson $
 +
@@ -2326,6 +2479,54 @@ index 0000000..f853ba4
 +//
 +// function declarations
 +//
++
++int conference_show_stats( int fd, int argc, char *argv[] ) ;
++int conference_show_stats_name( int fd, const char* name ) ;
++
++int conference_restart( int fd, int argc, char *argv[] );
++
++int conference_debug( int fd, int argc, char *argv[] ) ;
++int conference_no_debug( int fd, int argc, char *argv[] ) ;
++
++int conference_list( int fd, int argc, char *argv[] ) ;
++int conference_kick( int fd, int argc, char *argv[] ) ;
++int conference_kickchannel( int fd, int argc, char *argv[] ) ;
++
++int conference_exit( int fd, int argc, char *argv[] ) ;
++
++int conference_mute( int fd, int argc, char *argv[] ) ;
++int conference_unmute( int fd, int argc, char *argv[] ) ;
++int conference_mutechannel( int fd, int argc, char *argv[] ) ;
++int conference_unmutechannel( int fd, int argc, char *argv[] ) ;
++int conference_viewstream( int fd, int argc, char *argv[] ) ;
++int conference_viewchannel( int fd, int argc, char *argv[] ) ;
++
++int conference_play_sound( int fd, int argc, char *argv[] ) ;
++int conference_stop_sounds( int fd, int argc, char *argv[] ) ;
++
++int conference_play_video( int fd, int argc, char *argv[] ) ;
++int conference_stop_videos( int fd, int argc, char *argv[] ) ;
++
++int conference_end( int fd, int argc, char *argv[] ) ;
++
++int conference_lock( int fd, int argc, char *argv[] ) ;
++int conference_lockchannel( int fd, int argc, char *argv[] ) ;
++int conference_unlock( int fd, int argc, char *argv[] ) ;
++
++int conference_set_default(int fd, int argc, char *argv[] ) ;
++int conference_set_defaultchannel(int fd, int argc, char *argv[] ) ;
++
++int conference_video_mute(int fd, int argc, char *argv[] ) ;
++int conference_video_mutechannel(int fd, int argc, char *argv[] ) ;
++int conference_video_unmute(int fd, int argc, char *argv[] ) ;
++int conference_video_unmutechannel(int fd, int argc, char *argv[] ) ;
++
++int conference_text( int fd, int argc, char *argv[] ) ;
++int conference_textchannel( int fd, int argc, char *argv[] ) ;
++int conference_textbroadcast( int fd, int argc, char *argv[] ) ;
++
++int conference_drive( int fd, int argc, char *argv[] ) ;
++int conference_drivechannel(int fd, int argc, char *argv[] );
 +
 +int manager_conference_end(struct mansession *s, const struct message *m);
 +
@@ -2484,10 +2685,10 @@ index 0000000..e73e57a
 +#endif
 diff --git a/apps/conference/conference.c b/apps/conference/conference.c
 new file mode 100644
-index 0000000..4d82633
+index 0000000..c7c63ac
 --- /dev/null
 +++ b/apps/conference/conference.c
-@@ -0,0 +1,3024 @@
+@@ -0,0 +1,3021 @@
 +
 +// $Id: conference.c 886 2007-08-06 14:33:34Z bcholew $
 +
@@ -2517,9 +2718,6 @@ index 0000000..4d82633
 + * program; if not, write to the Free Software Foundation, Inc.
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
-+
-+#include "asterisk.h"
-+ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
 +
 +#include "asterisk/autoconfig.h"
 +#include "conference.h"
@@ -2805,7 +3003,7 @@ index 0000000..4d82633
 +		//-------//
 +
 +		curr = ast_tvnow();
-+		
++
 +		// Chat mode handling
 +		// If there's only one member, then video gets reflected back to it
 +		// If there are two members, then each sees the other's video
@@ -2818,14 +3016,14 @@ index 0000000..4d82633
 +
 +			m1 = conf->memberlist;
 +			m2 = conf->memberlist->next;
-+			
++
 +			if ( !conf->chat_mode_on )
 +				conf->chat_mode_on = 1;
-+				
++
 +			start_video(m1);
 +			if ( m2 != NULL )
 +				start_video(m2);
-+			
++
 +			if ( conf->membercount == 1 )
 +			{
 +				cfr = get_incoming_video_frame(m1);
@@ -2870,7 +3068,7 @@ index 0000000..4d82633
 +						stop_video(member);
 +				}
 +			}
-+			
++
 +			// loop over the incoming frames and send to all outgoing
 +			// TODO: this is an O(n^2) algorithm. Can we speed it up without sacrificing per-member switching?
 +			for (video_source_member = conf->memberlist;
@@ -2946,7 +3144,7 @@ index 0000000..4d82633
 +
 +					if (member != dtmf_source_member)
 +					{
-+ 						// Send the latest frame
++						// Send the latest frame
 +						queue_outgoing_dtmf_frame(member, cfr->fr);
 +					}
 +				}
@@ -3564,7 +3762,7 @@ index 0000000..4d82633
 +					member->channel_name
 +					);
 +			}
-+			
++
 +			// output to manager...
 +			manager_event(
 +				EVENT_FLAG_CALL,
@@ -3603,7 +3801,7 @@ index 0000000..4d82633
 +					{
 +						// lock member for basic_play_sound
 +						ast_mutex_lock(&membertest->lock);
-+						
++
 +						// basic_play_sound unlock member automatically. do not mute on enter message
 +						if (!basic_play_sound (membertest, leave_snd, 0))
 +						{
@@ -3617,7 +3815,7 @@ index 0000000..4d82633
 +					}
 +				}
 +			}
-+			
++
 +			// delete the member
 +			delete_member( member ) ;
 +
@@ -3755,7 +3953,7 @@ index 0000000..4d82633
 +			ast_mutex_lock(&conf->lock);
 +
 +			ast_cli(fd, "Chat mode is %s\n", conf->chat_mode_on ? "ON" : "OFF");
-+			
++
 +			// do the biz
 +			member = conf->memberlist ;
 +			while ( member != NULL )
@@ -4510,7 +4708,7 @@ index 0000000..4d82633
 +			current_linger = member->vad_linger;
 +			current_force_switch = member->force_vad_switch;
 +		}
-+		
++
 +		if ( member->id == conf->default_video_source_id )
 +			default_force_switch = member->force_vad_switch;
 +
@@ -4518,7 +4716,7 @@ index 0000000..4d82633
 +		{
 +			if ( member->id == conf->default_video_source_id )
 +				default_no_video = 1;
-+			
++
 +			if ( member->id == conf->current_video_source_id )
 +				current_no_video = 1;
 +			else if ( !member->force_vad_switch )
@@ -4553,7 +4751,7 @@ index 0000000..4d82633
 +	// As a policy we don't want to switch away from a member that is speaking
 +	// however, we might need to refine this to avoid a situation when a member has a
 +	// low noise threshold or its VAD is simply stuck
-+	if ( 
++	if (
 +	     (conf->current_video_source_id < 0) ||
 +	     (current_silent && !current_linger) ||
 +	     (current_silent && longest_speaking_member != NULL ) ||
@@ -4565,7 +4763,7 @@ index 0000000..4d82633
 +		if ( longest_speaking_member )
 +			// Somebody is talking, switch to that member
 +			new_id = longest_speaking_member->id;
-+		else if ( conf->default_video_source_id >= 0  &&
++		else if ( conf->default_video_source_id &&
 +		          (!default_no_video || default_force_switch)
 +		        )
 +			// No talking, but we have a default that can send video
@@ -5397,7 +5595,7 @@ index 0000000..4d82633
 +
 +	newsound = calloc(1, sizeof(struct ast_conf_soundq));
 +	newsound->stream = ast_openstream(member->chan, file, NULL);
-+	if( !newsound->stream ) 
++	if( !newsound->stream )
 +	{
 +		free(newsound);
 +		ast_mutex_unlock(&member->lock);
@@ -5514,7 +5712,7 @@ index 0000000..4d82633
 +}
 diff --git a/apps/conference/conference.h b/apps/conference/conference.h
 new file mode 100644
-index 0000000..6ef6676
+index 0000000..1b2b4bd
 --- /dev/null
 +++ b/apps/conference/conference.h
 @@ -0,0 +1,190 @@
@@ -5634,7 +5832,7 @@ index 0000000..6ef6676
 +
 +	// chat mode is on;
 +	short chat_mode_on;
-+	
++
 +	// 1 => on, 0 => off
 +	short debug_flag ;
 +} ;
@@ -5710,10 +5908,10 @@ index 0000000..6ef6676
 +#endif
 diff --git a/apps/conference/frame.c b/apps/conference/frame.c
 new file mode 100644
-index 0000000..fbc7a96
+index 0000000..9e23672
 --- /dev/null
 +++ b/apps/conference/frame.c
-@@ -0,0 +1,683 @@
+@@ -0,0 +1,666 @@
 +
 +// $Id: frame.c 751 2006-12-11 22:08:45Z sbalea $
 +
@@ -5743,10 +5941,6 @@ index 0000000..fbc7a96
 + * program; if not, write to the Free Software Foundation, Inc.
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
-+
-+#include "asterisk.h"
-+
-+ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
 +
 +#include "asterisk/autoconfig.h"
 +#include "frame.h"
@@ -6331,7 +6525,7 @@ index 0000000..fbc7a96
 +		else
 +		{
 +			( (short*)dst )[i] = val ;
-+	   		continue ;
++			continue ;
 +		}
 +	}
 +
@@ -6384,19 +6578,6 @@ index 0000000..fbc7a96
 +
 +	return f;
 +}
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
 diff --git a/apps/conference/frame.h b/apps/conference/frame.h
 new file mode 100644
 index 0000000..2b77805
@@ -6480,10 +6661,10 @@ index 0000000..2b77805
 +#endif
 diff --git a/apps/conference/member.c b/apps/conference/member.c
 new file mode 100644
-index 0000000..e0b8c66
+index 0000000..535cb82
 --- /dev/null
 +++ b/apps/conference/member.c
-@@ -0,0 +1,3379 @@
+@@ -0,0 +1,3375 @@
 +
 +// $Id: member.c 885 2007-06-27 15:41:18Z sbalea $
 +
@@ -6513,10 +6694,6 @@ index 0000000..e0b8c66
 + * program; if not, write to the Free Software Foundation, Inc.
 + * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
-+
-+#include "asterisk.h"
-+
-+ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
 +
 +#include <stdio.h>
 +#include "asterisk/channel.h"
@@ -7085,7 +7262,7 @@ index 0000000..e0b8c66
 +
 +	//
 +	// create a new member for the conference
-+ 	//
++	//
 +
 +//	ast_log( AST_CONF_DEBUG, "creating new member, id => %s, flags => %s, p => %s\n",
 +//		id, flags, priority ) ;
@@ -7189,7 +7366,7 @@ index 0000000..e0b8c66
 +	{
 +		// lock conference
 +		ast_mutex_lock( &conf->lock );
-+		
++
 +		/*if (conf->membercount < 2)
 +		  {
 +		  enter_snd = "conf-onlyperson";
@@ -7210,7 +7387,7 @@ index 0000000..e0b8c66
 +			{
 +				ast_log(LOG_NOTICE, "playing conference[%d] entry message <%s> on <%s>\n", conf->membercount, enter_snd, membertest->channel_name);
 +			}
-+			
++
 +			membertest = membertest->next;
 +		}
 +
@@ -7325,7 +7502,7 @@ index 0000000..e0b8c66
 +	     {
 +		     // lock this member
 +		     ast_mutex_lock( &member->lock ) ;
-+	      	     ast_mutex_unlock( &conf->lock ) ;
++		     ast_mutex_unlock( &conf->lock ) ;
 +		     return member;
 +	     }
 +	     member = member->next;
@@ -7390,7 +7567,7 @@ index 0000000..e0b8c66
 +	//
 +	// initialize member with passed data values
 +	//
-+	
++
 +	parse = ast_strdupa(data);
 +
 +	AST_STANDARD_APP_ARGS(args, parse);
@@ -7410,7 +7587,7 @@ index 0000000..e0b8c66
 +		member->flags = ast_strdup(args.flags);
 +	else
 +		member->flags = ast_strdup("");
-+	
++
 +	// parse enter sound
 +	if (!ast_strlen_zero(args.enter_snd))
 +		member->enter_snd = ast_strdup(args.enter_snd);
@@ -8017,7 +8194,7 @@ index 0000000..e0b8c66
 +
 +conf_frame* get_incoming_video_frame( struct ast_conf_member *member )
 +{
-+  	if ( member == NULL )
++	if ( member == NULL )
 +	{
 +		ast_log( LOG_WARNING, "unable to get frame from null member\n" ) ;
 +		return NULL ;
@@ -8070,7 +8247,7 @@ index 0000000..e0b8c66
 +}
 +conf_frame* get_incoming_dtmf_frame( struct ast_conf_member *member )
 +{
-+  	if ( member == NULL )
++	if ( member == NULL )
 +	{
 +		ast_log( LOG_WARNING, "unable to get frame from null member\n" ) ;
 +		return NULL ;
@@ -8138,9 +8315,9 @@ index 0000000..e0b8c66
 +
 +	ast_mutex_lock(&member->lock);
 +
-+ 	//
-+ 	// repeat last frame a couple times to smooth transition
-+ 	//
++	//
++	// repeat last frame a couple times to smooth transition
++	//
 +
 +#ifdef AST_CONF_CACHE_LAST_FRAME
 +	if ( member->inFramesCount == 0 )
@@ -9840,7 +10017,7 @@ index 0000000..e0b8c66
 +{
 +	if ( member == NULL )
 +		return 0;
-+	
++
 +	return !member->no_camera && !member->mute_video && !member->via_telephone;
 +}
 +
@@ -9865,7 +10042,7 @@ index 0000000..e0b8c66
 +}
 diff --git a/apps/conference/member.h b/apps/conference/member.h
 new file mode 100644
-index 0000000..62f3e59
+index 0000000..52786d9
 --- /dev/null
 +++ b/apps/conference/member.h
 @@ -0,0 +1,336 @@
@@ -10123,7 +10300,7 @@ index 0000000..62f3e59
 +	// For playing sounds
 +	struct ast_conf_soundq *soundq;
 +	struct ast_conf_soundq *videoq;
-+	
++
 +	// Enter/leave sounds
 +	char * enter_snd;
 +	char * leave_snd;

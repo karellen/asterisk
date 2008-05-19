@@ -1,4 +1,4 @@
-From 916ba7c6ddc70164a4eed30f735d1b771ca8ee0f Mon Sep 17 00:00:00 2001
+From 8b16680232f737490ae8d1289ca14db6cc885d9d Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 12 Nov 2007 15:51:12 -0600
 Subject: [PATCH] Add FAX apps.
@@ -712,7 +712,7 @@ index 0000000..713ecf1
 +
 +/*- End of file ------------------------------------------------------------*/
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index f724fe3..8be9081 100644
+index aa76d56..6067076 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
 @@ -30,6 +30,7 @@ POPT=@PBX_POPT@
@@ -722,9 +722,9 @@ index f724fe3..8be9081 100644
 +SPANDSP=@PBX_SPANDSP@
  SPEEX=@PBX_SPEEX@
  SPEEXDSP=@PBX_SPEEXDSP@
- SQLITE3=@PBX_SQLITE3@
+ SPEEX_PREPROCESS=@PBX_SPEEX_PREPROCESS@
 diff --git a/configure.ac b/configure.ac
-index 498bf69..09e445a 100644
+index 63f0376..ae671ec 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -239,6 +239,7 @@ AST_EXT_LIB_SETUP([OPENH323], [OpenH323], [h323])
@@ -735,7 +735,7 @@ index 498bf69..09e445a 100644
  AST_EXT_LIB_SETUP([SPEEX], [Speex], [speex])
  AST_EXT_LIB_SETUP([SPEEXDSP], [Speexdsp], [speexdsp])
  AST_EXT_LIB_SETUP([SQLITE], [SQLite], [sqlite])
-@@ -1311,6 +1312,8 @@ AST_EXT_LIB_CHECK([LUA], [lua5.1], [luaL_newstate], [lua5.1/lua.h])
+@@ -1333,6 +1334,8 @@ AST_EXT_LIB_CHECK([LUA], [lua5.1], [luaL_newstate], [lua5.1/lua.h])
  
  AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
  
@@ -743,7 +743,7 @@ index 498bf69..09e445a 100644
 +
  AST_EXT_LIB_CHECK([SPEEX], [speex], [speex_encode], [speex/speex.h], [-lm])
  
- AST_EXT_LIB_CHECK([SPEEXDSP], [speexdsp], [speex_preprocess_ctl], [speex/speex.h], [-lm])
+ # See if the main speex library contains the preprocess functions
 diff --git a/makeopts.in b/makeopts.in
 index 3bf203e..3d564b7 100644
 --- a/makeopts.in

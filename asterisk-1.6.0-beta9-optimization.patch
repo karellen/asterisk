@@ -1,4 +1,4 @@
-From a03e13ce56185f63439a7db4c4e4e69d9683d354 Mon Sep 17 00:00:00 2001
+From fad1f5ce41d6c52ce143ec1b40d02c6018a5ada3 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 16:42:14 -0600
 Subject: [PATCH] Pick proper optimization flags for Fedora.
@@ -8,7 +8,7 @@ Subject: [PATCH] Pick proper optimization flags for Fedora.
  1 files changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 57e1865..54c8e20 100644
+index 7c44b41..a9fd366 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -221,10 +221,16 @@ ifeq ($(OSARCH),linux-gnu)

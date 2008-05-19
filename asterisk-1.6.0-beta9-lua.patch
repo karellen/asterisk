@@ -1,4 +1,4 @@
-From 3dfabaa13c36d8cb1ba1b652e8f8672c177c425e Mon Sep 17 00:00:00 2001
+From 7040e603015f6fa33b495b57c491ac53fa712629 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 13:14:23 -0600
 Subject: [PATCH] Use pkgconfig to check for Lua.
@@ -8,10 +8,10 @@ Subject: [PATCH] Use pkgconfig to check for Lua.
  1 files changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 13e82da..6d84d1e 100644
+index b2a8051..2da38f1 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1310,9 +1310,14 @@ if test "${PBX_PWLIB}" = "1" -a "${USE_OPENH323}" != "no" ; then
+@@ -1332,9 +1332,14 @@ if test "${PBX_PWLIB}" = "1" -a "${USE_OPENH323}" != "no" ; then
  		[${PWLIB_INCLUDE}], [${PWLIB_LIB}])
  fi
  

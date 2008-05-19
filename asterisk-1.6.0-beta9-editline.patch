@@ -1,4 +1,4 @@
-From ea02ccda7185890784e28e901144f9acc9198a6c Mon Sep 17 00:00:00 2001
+From 1d203925b0707b4f47c0150e6eff4a375fcdb3c5 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Tue, 25 Mar 2008 00:50:27 -0500
 Subject: [PATCH] Build using external libedit.
@@ -12,7 +12,7 @@ Subject: [PATCH] Build using external libedit.
  5 files changed, 33 insertions(+), 4 deletions(-)
 
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 6349e71..d4a9fe2 100644
+index c25e5d2..e50e64e 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
 @@ -16,6 +16,7 @@ ISDNNET=@PBX_ISDNNET@
@@ -24,7 +24,7 @@ index 6349e71..d4a9fe2 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index 6d84d1e..18f4e2b 100644
+index 2da38f1..c514e10 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -220,6 +220,7 @@ AST_EXT_LIB_SETUP([IMAP_TK], [UW IMAP Toolkit], [imap])
@@ -35,7 +35,7 @@ index 6d84d1e..18f4e2b 100644
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
  AST_EXT_LIB_SETUP([MISDN], [mISDN User Library], [misdn])
-@@ -1525,6 +1526,27 @@ AC_SUBST(PBX_GTK2)
+@@ -1571,6 +1572,27 @@ AC_SUBST(PBX_GTK2)
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -64,18 +64,18 @@ index 6d84d1e..18f4e2b 100644
     AC_PATH_TOOL([CURL_CONFIG], [curl-config], No)
     if test ! x"${CURL_CONFIG}" = xNo; then
 diff --git a/main/Makefile b/main/Makefile
-index b24e19e..92bf508 100644
+index 976c37b..09c5eb6 100644
 --- a/main/Makefile
 +++ b/main/Makefile
-@@ -132,6 +132,7 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
- 
+@@ -133,6 +133,7 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
  channel.o: ASTCFLAGS+=$(ZAPTEL_INCLUDE)
+ asterisk.o: ASTCFLAGS+=$(ZAPTEL_INCLUDE)
  
 +cli.o: ASTCFLAGS+=$(LIBEDIT_INCLUDE)
  
  ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  http.o: ASTCFLAGS+=$(GMIME_INCLUDE)
-@@ -165,13 +166,13 @@ ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
+@@ -166,13 +167,13 @@ ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  GMIMELDFLAGS+=$(GMIME_LIB)
  endif
  
