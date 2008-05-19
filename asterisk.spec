@@ -1,10 +1,10 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 8
+%define beta 9
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.13.beta%{beta}%{?dist}
+Release: 0.14.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -18,30 +18,31 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# cc8386d74002b0e629b9dc97f748d0e7  asterisk-1.6.0-beta8.tar.gz
-# 0ec53508b409da04c754d1e95b877085  asterisk-1.6.0-beta8-stripped.tar.gz
+# 47998ad858e8ccadf5fa92311fc24b6e  asterisk-1.6.0-beta9.tar.gz
+# 4bc3d81f90935caf0bf344e3ee817b17  asterisk-1.6.0-beta9-stripped.tar.gz
 # 
 # SHA1 Sums
 # =========
-# 59d44678a7cc2e138edf25ff7ce664182e602208  asterisk-1.6.0-beta8.tar.gz
-# 55d529f0bac419b10394a9e1caee607cd4c9409d  asterisk-1.6.0-beta8-stripped.tar.gz
+# 3f04cd803fea058ecec170db15a1a3e1738f0fc9  asterisk-1.6.0-beta9.tar.gz
+# a5d3d6699bcd55afe35c2e57059f3b3b32ebf112  asterisk-1.6.0-beta9-stripped.tar.gz
 
 #Source0: http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
 Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
+Source4: asterisk-strip.sh
 
-Patch1:  asterisk-1.6.0-beta7.1-initscripts.patch
-Patch2:  asterisk-1.6.0-beta7.1-alternate-voicemail.patch
-Patch3:  asterisk-1.6.0-beta7.1-spandspfax.patch
-Patch4:  asterisk-1.6.0-beta7.1-appconference.patch
-Patch5:  asterisk-1.6.0-beta7.1-alternate-extensions.patch
-Patch6:  asterisk-1.6.0-beta7.1-optimization.patch
-Patch7:  asterisk-1.6.0-beta7.1-chanmobile.patch
-Patch8:  asterisk-1.6.0-beta7.1-lua.patch
-Patch9:  asterisk-1.6.0-beta7.1-editline.patch
-Patch10: asterisk-1.6.0-beta7.1-autoconf.patch
+Patch1:  asterisk-1.6.0-beta9-initscripts.patch
+Patch2:  asterisk-1.6.0-beta9-alternate-voicemail.patch
+Patch3:  asterisk-1.6.0-beta9-spandspfax.patch
+#Patch4:  asterisk-1.6.0-beta9-appconference.patch
+Patch5:  asterisk-1.6.0-beta9-alternate-extensions.patch
+Patch6:  asterisk-1.6.0-beta9-optimization.patch
+Patch7:  asterisk-1.6.0-beta9-chanmobile.patch
+Patch8:  asterisk-1.6.0-beta9-lua.patch
+Patch9:  asterisk-1.6.0-beta9-editline.patch
+Patch10: asterisk-1.6.0-beta9-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -65,8 +66,8 @@ BuildRequires: graphviz
 BuildRequires: graphviz-gd
 %endif
 
-# for codec_speex and app_conference
-BuildRequires: speex-devel >= 1.2
+# for codec_speex
+BuildRequires: speex-devel
 
 # for format_ogg_vorbis
 BuildRequires: libogg-devel
@@ -110,14 +111,14 @@ Requires: asterisk = %{version}-%{release}
 API documentation for Asterisk.
 %endif
 
-%package conference
-Summary: Audio/video conferencing application for Asterisk
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: speex-devel
-
-%description conference
-Audio/video conferencing application for Asterisk.
+#%package conference
+#Summary: Audio/video conferencing application for Asterisk
+#Group: Applications/Internet
+#Requires: asterisk = %{version}-%{release}
+#BuildRequires: speex-devel
+#
+#%description conference
+#Audio/video conferencing application for Asterisk.
 
 %package curl
 Summary: Modules for Asterisk that use cURL
@@ -401,7 +402,7 @@ Modules for Asterisk that use Zaptel.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
+#patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
@@ -825,15 +826,15 @@ fi
 %doc doc/api/html/*
 %endif
 
-%files conference
-%defattr(-,root,root,-)
-%doc apps/conference/CLI.txt
-%doc apps/conference/Flags.txt
-%doc apps/conference/LICENSE
-%doc apps/conference/README
-%doc apps/conference/README.videoswitch
-%doc apps/conference/TODO
-%{_libdir}/asterisk/modules/app_conference.so
+#%files conference
+#%defattr(-,root,root,-)
+#%doc apps/conference/CLI.txt
+#%doc apps/conference/Flags.txt
+#%doc apps/conference/LICENSE
+#%doc apps/conference/README
+#%doc apps/conference/README.videoswitch
+#%doc apps/conference/TODO
+#%{_libdir}/asterisk/modules/app_conference.so
 
 %files curl
 %defattr(-,root,root,-)
@@ -939,7 +940,6 @@ fi
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
 %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
-%doc contrib/scripts/postgres_cdr.sql
 %doc contrib/scripts/realtime_pgsql.sql
 %{_libdir}/asterisk/modules/cdr_pgsql.so
 %{_libdir}/asterisk/modules/res_config_pgsql.so
@@ -1019,6 +1019,13 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Mon May 19 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.14.beta9
+- Update to 1.6.0-beta9.
+- Update patches so that they apply cleanly.
+- Temporarily disable app_conference patch as it doesn't compile
+- config/scripts/postgres_cdr.sql has been merged into realtime_pgsql.sql
+- Re-add the asterisk-strip.sh script as a source file.
+
 * Tue Apr 22 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.13.beta8
 - Update to 1.6.0-beta8
 - Contains fixes for AST-2008-006 / CVE-2008-1897
