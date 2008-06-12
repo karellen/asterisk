@@ -1,10 +1,11 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
+%define with_freetds %{?_with_freetds: 1} %{!?_with_freetds: 0}
 %define beta 9
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.15.beta%{beta}%{?dist}
+Release: 0.16.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -313,6 +314,7 @@ BuildRequires: sqlite-devel
 %description sqlite
 Sqlite modules for Asterisk.
 
+%if %{with_freetds}
 %package tds
 Summary: Modules for Asterisk that use FreeTDS
 Group: Applications/Internet
@@ -321,6 +323,7 @@ BuildRequires: freetds-devel
 
 %description tds
 Modules for Asterisk that use FreeTDS.
+%endif
 
 %package unistim
 Summary: Unistim channel for Asterisk
@@ -416,6 +419,10 @@ cp %{SOURCE3} menuselect.makeopts
 # Fixup makefile so sound archives aren't downloaded/installed
 %{__perl} -pi -e 's/^all:.*$/all:/' sounds/Makefile
 %{__perl} -pi -e 's/^install:.*$/install:/' sounds/Makefile
+
+%if !%{with_freetds}
+%{__perl} -pi -e 's/^MENUSELECT_CDR=(.*)$/MENUSELECT_CDR=\1 cdr_tds/' menuselect.makeopts
+%endif
 
 # convert comments in one file to UTF-8
 mv main/fskmodem.c main/fskmodem.c.old
@@ -525,6 +532,10 @@ rm -rf %{buildroot}%{_sbindir}/hashtest2
 
 %if %{with_apidoc}
 find doc/api/html -name \*.map -size 0 -delete
+%endif
+
+%if !%{with_freetds}
+rm -f %{buildroot}%{_sysconfdir}/asterisk/cdr_tds.conf
 %endif
 
 %clean
@@ -968,10 +979,12 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
 
+%if %{with_freetds}
 %files tds
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_tds.conf
 %{_libdir}/asterisk/modules/cdr_tds.so
+%endif
 
 %files unistim
 %defattr(-,root,root,-)
@@ -1019,6 +1032,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Thu Jun 12 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.16.beta9
+- Disable building cdr_tds since new FreeTDS in rawhide no longer provides needed library.
+
 * Wed Jun 11 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.15.beta9
 - Bump release and rebuild to fix libtds breakage.
 
