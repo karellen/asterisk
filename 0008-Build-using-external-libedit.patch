@@ -1,4 +1,4 @@
-From 1d203925b0707b4f47c0150e6eff4a375fcdb3c5 Mon Sep 17 00:00:00 2001
+From ab565a3223d72d479e9616e6dab6fa4d8524940a Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Tue, 25 Mar 2008 00:50:27 -0500
 Subject: [PATCH] Build using external libedit.
@@ -126,5 +126,5 @@ index a394c18..ad7a94d 100644
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
 -- 
-1.5.4.3
+1.5.5.2
 

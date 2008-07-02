@@ -1,4 +1,4 @@
-From 0aa79a48dde6096a7a88a58ba3f326cb41471862 Mon Sep 17 00:00:00 2001
+From c5c5b6a3991d73fc1085b98e65e6f15bd399b20d Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 09:23:28 -0600
 Subject: [PATCH] Add chan_mobile from asterisk-addons.
@@ -2510,5 +2510,5 @@ index 3d564b7..a394c18 100644
  CURL_LIB=@CURL_LIB@
  
 -- 
-1.5.4.3
+1.5.5.2
 

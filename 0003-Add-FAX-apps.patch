@@ -1,4 +1,4 @@
-From 8b16680232f737490ae8d1289ca14db6cc885d9d Mon Sep 17 00:00:00 2001
+From 67977e0cecec47c6e3e2100d2c7c60f9668b148f Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 12 Nov 2007 15:51:12 -0600
 Subject: [PATCH] Add FAX apps.
@@ -759,5 +759,5 @@ index 3bf203e..3d564b7 100644
  SPEEX_LIB=@SPEEX_LIB@
  
 -- 
-1.5.4.3
+1.5.5.2
 

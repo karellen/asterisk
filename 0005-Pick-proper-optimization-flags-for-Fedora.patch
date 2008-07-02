@@ -1,4 +1,4 @@
-From fad1f5ce41d6c52ce143ec1b40d02c6018a5ada3 Mon Sep 17 00:00:00 2001
+From 341a7d2c23aa22fdf9a3353b7cc5811954891436 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
 Date: Thu, 8 Nov 2007 16:42:14 -0600
 Subject: [PATCH] Pick proper optimization flags for Fedora.
@@ -44,5 +44,5 @@ index 7c44b41..a9fd366 100644
  
  ifeq ($(PROC),ppc)
 -- 
-1.5.4.3
+1.5.5.2
 
