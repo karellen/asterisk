@@ -4,7 +4,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.18.beta%{beta}%{?dist}
+Release: 0.19.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -45,6 +45,7 @@ Patch8:  0008-Build-using-external-libedit.patch
 Patch9:  0009-Update-cdr_tds-to-latest.patch
 Patch10: 0010-Update-autoconf.patch
 Patch11: 0011-Merged-revisions-123952-via-svnmerge-from.patch
+Patch12: 0012-Merged-revisions-132778-via-svnmerge-from.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -415,6 +416,7 @@ Modules for Asterisk that use Zaptel.
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1025,6 +1027,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Fri Jul 25 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.19.beta9
+- Add patch pulled from upstream SVN that fixes AST-2008-010 and AST-2008-011.
+
 * Fri Jul 25 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.18.beta9
 - Add patch for LDAP extracted from upstream SVN (#442011)
 
