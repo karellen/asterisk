@@ -1,4 +1,4 @@
-From c5c5b6a3991d73fc1085b98e65e6f15bd399b20d Mon Sep 17 00:00:00 2001
+From cff5fa429540c33f5b0dc06ab8e52b21b54b1ce1 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 09:23:28 -0600
 Subject: [PATCH] Add chan_mobile from asterisk-addons.
@@ -17,7 +17,7 @@ Subject: [PATCH] Add chan_mobile from asterisk-addons.
  create mode 100644 doc/chan_mobile.txt
 
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 6067076..c25e5d2 100644
+index aa76d56..97822e6 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
 @@ -1,5 +1,6 @@
@@ -2228,7 +2228,7 @@ index 0000000..7ef26d8
 +type=headset
 +adapter=dlink
 diff --git a/configure.ac b/configure.ac
-index ae671ec..b2a8051 100644
+index 63f0376..422981b 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -203,6 +203,8 @@ AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
@@ -2240,7 +2240,7 @@ index ae671ec..b2a8051 100644
  AST_EXT_LIB_SETUP([CAP], [POSIX 1.e capabilities], [cap])
  AST_EXT_LIB_SETUP([CURL], [cURL], [curl])
  AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
-@@ -543,6 +545,8 @@ AC_CHECK_SIZEOF(int)
+@@ -542,6 +544,8 @@ AC_CHECK_SIZEOF(int)
  
  AST_EXT_LIB_CHECK([ALSA], [asound], [snd_spcm_init], [alsa/asoundlib.h], [-lm -ldl])
  
@@ -2496,7 +2496,7 @@ index 0000000..32fcfd4
 +
 +email me at   david.bowerman at gmail.com   or dseeb_ on #asterisk & #asterisk-dev irc.
 diff --git a/makeopts.in b/makeopts.in
-index 3d564b7..a394c18 100644
+index 3bf203e..9e99a6f 100644
 --- a/makeopts.in
 +++ b/makeopts.in
 @@ -69,6 +69,9 @@ AST_NO_STRICT_OVERFLOW=@AST_NO_STRICT_OVERFLOW@

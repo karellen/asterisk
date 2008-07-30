@@ -4,7 +4,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.20.beta%{beta}%{?dist}
+Release: 0.21.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -36,16 +36,16 @@ Source4: asterisk-strip.sh
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
-Patch3:  0003-Add-FAX-apps.patch
-Patch4:  0004-Allow-alternate-extensions-to-be-specified-in-users.patch
-Patch5:  0005-Pick-proper-optimization-flags-for-Fedora.patch
-Patch6:  0006-Add-chan_mobile-from-asterisk-addons.patch
-Patch7:  0007-Use-pkgconfig-to-check-for-Lua.patch
-Patch8:  0008-Build-using-external-libedit.patch
-Patch9:  0009-Update-cdr_tds-to-latest.patch
-Patch10: 0010-Update-autoconf.patch
-Patch11: 0011-Merged-revisions-123952-via-svnmerge-from.patch
-Patch12: 0012-Merged-revisions-132778-via-svnmerge-from.patch
+Patch3:  0003-Allow-alternate-extensions-to-be-specified-in-users.patch
+Patch4:  0004-Minor-changes-to-reduce-packaging-changes-made-by-th.patch
+Patch5:  0005-Add-chan_mobile-from-asterisk-addons.patch
+Patch6:  0006-Use-pkgconfig-to-check-for-Lua.patch
+Patch7:  0007-Build-using-external-libedit.patch
+Patch8:  0008-Update-cdr_tds-to-latest.patch
+Patch9:  0009-Merged-revisions-123952-via-svnmerge-from.patch
+Patch10: 0010-Merged-revisions-132778-via-svnmerge-from.patch
+Patch11: 0011-Replace-app_rxfax-app_txfax-with-app_fax-pulled-from.patch
+Patch12: 0012-Update-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -147,7 +147,7 @@ Development files for Asterisk.
 Summary: FAX applications for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: spandsp-devel
+BuildRequires: spandsp-devel >= 0.0.5-0.1.pre4
 
 %description fax
 FAX applications for Asterisk
@@ -862,8 +862,7 @@ fi
 
 %files fax
 %defattr(-,root,root,-)
-%{_libdir}/asterisk/modules/app_rxfax.so
-%{_libdir}/asterisk/modules/app_txfax.so
+%{_libdir}/asterisk/modules/app_fax.so
 
 %files festival
 %defattr(-,root,root,-)
@@ -1027,6 +1026,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Wed Jul 30 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.21.beta9
+- Replace app_rxfax/app_txfax with app_fax taken from upstream SVN.
+
 * Tue Jul 29 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.20.beta9
 - Bump release and rebuild with new libpri and zaptel.
 

@@ -1,15 +1,15 @@
-From d8af2026b55ad1c056de5b136340b0e3757a669f Mon Sep 17 00:00:00 2001
+From 77b9ee99b4b0edd8261f60c96e4cc5ea2555099f Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Wed, 2 Jul 2008 10:19:36 -0500
-Subject: [PATCH] Update autoconf.
+Date: Wed, 30 Jul 2008 09:39:50 -0500
+Subject: [PATCH] Update autoconf
 
 ---
- configure                        | 1094 +++++++++++++++++++++++++++++---------
- include/asterisk/autoconfig.h.in |   23 +-
- 2 files changed, 865 insertions(+), 252 deletions(-)
+ configure                        | 1378 ++++++++++++++++++++++++++++----------
+ include/asterisk/autoconfig.h.in |   17 +-
+ 2 files changed, 1045 insertions(+), 350 deletions(-)
 
 diff --git a/configure b/configure
-index d72fa38..1dd6af6 100755
+index d72fa38..145369a 100755
 --- a/configure
 +++ b/configure
 @@ -1,5 +1,5 @@
@@ -53,17 +53,17 @@ index d72fa38..1dd6af6 100755
  LTDL_LIB
  LTDL_INCLUDE
  LTDL_DIR
-@@ -872,6 +880,10 @@ SDL_IMAGE_LIB
- SDL_IMAGE_INCLUDE
- SDL_IMAGE_DIR
- PBX_SDL_IMAGE
+@@ -848,6 +856,10 @@ PRI_LIB
+ PRI_INCLUDE
+ PRI_DIR
+ PBX_PRI
 +SPANDSP_LIB
 +SPANDSP_INCLUDE
 +SPANDSP_DIR
 +PBX_SPANDSP
- SPEEX_LIB
- SPEEX_INCLUDE
- SPEEX_DIR
+ SS7_LIB
+ SS7_INCLUDE
+ SS7_DIR
 @@ -963,6 +975,7 @@ OPENH323_INCDIR
  OPENH323_LIBDIR
  OPENH323_SUFFIX
@@ -100,14 +100,14 @@ index d72fa38..1dd6af6 100755
    --with-ltdl=PATH        use libtool files in PATH
    --with-lua=PATH         use Lua files in PATH
    --with-misdn=PATH       use mISDN User Library files in PATH
-@@ -1613,6 +1628,7 @@ Optional Packages:
-   --with-radius=PATH      use Radius Client files in PATH
-   --with-sdl=PATH         use Sdl files in PATH
-   --with-SDL_image=PATH   use Sdl Image library files in PATH
-+  --with-spandsp=PATH     use spandsp Library files in PATH
-   --with-speex=PATH       use Speex files in PATH
-   --with-speexdsp=PATH    use Speexdsp files in PATH
-   --with-sqlite=PATH      use SQLite files in PATH
+@@ -1607,6 +1622,7 @@ Optional Packages:
+   --with-popt=PATH        use popt files in PATH
+   --with-portaudio=PATH   use PortAudio files in PATH
+   --with-pri=PATH         use ISDN PRI files in PATH
++  --with-spandsp=PATH     use SPANDSP files in PATH
+   --with-ss7=PATH         use ISDN SS7 files in PATH
+   --with-pwlib=PATH       use PWlib files in PATH
+   --with-h323=PATH        use OpenH323 files in PATH
 @@ -7942,6 +7958,62 @@ fi
  
  
@@ -206,11 +206,11 @@ index d72fa38..1dd6af6 100755
      LTDL_DESCRIP="libtool"
      LTDL_OPTION="ltdl"
  
-@@ -8950,6 +9050,34 @@ fi
+@@ -8782,6 +8882,34 @@ fi
  
  
  
-+    SPANDSP_DESCRIP="spandsp Library"
++    SPANDSP_DESCRIP="SPANDSP"
 +    SPANDSP_OPTION="spandsp"
 +
 +# Check whether --with-spandsp was given.
@@ -238,8 +238,8 @@ index d72fa38..1dd6af6 100755
 +
 +
 +
-     SPEEX_DESCRIP="Speex"
-     SPEEX_OPTION="speex"
+     SS7_DESCRIP="ISDN SS7"
+     SS7_OPTION="ss7"
  
 @@ -12772,13 +12900,11 @@ _ACEOF
  cat confdefs.h >>conftest.$ac_ext
@@ -542,12 +542,388 @@ index d72fa38..1dd6af6 100755
  if test "x${PBX_CURSES}" != "x1" -a "${USE_CURSES}" != "no"; then
     pbxlibdir=""
     # if --with-CURSES=DIR has been specified, use it.
-@@ -41087,31 +41473,137 @@ _ACEOF
+@@ -38779,6 +39165,356 @@ fi
+ 
+ 
+ 
++    if test "x${PBX_SPANDSP}" != "x1" -a "${USE_SPANDSP}" != "no"; then
++	{ echo "$as_me:$LINENO: checking if \"
++		#if SPANDSP_RELEASE_DATE < 20080516
++		#error \"spandsp 0.0.5 or greater is required\"
++		#endif
++	\" compiles using spandsp/version.h" >&5
++echo $ECHO_N "checking if \"
++		#if SPANDSP_RELEASE_DATE < 20080516
++		#error \"spandsp 0.0.5 or greater is required\"
++		#endif
++	\" compiles using spandsp/version.h... $ECHO_C" >&6; }
++	saved_cppflags="${CPPFLAGS}"
++	if test "x${SPANDSP_DIR}" != "x"; then
++	    SPANDSP_INCLUDE="-I${SPANDSP_DIR}/include"
++	fi
++	CPPFLAGS="${CPPFLAGS} ${SPANDSP_INCLUDE}"
++
++	cat >conftest.$ac_ext <<_ACEOF
++ /* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <spandsp/version.h>
++int
++main ()
++{
++
++		#if SPANDSP_RELEASE_DATE < 20080516
++		#error "spandsp 0.0.5 or greater is required"
++		#endif
++	;
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (ac_try="$ac_compile"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_compile") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest.$ac_objext; then
++     { echo "$as_me:$LINENO: result: yes" >&5
++echo "${ECHO_T}yes" >&6; }
++		PBX_SPANDSP=1
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_SPANDSP 1
++_ACEOF
++
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_SPANDSP_VERSION
++_ACEOF
++
++
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	       { echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6; }
++
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++	CPPFLAGS="${saved_cppflags}"
++    fi
++
++
++if test "x${PBX_SPANDSP}" = "x1" ; then
++	# We found the correct version in the header, now let's make sure it links
++	# properly, and that libtiff is available
++	PBX_SPANDSP=0
++
++if test "x${PBX_SPANDSP}" != "x1" -a "${USE_SPANDSP}" != "no"; then
++   pbxlibdir=""
++   # if --with-SPANDSP=DIR has been specified, use it.
++   if test "x${SPANDSP_DIR}" != "x"; then
++      if test -d ${SPANDSP_DIR}/lib; then
++      	 pbxlibdir="-L${SPANDSP_DIR}/lib"
++      else
++      	 pbxlibdir="-L${SPANDSP_DIR}"
++      fi
++   fi
++   pbxfuncname="span_set_message_handler"
++   if test "x${pbxfuncname}" = "x" ; then   # empty lib, assume only headers
++      AST_SPANDSP_FOUND=yes
++   else
++      as_ac_Lib=`echo "ac_cv_lib_spandsp_${pbxfuncname}" | $as_tr_sh`
++{ echo "$as_me:$LINENO: checking for ${pbxfuncname} in -lspandsp" >&5
++echo $ECHO_N "checking for ${pbxfuncname} in -lspandsp... $ECHO_C" >&6; }
++if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  ac_check_lib_save_LIBS=$LIBS
++LIBS="-lspandsp ${pbxlibdir} -ltiff $LIBS"
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char ${pbxfuncname} ();
++int
++main ()
++{
++return ${pbxfuncname} ();
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (ac_try="$ac_link"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_link") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest$ac_exeext &&
++       $as_test_x conftest$ac_exeext; then
++  eval "$as_ac_Lib=yes"
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	eval "$as_ac_Lib=no"
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
++      conftest$ac_exeext conftest.$ac_ext
++LIBS=$ac_check_lib_save_LIBS
++fi
++ac_res=`eval echo '${'$as_ac_Lib'}'`
++	       { echo "$as_me:$LINENO: result: $ac_res" >&5
++echo "${ECHO_T}$ac_res" >&6; }
++if test `eval echo '${'$as_ac_Lib'}'` = yes; then
++  AST_SPANDSP_FOUND=yes
++else
++  AST_SPANDSP_FOUND=no
++fi
++
++   fi
++
++   # now check for the header.
++   if test "${AST_SPANDSP_FOUND}" = "yes"; then
++      SPANDSP_LIB="${pbxlibdir} -lspandsp -ltiff"
++      # if --with-SPANDSP=DIR has been specified, use it.
++      if test "x${SPANDSP_DIR}" != "x"; then
++	 SPANDSP_INCLUDE="-I${SPANDSP_DIR}/include"
++      fi
++      SPANDSP_INCLUDE="${SPANDSP_INCLUDE} "
++      if test "xspandsp.h" = "x" ; then	# no header, assume found
++         SPANDSP_HEADER_FOUND="1"
++      else				# check for the header
++         saved_cppflags="${CPPFLAGS}"
++         CPPFLAGS="${CPPFLAGS} ${SPANDSP_INCLUDE} "
++	 if test "${ac_cv_header_spandsp_h+set}" = set; then
++  { echo "$as_me:$LINENO: checking for spandsp.h" >&5
++echo $ECHO_N "checking for spandsp.h... $ECHO_C" >&6; }
++if test "${ac_cv_header_spandsp_h+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++fi
++{ echo "$as_me:$LINENO: result: $ac_cv_header_spandsp_h" >&5
++echo "${ECHO_T}$ac_cv_header_spandsp_h" >&6; }
++else
++  # Is the header compilable?
++{ echo "$as_me:$LINENO: checking spandsp.h usability" >&5
++echo $ECHO_N "checking spandsp.h usability... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++$ac_includes_default
++#include <spandsp.h>
++_ACEOF
++rm -f conftest.$ac_objext
++if { (ac_try="$ac_compile"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_compile") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest.$ac_objext; then
++  ac_header_compiler=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	ac_header_compiler=no
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
++echo "${ECHO_T}$ac_header_compiler" >&6; }
++
++# Is the header present?
++{ echo "$as_me:$LINENO: checking spandsp.h presence" >&5
++echo $ECHO_N "checking spandsp.h presence... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <spandsp.h>
++_ACEOF
++if { (ac_try="$ac_cpp conftest.$ac_ext"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } >/dev/null && {
++	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       }; then
++  ac_header_preproc=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++  ac_header_preproc=no
++fi
++
++rm -f conftest.err conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
++echo "${ECHO_T}$ac_header_preproc" >&6; }
++
++# So?  What about this header?
++case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
++  yes:no: )
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&5
++echo "$as_me: WARNING: spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: proceeding with the compiler's result" >&5
++echo "$as_me: WARNING: spandsp.h: proceeding with the compiler's result" >&2;}
++    ac_header_preproc=yes
++    ;;
++  no:yes:* )
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: present but cannot be compiled" >&5
++echo "$as_me: WARNING: spandsp.h: present but cannot be compiled" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h:     check for missing prerequisite headers?" >&5
++echo "$as_me: WARNING: spandsp.h:     check for missing prerequisite headers?" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: see the Autoconf documentation" >&5
++echo "$as_me: WARNING: spandsp.h: see the Autoconf documentation" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h:     section \"Present But Cannot Be Compiled\"" >&5
++echo "$as_me: WARNING: spandsp.h:     section \"Present But Cannot Be Compiled\"" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: proceeding with the preprocessor's result" >&5
++echo "$as_me: WARNING: spandsp.h: proceeding with the preprocessor's result" >&2;}
++    { echo "$as_me:$LINENO: WARNING: spandsp.h: in the future, the compiler will take precedence" >&5
++echo "$as_me: WARNING: spandsp.h: in the future, the compiler will take precedence" >&2;}
++    ( cat <<\_ASBOX
++## ------------------------------- ##
++## Report this to www.asterisk.org ##
++## ------------------------------- ##
++_ASBOX
++     ) | sed "s/^/$as_me: WARNING:     /" >&2
++    ;;
++esac
++{ echo "$as_me:$LINENO: checking for spandsp.h" >&5
++echo $ECHO_N "checking for spandsp.h... $ECHO_C" >&6; }
++if test "${ac_cv_header_spandsp_h+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  ac_cv_header_spandsp_h=$ac_header_preproc
++fi
++{ echo "$as_me:$LINENO: result: $ac_cv_header_spandsp_h" >&5
++echo "${ECHO_T}$ac_cv_header_spandsp_h" >&6; }
++
++fi
++if test $ac_cv_header_spandsp_h = yes; then
++  SPANDSP_HEADER_FOUND=1
++else
++  SPANDSP_HEADER_FOUND=0
++fi
++
++
++         CPPFLAGS="${saved_cppflags}"
++      fi
++      if test "x${SPANDSP_HEADER_FOUND}" = "x0" ; then
++         SPANDSP_LIB=""
++         SPANDSP_INCLUDE=""
++      else
++         if test "x${pbxfuncname}" = "x" ; then		# only checking headers -> no library
++	    SPANDSP_LIB=""
++	 fi
++         PBX_SPANDSP=1
++         # XXX don't know how to evaluate the description (third argument) in AC_DEFINE_UNQUOTED
++
++cat >>confdefs.h <<_ACEOF
++#define HAVE_SPANDSP 1
++_ACEOF
++
++
++cat >>confdefs.h <<_ACEOF
++#define HAVE_SPANDSP_VERSION
++_ACEOF
++
++      fi
++   fi
++fi
++
++fi
++
++
+ if test "x${PBX_SS7}" != "x1" -a "${USE_SS7}" != "no"; then
+    pbxlibdir=""
+    # if --with-SS7=DIR has been specified, use it.
+@@ -41087,271 +41823,115 @@ _ACEOF
  
  fi
  
 -LUA_INCLUDE="-I/usr/include/lua5.1"
 -LUA_LIB="-llua5.1"
+-
+-if test "x${PBX_LUA}" != "x1" -a "${USE_LUA}" != "no"; then
+-   pbxlibdir=""
+-   # if --with-LUA=DIR has been specified, use it.
+-   if test "x${LUA_DIR}" != "x"; then
+-      if test -d ${LUA_DIR}/lib; then
+-      	 pbxlibdir="-L${LUA_DIR}/lib"
+-      else
+-      	 pbxlibdir="-L${LUA_DIR}"
+-      fi
+-   fi
+-   pbxfuncname="luaL_newstate"
+-   if test "x${pbxfuncname}" = "x" ; then   # empty lib, assume only headers
+-      AST_LUA_FOUND=yes
+-   else
+-      as_ac_Lib=`echo "ac_cv_lib_lua5.1_${pbxfuncname}" | $as_tr_sh`
+-{ echo "$as_me:$LINENO: checking for ${pbxfuncname} in -llua5.1" >&5
+-echo $ECHO_N "checking for ${pbxfuncname} in -llua5.1... $ECHO_C" >&6; }
+-if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
 +PBX_LUA=0
 +if test -n "$ac_tool_prefix"; then
 +  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
@@ -555,11 +931,56 @@ index d72fa38..1dd6af6 100755
 +{ echo "$as_me:$LINENO: checking for $ac_word" >&5
 +echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
 +if test "${ac_cv_prog_PKGCONFIG+set}" = set; then
-+  echo $ECHO_N "(cached) $ECHO_C" >&6
-+else
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+-  ac_check_lib_save_LIBS=$LIBS
+-LIBS="-llua5.1 ${pbxlibdir}  $LIBS"
+-cat >conftest.$ac_ext <<_ACEOF
+-/* confdefs.h.  */
+-_ACEOF
+-cat confdefs.h >>conftest.$ac_ext
+-cat >>conftest.$ac_ext <<_ACEOF
+-/* end confdefs.h.  */
+-
+-/* Override any GCC internal prototype to avoid an error.
+-   Use char because int might match the return type of a GCC
+-   builtin and then its argument prototype would still apply.  */
+-#ifdef __cplusplus
+-extern "C"
+-#endif
+-char ${pbxfuncname} ();
+-int
+-main ()
+-{
+-return ${pbxfuncname} ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-rm -f conftest.$ac_objext conftest$ac_exeext
+-if { (ac_try="$ac_link"
+-case "(($ac_try" in
+-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+-  *) ac_try_echo=$ac_try;;
+-esac
+-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+-  (eval "$ac_link") 2>conftest.er1
+-  ac_status=$?
+-  grep -v '^ *+' conftest.er1 >conftest.err
+-  rm -f conftest.er1
+-  cat conftest.err >&5
+-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+-  (exit $ac_status); } && {
+-	 test -z "$ac_c_werror_flag" ||
+-	 test ! -s conftest.err
+-       } && test -s conftest$ac_exeext &&
+-       $as_test_x conftest$ac_exeext; then
+-  eval "$as_ac_Lib=yes"
 +  if test -n "$PKGCONFIG"; then
 +  ac_cv_prog_PKGCONFIG="$PKGCONFIG" # Let the user override the test.
-+else
+ else
+-  echo "$as_me: failed program was:" >&5
+-sed 's/^/| /' conftest.$ac_ext >&5
 +as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 +for as_dir in $PATH
 +do
@@ -574,21 +995,52 @@ index d72fa38..1dd6af6 100755
 +done
 +done
 +IFS=$as_save_IFS
-+
-+fi
-+fi
+ 
+-	eval "$as_ac_Lib=no"
+ fi
+-
+-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+-      conftest$ac_exeext conftest.$ac_ext
+-LIBS=$ac_check_lib_save_LIBS
+ fi
+-ac_res=`eval echo '${'$as_ac_Lib'}'`
+-	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+-echo "${ECHO_T}$ac_res" >&6; }
+-if test `eval echo '${'$as_ac_Lib'}'` = yes; then
+-  AST_LUA_FOUND=yes
 +PKGCONFIG=$ac_cv_prog_PKGCONFIG
 +if test -n "$PKGCONFIG"; then
 +  { echo "$as_me:$LINENO: result: $PKGCONFIG" >&5
 +echo "${ECHO_T}$PKGCONFIG" >&6; }
-+else
+ else
+-  AST_LUA_FOUND=no
 +  { echo "$as_me:$LINENO: result: no" >&5
 +echo "${ECHO_T}no" >&6; }
-+fi
-+
+ fi
  
--if test "x${PBX_LUA}" != "x1" -a "${USE_LUA}" != "no"; then
-+fi
+-   fi
+ 
+-   # now check for the header.
+-   if test "${AST_LUA_FOUND}" = "yes"; then
+-      LUA_LIB="${pbxlibdir} -llua5.1 "
+-      # if --with-LUA=DIR has been specified, use it.
+-      if test "x${LUA_DIR}" != "x"; then
+-	 LUA_INCLUDE="-I${LUA_DIR}/include"
+-      fi
+-      LUA_INCLUDE="${LUA_INCLUDE} "
+-      if test "xlua5.1/lua.h" = "x" ; then	# no header, assume found
+-         LUA_HEADER_FOUND="1"
+-      else				# check for the header
+-         saved_cppflags="${CPPFLAGS}"
+-         CPPFLAGS="${CPPFLAGS} ${LUA_INCLUDE} "
+-	 if test "${ac_cv_header_lua5_1_lua_h+set}" = set; then
+-  { echo "$as_me:$LINENO: checking for lua5.1/lua.h" >&5
+-echo $ECHO_N "checking for lua5.1/lua.h... $ECHO_C" >&6; }
+-if test "${ac_cv_header_lua5_1_lua_h+set}" = set; then
+-  echo $ECHO_N "(cached) $ECHO_C" >&6
+ fi
+-{ echo "$as_me:$LINENO: result: $ac_cv_header_lua5_1_lua_h" >&5
+-echo "${ECHO_T}$ac_cv_header_lua5_1_lua_h" >&6; }
 +if test -z "$ac_cv_prog_PKGCONFIG"; then
 +  ac_ct_PKGCONFIG=$PKGCONFIG
 +  # Extract the first word of "pkg-config", so it can be a program name with args.
@@ -597,10 +1049,42 @@ index d72fa38..1dd6af6 100755
 +echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
 +if test "${ac_cv_prog_ac_ct_PKGCONFIG+set}" = set; then
 +  echo $ECHO_N "(cached) $ECHO_C" >&6
-+else
+ else
+-  # Is the header compilable?
+-{ echo "$as_me:$LINENO: checking lua5.1/lua.h usability" >&5
+-echo $ECHO_N "checking lua5.1/lua.h usability... $ECHO_C" >&6; }
+-cat >conftest.$ac_ext <<_ACEOF
+-/* confdefs.h.  */
+-_ACEOF
+-cat confdefs.h >>conftest.$ac_ext
+-cat >>conftest.$ac_ext <<_ACEOF
+-/* end confdefs.h.  */
+-$ac_includes_default
+-#include <lua5.1/lua.h>
+-_ACEOF
+-rm -f conftest.$ac_objext
+-if { (ac_try="$ac_compile"
+-case "(($ac_try" in
+-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+-  *) ac_try_echo=$ac_try;;
+-esac
+-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+-  (eval "$ac_compile") 2>conftest.er1
+-  ac_status=$?
+-  grep -v '^ *+' conftest.er1 >conftest.err
+-  rm -f conftest.er1
+-  cat conftest.err >&5
+-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+-  (exit $ac_status); } && {
+-	 test -z "$ac_c_werror_flag" ||
+-	 test ! -s conftest.err
+-       } && test -s conftest.$ac_objext; then
+-  ac_header_compiler=yes
 +  if test -n "$ac_ct_PKGCONFIG"; then
 +  ac_cv_prog_ac_ct_PKGCONFIG="$ac_ct_PKGCONFIG" # Let the user override the test.
-+else
+ else
+-  echo "$as_me: failed program was:" >&5
+-sed 's/^/| /' conftest.$ac_ext >&5
 +as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 +for as_dir in $PATH
 +do
@@ -615,18 +1099,102 @@ index d72fa38..1dd6af6 100755
 +done
 +done
 +IFS=$as_save_IFS
-+
-+fi
-+fi
+ 
+-	ac_header_compiler=no
+ fi
+-
+-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+-{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+-echo "${ECHO_T}$ac_header_compiler" >&6; }
+-
+-# Is the header present?
+-{ echo "$as_me:$LINENO: checking lua5.1/lua.h presence" >&5
+-echo $ECHO_N "checking lua5.1/lua.h presence... $ECHO_C" >&6; }
+-cat >conftest.$ac_ext <<_ACEOF
+-/* confdefs.h.  */
+-_ACEOF
+-cat confdefs.h >>conftest.$ac_ext
+-cat >>conftest.$ac_ext <<_ACEOF
+-/* end confdefs.h.  */
+-#include <lua5.1/lua.h>
+-_ACEOF
+-if { (ac_try="$ac_cpp conftest.$ac_ext"
+-case "(($ac_try" in
+-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+-  *) ac_try_echo=$ac_try;;
+-esac
+-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+-  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+-  ac_status=$?
+-  grep -v '^ *+' conftest.er1 >conftest.err
+-  rm -f conftest.er1
+-  cat conftest.err >&5
+-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+-  (exit $ac_status); } >/dev/null && {
+-	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+-	 test ! -s conftest.err
+-       }; then
+-  ac_header_preproc=yes
+-else
+-  echo "$as_me: failed program was:" >&5
+-sed 's/^/| /' conftest.$ac_ext >&5
+-
+-  ac_header_preproc=no
+ fi
+-
+-rm -f conftest.err conftest.$ac_ext
+-{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+-echo "${ECHO_T}$ac_header_preproc" >&6; }
+-
+-# So?  What about this header?
+-case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+-  yes:no: )
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: accepted by the compiler, rejected by the preprocessor!" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: proceeding with the compiler's result" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h: proceeding with the compiler's result" >&2;}
+-    ac_header_preproc=yes
+-    ;;
+-  no:yes:* )
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: present but cannot be compiled" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h: present but cannot be compiled" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h:     check for missing prerequisite headers?" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h:     check for missing prerequisite headers?" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: see the Autoconf documentation" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h: see the Autoconf documentation" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h:     section \"Present But Cannot Be Compiled\"" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: proceeding with the preprocessor's result" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h: proceeding with the preprocessor's result" >&2;}
+-    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: in the future, the compiler will take precedence" >&5
+-echo "$as_me: WARNING: lua5.1/lua.h: in the future, the compiler will take precedence" >&2;}
+-    ( cat <<\_ASBOX
+-## ------------------------------- ##
+-## Report this to www.asterisk.org ##
+-## ------------------------------- ##
+-_ASBOX
+-     ) | sed "s/^/$as_me: WARNING:     /" >&2
+-    ;;
+-esac
+-{ echo "$as_me:$LINENO: checking for lua5.1/lua.h" >&5
+-echo $ECHO_N "checking for lua5.1/lua.h... $ECHO_C" >&6; }
+-if test "${ac_cv_header_lua5_1_lua_h+set}" = set; then
+-  echo $ECHO_N "(cached) $ECHO_C" >&6
 +ac_ct_PKGCONFIG=$ac_cv_prog_ac_ct_PKGCONFIG
 +if test -n "$ac_ct_PKGCONFIG"; then
 +  { echo "$as_me:$LINENO: result: $ac_ct_PKGCONFIG" >&5
 +echo "${ECHO_T}$ac_ct_PKGCONFIG" >&6; }
-+else
+ else
+-  ac_cv_header_lua5_1_lua_h=$ac_header_preproc
 +  { echo "$as_me:$LINENO: result: no" >&5
 +echo "${ECHO_T}no" >&6; }
-+fi
-+
+ fi
+-{ echo "$as_me:$LINENO: result: $ac_cv_header_lua5_1_lua_h" >&5
+-echo "${ECHO_T}$ac_cv_header_lua5_1_lua_h" >&6; }
+ 
+-fi
+-if test $ac_cv_header_lua5_1_lua_h = yes; then
+-  LUA_HEADER_FOUND=1
 +  if test "x$ac_ct_PKGCONFIG" = x; then
 +    PKGCONFIG="No"
 +  else
@@ -642,478 +1210,48 @@ index d72fa38..1dd6af6 100755
 +esac
 +    PKGCONFIG=$ac_ct_PKGCONFIG
 +  fi
-+else
+ else
+-  LUA_HEADER_FOUND=0
 +  PKGCONFIG="$ac_cv_prog_PKGCONFIG"
-+fi
-+
+ fi
+ 
 +if test ! "x${PKGCONFIG}" = xNo; then
 +   LUA_INCLUDE=$(${PKGCONFIG} lua --cflags 2>/dev/null)
 +   LUA_LIB=$(${PKGCONFIG} lua --libs 2>/dev/null)
 +   PBX_LUA=1
-+
-+cat >>confdefs.h <<\_ACEOF
-+#define HAVE_LUA 1
-+_ACEOF
-+
-+fi
-+
-+
-+if test "x${PBX_RADIUS}" != "x1" -a "${USE_RADIUS}" != "no"; then
-    pbxlibdir=""
--   # if --with-LUA=DIR has been specified, use it.
--   if test "x${LUA_DIR}" != "x"; then
--      if test -d ${LUA_DIR}/lib; then
--      	 pbxlibdir="-L${LUA_DIR}/lib"
-+   # if --with-RADIUS=DIR has been specified, use it.
-+   if test "x${RADIUS_DIR}" != "x"; then
-+      if test -d ${RADIUS_DIR}/lib; then
-+      	 pbxlibdir="-L${RADIUS_DIR}/lib"
-       else
--      	 pbxlibdir="-L${LUA_DIR}"
-+      	 pbxlibdir="-L${RADIUS_DIR}"
-       fi
-    fi
--   pbxfuncname="luaL_newstate"
-+   pbxfuncname="rc_read_config"
-    if test "x${pbxfuncname}" = "x" ; then   # empty lib, assume only headers
--      AST_LUA_FOUND=yes
-+      AST_RADIUS_FOUND=yes
-    else
--      as_ac_Lib=`echo "ac_cv_lib_lua5.1_${pbxfuncname}" | $as_tr_sh`
--{ echo "$as_me:$LINENO: checking for ${pbxfuncname} in -llua5.1" >&5
--echo $ECHO_N "checking for ${pbxfuncname} in -llua5.1... $ECHO_C" >&6; }
-+      as_ac_Lib=`echo "ac_cv_lib_radiusclient-ng_${pbxfuncname}" | $as_tr_sh`
-+{ echo "$as_me:$LINENO: checking for ${pbxfuncname} in -lradiusclient-ng" >&5
-+echo $ECHO_N "checking for ${pbxfuncname} in -lradiusclient-ng... $ECHO_C" >&6; }
- if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
-   echo $ECHO_N "(cached) $ECHO_C" >&6
- else
-   ac_check_lib_save_LIBS=$LIBS
--LIBS="-llua5.1 ${pbxlibdir}  $LIBS"
-+LIBS="-lradiusclient-ng ${pbxlibdir}  $LIBS"
- cat >conftest.$ac_ext <<_ACEOF
- /* confdefs.h.  */
- _ACEOF
-@@ -41168,38 +41660,38 @@ ac_res=`eval echo '${'$as_ac_Lib'}'`
- 	       { echo "$as_me:$LINENO: result: $ac_res" >&5
- echo "${ECHO_T}$ac_res" >&6; }
- if test `eval echo '${'$as_ac_Lib'}'` = yes; then
--  AST_LUA_FOUND=yes
-+  AST_RADIUS_FOUND=yes
- else
--  AST_LUA_FOUND=no
-+  AST_RADIUS_FOUND=no
- fi
  
-    fi
- 
-    # now check for the header.
--   if test "${AST_LUA_FOUND}" = "yes"; then
--      LUA_LIB="${pbxlibdir} -llua5.1 "
--      # if --with-LUA=DIR has been specified, use it.
--      if test "x${LUA_DIR}" != "x"; then
--	 LUA_INCLUDE="-I${LUA_DIR}/include"
+-         CPPFLAGS="${saved_cppflags}"
 -      fi
--      LUA_INCLUDE="${LUA_INCLUDE} "
--      if test "xlua5.1/lua.h" = "x" ; then	# no header, assume found
--         LUA_HEADER_FOUND="1"
-+   if test "${AST_RADIUS_FOUND}" = "yes"; then
-+      RADIUS_LIB="${pbxlibdir} -lradiusclient-ng "
-+      # if --with-RADIUS=DIR has been specified, use it.
-+      if test "x${RADIUS_DIR}" != "x"; then
-+	 RADIUS_INCLUDE="-I${RADIUS_DIR}/include"
-+      fi
-+      RADIUS_INCLUDE="${RADIUS_INCLUDE} "
-+      if test "xradiusclient-ng.h" = "x" ; then	# no header, assume found
-+         RADIUS_HEADER_FOUND="1"
-       else				# check for the header
-          saved_cppflags="${CPPFLAGS}"
--         CPPFLAGS="${CPPFLAGS} ${LUA_INCLUDE} "
--	 if test "${ac_cv_header_lua5_1_lua_h+set}" = set; then
--  { echo "$as_me:$LINENO: checking for lua5.1/lua.h" >&5
--echo $ECHO_N "checking for lua5.1/lua.h... $ECHO_C" >&6; }
--if test "${ac_cv_header_lua5_1_lua_h+set}" = set; then
-+         CPPFLAGS="${CPPFLAGS} ${RADIUS_INCLUDE} "
-+	 if test "${ac_cv_header_radiusclient_ng_h+set}" = set; then
-+  { echo "$as_me:$LINENO: checking for radiusclient-ng.h" >&5
-+echo $ECHO_N "checking for radiusclient-ng.h... $ECHO_C" >&6; }
-+if test "${ac_cv_header_radiusclient_ng_h+set}" = set; then
-   echo $ECHO_N "(cached) $ECHO_C" >&6
- fi
--{ echo "$as_me:$LINENO: result: $ac_cv_header_lua5_1_lua_h" >&5
--echo "${ECHO_T}$ac_cv_header_lua5_1_lua_h" >&6; }
-+{ echo "$as_me:$LINENO: result: $ac_cv_header_radiusclient_ng_h" >&5
-+echo "${ECHO_T}$ac_cv_header_radiusclient_ng_h" >&6; }
- else
-   # Is the header compilable?
--{ echo "$as_me:$LINENO: checking lua5.1/lua.h usability" >&5
--echo $ECHO_N "checking lua5.1/lua.h usability... $ECHO_C" >&6; }
-+{ echo "$as_me:$LINENO: checking radiusclient-ng.h usability" >&5
-+echo $ECHO_N "checking radiusclient-ng.h usability... $ECHO_C" >&6; }
- cat >conftest.$ac_ext <<_ACEOF
- /* confdefs.h.  */
- _ACEOF
-@@ -41207,7 +41699,7 @@ cat confdefs.h >>conftest.$ac_ext
- cat >>conftest.$ac_ext <<_ACEOF
- /* end confdefs.h.  */
- $ac_includes_default
--#include <lua5.1/lua.h>
-+#include <radiusclient-ng.h>
- _ACEOF
- rm -f conftest.$ac_objext
- if { (ac_try="$ac_compile"
-@@ -41239,15 +41731,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
- echo "${ECHO_T}$ac_header_compiler" >&6; }
- 
- # Is the header present?
--{ echo "$as_me:$LINENO: checking lua5.1/lua.h presence" >&5
--echo $ECHO_N "checking lua5.1/lua.h presence... $ECHO_C" >&6; }
-+{ echo "$as_me:$LINENO: checking radiusclient-ng.h presence" >&5
-+echo $ECHO_N "checking radiusclient-ng.h presence... $ECHO_C" >&6; }
- cat >conftest.$ac_ext <<_ACEOF
- /* confdefs.h.  */
- _ACEOF
- cat confdefs.h >>conftest.$ac_ext
- cat >>conftest.$ac_ext <<_ACEOF
- /* end confdefs.h.  */
--#include <lua5.1/lua.h>
-+#include <radiusclient-ng.h>
- _ACEOF
- if { (ac_try="$ac_cpp conftest.$ac_ext"
- case "(($ac_try" in
-@@ -41280,25 +41772,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
- # So?  What about this header?
- case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
-   yes:no: )
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: accepted by the compiler, rejected by the preprocessor!" >&5
--echo "$as_me: WARNING: lua5.1/lua.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: proceeding with the compiler's result" >&5
--echo "$as_me: WARNING: lua5.1/lua.h: proceeding with the compiler's result" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: accepted by the compiler, rejected by the preprocessor!" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: proceeding with the compiler's result" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h: proceeding with the compiler's result" >&2;}
-     ac_header_preproc=yes
-     ;;
-   no:yes:* )
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: present but cannot be compiled" >&5
--echo "$as_me: WARNING: lua5.1/lua.h: present but cannot be compiled" >&2;}
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h:     check for missing prerequisite headers?" >&5
--echo "$as_me: WARNING: lua5.1/lua.h:     check for missing prerequisite headers?" >&2;}
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: see the Autoconf documentation" >&5
--echo "$as_me: WARNING: lua5.1/lua.h: see the Autoconf documentation" >&2;}
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h:     section \"Present But Cannot Be Compiled\"" >&5
--echo "$as_me: WARNING: lua5.1/lua.h:     section \"Present But Cannot Be Compiled\"" >&2;}
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: proceeding with the preprocessor's result" >&5
--echo "$as_me: WARNING: lua5.1/lua.h: proceeding with the preprocessor's result" >&2;}
--    { echo "$as_me:$LINENO: WARNING: lua5.1/lua.h: in the future, the compiler will take precedence" >&5
--echo "$as_me: WARNING: lua5.1/lua.h: in the future, the compiler will take precedence" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: present but cannot be compiled" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h: present but cannot be compiled" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h:     check for missing prerequisite headers?" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h:     check for missing prerequisite headers?" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: see the Autoconf documentation" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h: see the Autoconf documentation" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h:     section \"Present But Cannot Be Compiled\"" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h:     section \"Present But Cannot Be Compiled\"" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: proceeding with the preprocessor's result" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h: proceeding with the preprocessor's result" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: in the future, the compiler will take precedence" >&5
-+echo "$as_me: WARNING: radiusclient-ng.h: in the future, the compiler will take precedence" >&2;}
-     ( cat <<\_ASBOX
- ## ------------------------------- ##
- ## Report this to www.asterisk.org ##
-@@ -41307,43 +41799,43 @@ _ASBOX
-      ) | sed "s/^/$as_me: WARNING:     /" >&2
-     ;;
- esac
--{ echo "$as_me:$LINENO: checking for lua5.1/lua.h" >&5
--echo $ECHO_N "checking for lua5.1/lua.h... $ECHO_C" >&6; }
--if test "${ac_cv_header_lua5_1_lua_h+set}" = set; then
-+{ echo "$as_me:$LINENO: checking for radiusclient-ng.h" >&5
-+echo $ECHO_N "checking for radiusclient-ng.h... $ECHO_C" >&6; }
-+if test "${ac_cv_header_radiusclient_ng_h+set}" = set; then
-   echo $ECHO_N "(cached) $ECHO_C" >&6
- else
--  ac_cv_header_lua5_1_lua_h=$ac_header_preproc
-+  ac_cv_header_radiusclient_ng_h=$ac_header_preproc
- fi
--{ echo "$as_me:$LINENO: result: $ac_cv_header_lua5_1_lua_h" >&5
--echo "${ECHO_T}$ac_cv_header_lua5_1_lua_h" >&6; }
-+{ echo "$as_me:$LINENO: result: $ac_cv_header_radiusclient_ng_h" >&5
-+echo "${ECHO_T}$ac_cv_header_radiusclient_ng_h" >&6; }
- 
- fi
--if test $ac_cv_header_lua5_1_lua_h = yes; then
--  LUA_HEADER_FOUND=1
-+if test $ac_cv_header_radiusclient_ng_h = yes; then
-+  RADIUS_HEADER_FOUND=1
- else
--  LUA_HEADER_FOUND=0
-+  RADIUS_HEADER_FOUND=0
- fi
- 
- 
-          CPPFLAGS="${saved_cppflags}"
-       fi
 -      if test "x${LUA_HEADER_FOUND}" = "x0" ; then
 -         LUA_LIB=""
 -         LUA_INCLUDE=""
-+      if test "x${RADIUS_HEADER_FOUND}" = "x0" ; then
-+         RADIUS_LIB=""
-+         RADIUS_INCLUDE=""
-       else
-          if test "x${pbxfuncname}" = "x" ; then		# only checking headers -> no library
+-      else
+-         if test "x${pbxfuncname}" = "x" ; then		# only checking headers -> no library
 -	    LUA_LIB=""
-+	    RADIUS_LIB=""
- 	 fi
+-	 fi
 -         PBX_LUA=1
-+         PBX_RADIUS=1
-          # XXX don't know how to evaluate the description (third argument) in AC_DEFINE_UNQUOTED
- 
- cat >>confdefs.h <<_ACEOF
--#define HAVE_LUA 1
-+#define HAVE_RADIUS 1
+-         # XXX don't know how to evaluate the description (third argument) in AC_DEFINE_UNQUOTED
+-
+-cat >>confdefs.h <<_ACEOF
++cat >>confdefs.h <<\_ACEOF
+ #define HAVE_LUA 1
  _ACEOF
  
- 
- cat >>confdefs.h <<_ACEOF
+-
+-cat >>confdefs.h <<_ACEOF
 -#define HAVE_LUA_VERSION
-+#define HAVE_RADIUS_VERSION
- _ACEOF
- 
-       fi
-@@ -41352,28 +41844,28 @@ fi
- 
- 
- 
--if test "x${PBX_RADIUS}" != "x1" -a "${USE_RADIUS}" != "no"; then
-+if test "x${PBX_SPANDSP}" != "x1" -a "${USE_SPANDSP}" != "no"; then
-    pbxlibdir=""
--   # if --with-RADIUS=DIR has been specified, use it.
--   if test "x${RADIUS_DIR}" != "x"; then
--      if test -d ${RADIUS_DIR}/lib; then
--      	 pbxlibdir="-L${RADIUS_DIR}/lib"
-+   # if --with-SPANDSP=DIR has been specified, use it.
-+   if test "x${SPANDSP_DIR}" != "x"; then
-+      if test -d ${SPANDSP_DIR}/lib; then
-+      	 pbxlibdir="-L${SPANDSP_DIR}/lib"
-       else
--      	 pbxlibdir="-L${RADIUS_DIR}"
-+      	 pbxlibdir="-L${SPANDSP_DIR}"
-       fi
-    fi
--   pbxfuncname="rc_read_config"
-+   pbxfuncname="fax_init"
-    if test "x${pbxfuncname}" = "x" ; then   # empty lib, assume only headers
--      AST_RADIUS_FOUND=yes
-+      AST_SPANDSP_FOUND=yes
-    else
--      as_ac_Lib=`echo "ac_cv_lib_radiusclient-ng_${pbxfuncname}" | $as_tr_sh`
--{ echo "$as_me:$LINENO: checking for ${pbxfuncname} in -lradiusclient-ng" >&5
--echo $ECHO_N "checking for ${pbxfuncname} in -lradiusclient-ng... $ECHO_C" >&6; }
-+      as_ac_Lib=`echo "ac_cv_lib_spandsp_${pbxfuncname}" | $as_tr_sh`
-+{ echo "$as_me:$LINENO: checking for ${pbxfuncname} in -lspandsp" >&5
-+echo $ECHO_N "checking for ${pbxfuncname} in -lspandsp... $ECHO_C" >&6; }
- if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
-   echo $ECHO_N "(cached) $ECHO_C" >&6
- else
-   ac_check_lib_save_LIBS=$LIBS
--LIBS="-lradiusclient-ng ${pbxlibdir}  $LIBS"
-+LIBS="-lspandsp ${pbxlibdir} -ltiff $LIBS"
- cat >conftest.$ac_ext <<_ACEOF
- /* confdefs.h.  */
- _ACEOF
-@@ -41430,38 +41922,38 @@ ac_res=`eval echo '${'$as_ac_Lib'}'`
- 	       { echo "$as_me:$LINENO: result: $ac_res" >&5
- echo "${ECHO_T}$ac_res" >&6; }
- if test `eval echo '${'$as_ac_Lib'}'` = yes; then
--  AST_RADIUS_FOUND=yes
-+  AST_SPANDSP_FOUND=yes
- else
--  AST_RADIUS_FOUND=no
-+  AST_SPANDSP_FOUND=no
- fi
- 
-    fi
- 
-    # now check for the header.
--   if test "${AST_RADIUS_FOUND}" = "yes"; then
--      RADIUS_LIB="${pbxlibdir} -lradiusclient-ng "
--      # if --with-RADIUS=DIR has been specified, use it.
--      if test "x${RADIUS_DIR}" != "x"; then
--	 RADIUS_INCLUDE="-I${RADIUS_DIR}/include"
+-_ACEOF
+-
 -      fi
--      RADIUS_INCLUDE="${RADIUS_INCLUDE} "
--      if test "xradiusclient-ng.h" = "x" ; then	# no header, assume found
--         RADIUS_HEADER_FOUND="1"
-+   if test "${AST_SPANDSP_FOUND}" = "yes"; then
-+      SPANDSP_LIB="${pbxlibdir} -lspandsp -ltiff"
-+      # if --with-SPANDSP=DIR has been specified, use it.
-+      if test "x${SPANDSP_DIR}" != "x"; then
-+	 SPANDSP_INCLUDE="-I${SPANDSP_DIR}/include"
-+      fi
-+      SPANDSP_INCLUDE="${SPANDSP_INCLUDE} "
-+      if test "xspandsp.h" = "x" ; then	# no header, assume found
-+         SPANDSP_HEADER_FOUND="1"
-       else				# check for the header
-          saved_cppflags="${CPPFLAGS}"
--         CPPFLAGS="${CPPFLAGS} ${RADIUS_INCLUDE} "
--	 if test "${ac_cv_header_radiusclient_ng_h+set}" = set; then
--  { echo "$as_me:$LINENO: checking for radiusclient-ng.h" >&5
--echo $ECHO_N "checking for radiusclient-ng.h... $ECHO_C" >&6; }
--if test "${ac_cv_header_radiusclient_ng_h+set}" = set; then
-+         CPPFLAGS="${CPPFLAGS} ${SPANDSP_INCLUDE} "
-+	 if test "${ac_cv_header_spandsp_h+set}" = set; then
-+  { echo "$as_me:$LINENO: checking for spandsp.h" >&5
-+echo $ECHO_N "checking for spandsp.h... $ECHO_C" >&6; }
-+if test "${ac_cv_header_spandsp_h+set}" = set; then
-   echo $ECHO_N "(cached) $ECHO_C" >&6
- fi
--{ echo "$as_me:$LINENO: result: $ac_cv_header_radiusclient_ng_h" >&5
--echo "${ECHO_T}$ac_cv_header_radiusclient_ng_h" >&6; }
-+{ echo "$as_me:$LINENO: result: $ac_cv_header_spandsp_h" >&5
-+echo "${ECHO_T}$ac_cv_header_spandsp_h" >&6; }
- else
-   # Is the header compilable?
--{ echo "$as_me:$LINENO: checking radiusclient-ng.h usability" >&5
--echo $ECHO_N "checking radiusclient-ng.h usability... $ECHO_C" >&6; }
-+{ echo "$as_me:$LINENO: checking spandsp.h usability" >&5
-+echo $ECHO_N "checking spandsp.h usability... $ECHO_C" >&6; }
- cat >conftest.$ac_ext <<_ACEOF
- /* confdefs.h.  */
- _ACEOF
-@@ -41469,7 +41961,7 @@ cat confdefs.h >>conftest.$ac_ext
- cat >>conftest.$ac_ext <<_ACEOF
- /* end confdefs.h.  */
- $ac_includes_default
--#include <radiusclient-ng.h>
-+#include <spandsp.h>
- _ACEOF
- rm -f conftest.$ac_objext
- if { (ac_try="$ac_compile"
-@@ -41501,15 +41993,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
- echo "${ECHO_T}$ac_header_compiler" >&6; }
- 
- # Is the header present?
--{ echo "$as_me:$LINENO: checking radiusclient-ng.h presence" >&5
--echo $ECHO_N "checking radiusclient-ng.h presence... $ECHO_C" >&6; }
-+{ echo "$as_me:$LINENO: checking spandsp.h presence" >&5
-+echo $ECHO_N "checking spandsp.h presence... $ECHO_C" >&6; }
- cat >conftest.$ac_ext <<_ACEOF
- /* confdefs.h.  */
- _ACEOF
- cat confdefs.h >>conftest.$ac_ext
- cat >>conftest.$ac_ext <<_ACEOF
- /* end confdefs.h.  */
--#include <radiusclient-ng.h>
-+#include <spandsp.h>
- _ACEOF
- if { (ac_try="$ac_cpp conftest.$ac_ext"
- case "(($ac_try" in
-@@ -41542,25 +42034,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
- # So?  What about this header?
- case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
-   yes:no: )
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: accepted by the compiler, rejected by the preprocessor!" >&5
--echo "$as_me: WARNING: radiusclient-ng.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: proceeding with the compiler's result" >&5
--echo "$as_me: WARNING: radiusclient-ng.h: proceeding with the compiler's result" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&5
-+echo "$as_me: WARNING: spandsp.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h: proceeding with the compiler's result" >&5
-+echo "$as_me: WARNING: spandsp.h: proceeding with the compiler's result" >&2;}
-     ac_header_preproc=yes
-     ;;
-   no:yes:* )
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: present but cannot be compiled" >&5
--echo "$as_me: WARNING: radiusclient-ng.h: present but cannot be compiled" >&2;}
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h:     check for missing prerequisite headers?" >&5
--echo "$as_me: WARNING: radiusclient-ng.h:     check for missing prerequisite headers?" >&2;}
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: see the Autoconf documentation" >&5
--echo "$as_me: WARNING: radiusclient-ng.h: see the Autoconf documentation" >&2;}
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h:     section \"Present But Cannot Be Compiled\"" >&5
--echo "$as_me: WARNING: radiusclient-ng.h:     section \"Present But Cannot Be Compiled\"" >&2;}
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: proceeding with the preprocessor's result" >&5
--echo "$as_me: WARNING: radiusclient-ng.h: proceeding with the preprocessor's result" >&2;}
--    { echo "$as_me:$LINENO: WARNING: radiusclient-ng.h: in the future, the compiler will take precedence" >&5
--echo "$as_me: WARNING: radiusclient-ng.h: in the future, the compiler will take precedence" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h: present but cannot be compiled" >&5
-+echo "$as_me: WARNING: spandsp.h: present but cannot be compiled" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h:     check for missing prerequisite headers?" >&5
-+echo "$as_me: WARNING: spandsp.h:     check for missing prerequisite headers?" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h: see the Autoconf documentation" >&5
-+echo "$as_me: WARNING: spandsp.h: see the Autoconf documentation" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h:     section \"Present But Cannot Be Compiled\"" >&5
-+echo "$as_me: WARNING: spandsp.h:     section \"Present But Cannot Be Compiled\"" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h: proceeding with the preprocessor's result" >&5
-+echo "$as_me: WARNING: spandsp.h: proceeding with the preprocessor's result" >&2;}
-+    { echo "$as_me:$LINENO: WARNING: spandsp.h: in the future, the compiler will take precedence" >&5
-+echo "$as_me: WARNING: spandsp.h: in the future, the compiler will take precedence" >&2;}
-     ( cat <<\_ASBOX
- ## ------------------------------- ##
- ## Report this to www.asterisk.org ##
-@@ -41569,43 +42061,43 @@ _ASBOX
-      ) | sed "s/^/$as_me: WARNING:     /" >&2
-     ;;
- esac
--{ echo "$as_me:$LINENO: checking for radiusclient-ng.h" >&5
--echo $ECHO_N "checking for radiusclient-ng.h... $ECHO_C" >&6; }
--if test "${ac_cv_header_radiusclient_ng_h+set}" = set; then
-+{ echo "$as_me:$LINENO: checking for spandsp.h" >&5
-+echo $ECHO_N "checking for spandsp.h... $ECHO_C" >&6; }
-+if test "${ac_cv_header_spandsp_h+set}" = set; then
-   echo $ECHO_N "(cached) $ECHO_C" >&6
- else
--  ac_cv_header_radiusclient_ng_h=$ac_header_preproc
-+  ac_cv_header_spandsp_h=$ac_header_preproc
- fi
--{ echo "$as_me:$LINENO: result: $ac_cv_header_radiusclient_ng_h" >&5
--echo "${ECHO_T}$ac_cv_header_radiusclient_ng_h" >&6; }
-+{ echo "$as_me:$LINENO: result: $ac_cv_header_spandsp_h" >&5
-+echo "${ECHO_T}$ac_cv_header_spandsp_h" >&6; }
- 
- fi
--if test $ac_cv_header_radiusclient_ng_h = yes; then
--  RADIUS_HEADER_FOUND=1
-+if test $ac_cv_header_spandsp_h = yes; then
-+  SPANDSP_HEADER_FOUND=1
- else
--  RADIUS_HEADER_FOUND=0
-+  SPANDSP_HEADER_FOUND=0
+-   fi
  fi
  
  
-          CPPFLAGS="${saved_cppflags}"
-       fi
--      if test "x${RADIUS_HEADER_FOUND}" = "x0" ; then
--         RADIUS_LIB=""
--         RADIUS_INCLUDE=""
-+      if test "x${SPANDSP_HEADER_FOUND}" = "x0" ; then
-+         SPANDSP_LIB=""
-+         SPANDSP_INCLUDE=""
-       else
-          if test "x${pbxfuncname}" = "x" ; then		# only checking headers -> no library
--	    RADIUS_LIB=""
-+	    SPANDSP_LIB=""
- 	 fi
--         PBX_RADIUS=1
-+         PBX_SPANDSP=1
-          # XXX don't know how to evaluate the description (third argument) in AC_DEFINE_UNQUOTED
- 
- cat >>confdefs.h <<_ACEOF
--#define HAVE_RADIUS 1
-+#define HAVE_SPANDSP 1
- _ACEOF
- 
- 
- cat >>confdefs.h <<_ACEOF
--#define HAVE_RADIUS_VERSION
-+#define HAVE_SPANDSP_VERSION
- _ACEOF
- 
-       fi
-@@ -43914,18 +44406,18 @@ if test "x${PBX_FREETDS}" != "x1" -a "${USE_FREETDS}" != "no"; then
+-
+ if test "x${PBX_RADIUS}" != "x1" -a "${USE_RADIUS}" != "no"; then
+    pbxlibdir=""
+    # if --with-RADIUS=DIR has been specified, use it.
+@@ -43914,18 +44494,18 @@ if test "x${PBX_FREETDS}" != "x1" -a "${USE_FREETDS}" != "no"; then
        	 pbxlibdir="-L${FREETDS_DIR}"
        fi
     fi
@@ -1137,7 +1275,7 @@ index d72fa38..1dd6af6 100755
  cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
  _ACEOF
-@@ -43991,29 +44483,29 @@ fi
+@@ -43991,29 +44571,29 @@ fi
  
     # now check for the header.
     if test "${AST_FREETDS_FOUND}" = "yes"; then
@@ -1177,7 +1315,7 @@ index d72fa38..1dd6af6 100755
  cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
  _ACEOF
-@@ -44021,7 +44513,7 @@ cat confdefs.h >>conftest.$ac_ext
+@@ -44021,7 +44601,7 @@ cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
  $ac_includes_default
@@ -1186,7 +1324,7 @@ index d72fa38..1dd6af6 100755
  _ACEOF
  rm -f conftest.$ac_objext
  if { (ac_try="$ac_compile"
-@@ -44053,15 +44545,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+@@ -44053,15 +44633,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
  echo "${ECHO_T}$ac_header_compiler" >&6; }
  
  # Is the header present?
@@ -1205,7 +1343,7 @@ index d72fa38..1dd6af6 100755
  _ACEOF
  if { (ac_try="$ac_cpp conftest.$ac_ext"
  case "(($ac_try" in
-@@ -44094,25 +44586,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
+@@ -44094,25 +44674,25 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
  # So?  What about this header?
  case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
    yes:no: )
@@ -1247,7 +1385,7 @@ index d72fa38..1dd6af6 100755
      ( cat <<\_ASBOX
  ## ------------------------------- ##
  ## Report this to www.asterisk.org ##
-@@ -44121,18 +44613,18 @@ _ASBOX
+@@ -44121,18 +44701,18 @@ _ASBOX
       ) | sed "s/^/$as_me: WARNING:     /" >&2
      ;;
  esac
@@ -1273,7 +1411,7 @@ index d72fa38..1dd6af6 100755
    FREETDS_HEADER_FOUND=1
  else
    FREETDS_HEADER_FOUND=0
-@@ -44164,33 +44656,6 @@ _ACEOF
+@@ -44164,33 +44744,6 @@ _ACEOF
     fi
  fi
  
@@ -1307,7 +1445,7 @@ index d72fa38..1dd6af6 100755
  
  
  if test "x${PBX_TERMCAP}" != "x1" -a "${USE_TERMCAP}" != "no"; then
-@@ -49918,6 +50383,126 @@ fi
+@@ -49918,6 +50471,126 @@ fi
  
  
  
@@ -1434,7 +1572,7 @@ index d72fa38..1dd6af6 100755
  if test "${USE_CURL}" != "no"; then
     if test -n "$ac_tool_prefix"; then
    # Extract the first word of "${ac_tool_prefix}curl-config", so it can be a program name with args.
-@@ -50892,14 +51477,18 @@ BKTR_LIB!$BKTR_LIB$ac_delim
+@@ -50892,14 +51565,18 @@ BKTR_LIB!$BKTR_LIB$ac_delim
  BKTR_INCLUDE!$BKTR_INCLUDE$ac_delim
  BKTR_DIR!$BKTR_DIR$ac_delim
  PBX_BKTR!$PBX_BKTR$ac_delim
@@ -1457,7 +1595,7 @@ index d72fa38..1dd6af6 100755
  CURSES_LIB!$CURSES_LIB$ac_delim
  CURSES_INCLUDE!$CURSES_INCLUDE$ac_delim
  CURSES_DIR!$CURSES_DIR$ac_delim
-@@ -50952,6 +51541,10 @@ LDAP_LIB!$LDAP_LIB$ac_delim
+@@ -50952,6 +51629,10 @@ LDAP_LIB!$LDAP_LIB$ac_delim
  LDAP_INCLUDE!$LDAP_INCLUDE$ac_delim
  LDAP_DIR!$LDAP_DIR$ac_delim
  PBX_LDAP!$PBX_LDAP$ac_delim
@@ -1468,7 +1606,7 @@ index d72fa38..1dd6af6 100755
  LTDL_LIB!$LTDL_LIB$ac_delim
  LTDL_INCLUDE!$LTDL_INCLUDE$ac_delim
  LTDL_DIR!$LTDL_DIR$ac_delim
-@@ -50969,14 +51562,6 @@ NBS_INCLUDE!$NBS_INCLUDE$ac_delim
+@@ -50969,14 +51650,6 @@ NBS_INCLUDE!$NBS_INCLUDE$ac_delim
  NBS_DIR!$NBS_DIR$ac_delim
  PBX_NBS!$PBX_NBS$ac_delim
  NCURSES_LIB!$NCURSES_LIB$ac_delim
@@ -1483,7 +1621,7 @@ index d72fa38..1dd6af6 100755
  _ACEOF
  
    if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
-@@ -51018,6 +51603,14 @@ _ACEOF
+@@ -51018,6 +51691,14 @@ _ACEOF
  ac_delim='%!_!# '
  for ac_last_try in false false false false false :; do
    cat >conf$$subs.sed <<_ACEOF
@@ -1498,18 +1636,18 @@ index d72fa38..1dd6af6 100755
  NEWT_INCLUDE!$NEWT_INCLUDE$ac_delim
  NEWT_DIR!$NEWT_DIR$ac_delim
  PBX_NEWT!$PBX_NEWT$ac_delim
-@@ -51077,6 +51670,10 @@ SDL_IMAGE_LIB!$SDL_IMAGE_LIB$ac_delim
- SDL_IMAGE_INCLUDE!$SDL_IMAGE_INCLUDE$ac_delim
- SDL_IMAGE_DIR!$SDL_IMAGE_DIR$ac_delim
- PBX_SDL_IMAGE!$PBX_SDL_IMAGE$ac_delim
+@@ -51053,6 +51734,10 @@ PRI_LIB!$PRI_LIB$ac_delim
+ PRI_INCLUDE!$PRI_INCLUDE$ac_delim
+ PRI_DIR!$PRI_DIR$ac_delim
+ PBX_PRI!$PBX_PRI$ac_delim
 +SPANDSP_LIB!$SPANDSP_LIB$ac_delim
 +SPANDSP_INCLUDE!$SPANDSP_INCLUDE$ac_delim
 +SPANDSP_DIR!$SPANDSP_DIR$ac_delim
 +PBX_SPANDSP!$PBX_SPANDSP$ac_delim
- SPEEX_LIB!$SPEEX_LIB$ac_delim
- SPEEX_INCLUDE!$SPEEX_INCLUDE$ac_delim
- SPEEX_DIR!$SPEEX_DIR$ac_delim
-@@ -51103,18 +51700,6 @@ OPENSSL_DIR!$OPENSSL_DIR$ac_delim
+ SS7_LIB!$SS7_LIB$ac_delim
+ SS7_INCLUDE!$SS7_INCLUDE$ac_delim
+ SS7_DIR!$SS7_DIR$ac_delim
+@@ -51103,18 +51788,6 @@ OPENSSL_DIR!$OPENSSL_DIR$ac_delim
  PBX_OPENSSL!$PBX_OPENSSL$ac_delim
  FREETDS_LIB!$FREETDS_LIB$ac_delim
  FREETDS_INCLUDE!$FREETDS_INCLUDE$ac_delim
@@ -1528,7 +1666,7 @@ index d72fa38..1dd6af6 100755
  _ACEOF
  
    if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
-@@ -51156,6 +51741,18 @@ _ACEOF
+@@ -51156,6 +51829,18 @@ _ACEOF
  ac_delim='%!_!# '
  for ac_last_try in false false false false false :; do
    cat >conf$$subs.sed <<_ACEOF
@@ -1547,7 +1685,7 @@ index d72fa38..1dd6af6 100755
  TONEZONE_DIR!$TONEZONE_DIR$ac_delim
  PBX_TONEZONE!$PBX_TONEZONE$ac_delim
  USB_LIB!$USB_LIB$ac_delim
-@@ -51209,6 +51806,7 @@ OPENH323_INCDIR!$OPENH323_INCDIR$ac_delim
+@@ -51209,6 +51894,7 @@ OPENH323_INCDIR!$OPENH323_INCDIR$ac_delim
  OPENH323_LIBDIR!$OPENH323_LIBDIR$ac_delim
  OPENH323_SUFFIX!$OPENH323_SUFFIX$ac_delim
  OPENH323_BUILD!$OPENH323_BUILD$ac_delim
@@ -1555,7 +1693,7 @@ index d72fa38..1dd6af6 100755
  PBX_SPEEX_PREPROCESS!$PBX_SPEEX_PREPROCESS$ac_delim
  CONFIG_GMIME!$CONFIG_GMIME$ac_delim
  PBX_ZAPTEL_VLDTMF!$PBX_ZAPTEL_VLDTMF$ac_delim
-@@ -51222,12 +51820,12 @@ PBX_H323!$PBX_H323$ac_delim
+@@ -51222,12 +51908,12 @@ PBX_H323!$PBX_H323$ac_delim
  PBX_IXJUSER!$PBX_IXJUSER$ac_delim
  CONFIG_SDL!$CONFIG_SDL$ac_delim
  CONFIG_GTK!$CONFIG_GTK$ac_delim
@@ -1571,7 +1709,7 @@ index d72fa38..1dd6af6 100755
    elif $ac_last_try; then
      { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
 diff --git a/include/asterisk/autoconfig.h.in b/include/asterisk/autoconfig.h.in
-index 3a76722..07deb31 100644
+index 855f8ec..07deb31 100644
 --- a/include/asterisk/autoconfig.h.in
 +++ b/include/asterisk/autoconfig.h.in
 @@ -116,6 +116,12 @@
@@ -1611,20 +1749,7 @@ index 3a76722..07deb31 100644
  /* Define to 1 if you have the <malloc.h> header file. */
  #undef HAVE_MALLOC_H
  
-@@ -715,6 +721,12 @@
- /* Define to 1 if your system has soxmix application. */
- #undef HAVE_SOXMIX
- 
-+/* Define this to indicate the ${SPANDSP_DESCRIP} library */
-+#undef HAVE_SPANDSP
-+
-+/* Define to indicate the ${SPANDSP_DESCRIP} library version */
-+#undef HAVE_SPANDSP_VERSION
-+
- /* Define this to indicate the ${SPEEX_DESCRIP} library */
- #undef HAVE_SPEEX
- 
-@@ -1193,6 +1205,9 @@
+@@ -1199,6 +1205,9 @@
  #ifndef _POSIX_PTHREAD_SEMANTICS
  # undef _POSIX_PTHREAD_SEMANTICS
  #endif

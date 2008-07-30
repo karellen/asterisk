@@ -1,4 +1,4 @@
-From 16d58dce72ad486e8962f570b6ae48ceac7e532e Mon Sep 17 00:00:00 2001
+From 56f5144dca1f95b75d78f4fa0ce8e1048a119fc6 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 2 Jul 2008 10:15:41 -0500
 Subject: [PATCH] Update cdr_tds to latest.
@@ -672,10 +672,10 @@ index 9d322fd..8654c80 100644
  		.unload = unload_module,
  		.reload = reload,
 diff --git a/configure.ac b/configure.ac
-index c514e10..8d0b2da 100644
+index c72e9c2..6c692f8 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1379,34 +1379,7 @@ fi
+@@ -1376,34 +1376,7 @@ fi
  
  AST_EXT_TOOL_CHECK([GMIME], [gmime])
  

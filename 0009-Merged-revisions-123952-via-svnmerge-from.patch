@@ -1,4 +1,4 @@
-From 5931413c9269ef3fca3444a2c10865860f907758 Mon Sep 17 00:00:00 2001
+From 7f4f8b28cddd114b43edf266a5b599aa415d1154 Mon Sep 17 00:00:00 2001
 From: tilghman <tilghman@614ede4d-c843-0410-af14-a771ab80d22e>
 Date: Thu, 19 Jun 2008 17:23:22 +0000
 Subject: [PATCH] Merged revisions 123952 via svnmerge from
@@ -15,14 +15,13 @@ Don't change pointers that need to be later passed back for deallocation.
 
 ........
 
-
 git-svn-id: http://svn.digium.com/svn/asterisk/branches/1.6.0@123958 614ede4d-c843-0410-af14-a771ab80d22e
 ---
  res/res_config_ldap.c |   85 +++++++++++++++++++++++++-----------------------
  1 files changed, 44 insertions(+), 41 deletions(-)
 
 diff --git a/res/res_config_ldap.c b/res/res_config_ldap.c
-index 7ce37c6..01050ca 100644
+index 33ed247..15a6827 100644
 --- a/res/res_config_ldap.c
 +++ b/res/res_config_ldap.c
 @@ -282,33 +282,36 @@ static struct ast_variable *realtime_ldap_entry_to_var(struct ldap_table_config

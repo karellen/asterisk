@@ -1,4 +1,4 @@
-From 6c1b2ef859c2ad25a42b62d731d398c77fc3bb71 Mon Sep 17 00:00:00 2001
+From 56da7591f2d9b11f5f5d2ed2b7e4785d955d172b Mon Sep 17 00:00:00 2001
 From: tilghman <tilghman@614ede4d-c843-0410-af14-a771ab80d22e>
 Date: Tue, 22 Jul 2008 21:55:06 +0000
 Subject: [PATCH] Merged revisions 132778 via svnmerge from
@@ -27,7 +27,6 @@ Fixes for AST-2008-010 and AST-2008-011
 
 ................
 
-
 git-svn-id: http://svn.digium.com/svn/asterisk/branches/1.6.0@132780 614ede4d-c843-0410-af14-a771ab80d22e
 ---
  channels/chan_iax2.c    |   31 +++++++++++++++++++++++++++++--
@@ -35,10 +34,10 @@ git-svn-id: http://svn.digium.com/svn/asterisk/branches/1.6.0@132780 614ede4d-c8
  2 files changed, 39 insertions(+), 2 deletions(-)
 
 diff --git a/channels/chan_iax2.c b/channels/chan_iax2.c
-index de1b450..055aa17 100644
+index abdad2d..125e087 100644
 --- a/channels/chan_iax2.c
 +++ b/channels/chan_iax2.c
-@@ -278,6 +278,7 @@ enum iax2_flags {
+@@ -275,6 +275,7 @@ enum iax2_flags {
  	IAX_DELAYPBXSTART =	(1 << 25),	/*!< Don't start a PBX on the channel until the peer sends us a
  						     response, so that we've achieved a three-way handshake with
  						     them before sending voice or anything else*/
@@ -46,7 +45,7 @@ index de1b450..055aa17 100644
  };
  
  static int global_rtautoclear = 120;
-@@ -1701,10 +1702,10 @@ static int __find_callno(unsigned short callno, unsigned short dcallno, struct s
+@@ -1647,10 +1648,10 @@ static int __find_callno(unsigned short callno, unsigned short dcallno, struct s
  			snprintf(host, sizeof(host), "%s:%d", ast_inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
  
  		now = ast_tvnow();
@@ -59,7 +58,7 @@ index de1b450..055aa17 100644
  				continue;
  			}
  
-@@ -3447,6 +3448,15 @@ struct parsed_dial_string {
+@@ -3389,6 +3390,15 @@ struct parsed_dial_string {
  	char *options;
  };
  
@@ -75,7 +74,7 @@ index de1b450..055aa17 100644
  /*!
   * \brief Parses an IAX dial string into its component parts.
   * \param data the string to be parsed
-@@ -7990,6 +8000,17 @@ static int socket_process(struct iax2_thread *thread)
+@@ -7935,6 +7945,17 @@ static int socket_process(struct iax2_thread *thread)
  		} else {
  			f.subclass = uncompress_subclass(fh->csub);
  		}
@@ -93,7 +92,7 @@ index de1b450..055aa17 100644
  		if ((f.frametype == AST_FRAME_IAX) && ((f.subclass == IAX_COMMAND_NEW) || (f.subclass == IAX_COMMAND_REGREQ) ||
  						       (f.subclass == IAX_COMMAND_POKE) || (f.subclass == IAX_COMMAND_FWDOWNL) ||
  						       (f.subclass == IAX_COMMAND_REGREL)))
-@@ -9305,6 +9326,10 @@ retryowner2:
+@@ -9235,6 +9256,10 @@ retryowner2:
  				break;
  			case IAX_COMMAND_FWDOWNL:
  				/* Firmware download */
@@ -104,7 +103,7 @@ index de1b450..055aa17 100644
  				memset(&ied0, 0, sizeof(ied0));
  				res = iax_firmware_append(&ied0, (unsigned char *)ies.devicetype, ies.fwdesc);
  				if (res < 0)
-@@ -10964,6 +10989,8 @@ static int set_config(char *config_file, int reload)
+@@ -10878,6 +10903,8 @@ static int set_config(char *config_file, int reload)
  			ast_set2_flag((&globalflags), ast_true(v->value), IAX_FORCEJITTERBUF);	
  		else if (!strcasecmp(v->name, "delayreject"))
  			delayreject = ast_true(v->value);

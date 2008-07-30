@@ -1,4 +1,4 @@
-From ab565a3223d72d479e9616e6dab6fa4d8524940a Mon Sep 17 00:00:00 2001
+From 23c345241390d5aa577421abfb7e36aa6f3a343e Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Tue, 25 Mar 2008 00:50:27 -0500
 Subject: [PATCH] Build using external libedit.
@@ -12,7 +12,7 @@ Subject: [PATCH] Build using external libedit.
  5 files changed, 33 insertions(+), 4 deletions(-)
 
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index c25e5d2..e50e64e 100644
+index 97822e6..e51279b 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
 @@ -16,6 +16,7 @@ ISDNNET=@PBX_ISDNNET@
@@ -24,7 +24,7 @@ index c25e5d2..e50e64e 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index 2da38f1..c514e10 100644
+index b8c093c..c72e9c2 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -220,6 +220,7 @@ AST_EXT_LIB_SETUP([IMAP_TK], [UW IMAP Toolkit], [imap])
@@ -35,7 +35,7 @@ index 2da38f1..c514e10 100644
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
  AST_EXT_LIB_SETUP([MISDN], [mISDN User Library], [misdn])
-@@ -1571,6 +1572,27 @@ AC_SUBST(PBX_GTK2)
+@@ -1568,6 +1569,27 @@ AC_SUBST(PBX_GTK2)
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -114,10 +114,10 @@ index 11d6671..dce7950 100644
  
  /*!
 diff --git a/makeopts.in b/makeopts.in
-index a394c18..ad7a94d 100644
+index 9e99a6f..b8a4ab6 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -238,3 +238,7 @@ TINFO_DIR=@TINFO_DIR@
+@@ -235,3 +235,7 @@ TINFO_DIR=@TINFO_DIR@
  
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@

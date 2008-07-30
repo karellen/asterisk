@@ -1,8 +1,13 @@
-From 341a7d2c23aa22fdf9a3353b7cc5811954891436 Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
-Date: Thu, 8 Nov 2007 16:42:14 -0600
-Subject: [PATCH] Pick proper optimization flags for Fedora.
+From 38df88e16ff71fd00dabc5e95e3692e4d37b5159 Mon Sep 17 00:00:00 2001
+From: tilghman <tilghman@614ede4d-c843-0410-af14-a771ab80d22e>
+Date: Tue, 29 Jul 2008 23:00:45 +0000
+Subject: [PATCH] Minor changes to reduce packaging changes made by the Fedora maintainer.
+ (closes issue #12974)
+  Reported by: jcollie
+  Patches:
+        0001-Don-t-override-duplicate-optimization-flags.patch uploaded by jcollie (license 412)
 
+git-svn-id: http://svn.digium.com/svn/asterisk/trunk@134312 614ede4d-c843-0410-af14-a771ab80d22e
 ---
  Makefile |   16 ++++++++++++----
  1 files changed, 12 insertions(+), 4 deletions(-)
