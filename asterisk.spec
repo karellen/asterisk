@@ -4,7 +4,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.21.beta%{beta}%{?dist}
+Release: 0.22.beta%{beta}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1026,6 +1026,9 @@ fi
 %{_libdir}/asterisk/modules/codec_zap.so
 
 %changelog
+* Thu Sep 11 2008 - Bastien Nocera <bnocera@redhat.com> - 1.6.0-0.22.beta9
+- Rebuild
+
 * Wed Jul 30 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.21.beta9
 - Replace app_rxfax/app_txfax with app_fax taken from upstream SVN.
 
