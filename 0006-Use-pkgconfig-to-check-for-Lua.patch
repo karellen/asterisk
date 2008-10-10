@@ -1,22 +1,20 @@
-From e7c5d20c24e3d18954212c484cd015be14de2e1e Mon Sep 17 00:00:00 2001
+From 3c8269faf056a4db7ba3cca418d466b0a1473cc7 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 13:14:23 -0600
 Subject: [PATCH] Use pkgconfig to check for Lua.
 
 ---
- configure.ac |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
+ configure.ac |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 422981b..b8c093c 100644
+index f86e8f5..f4e445c 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1331,9 +1331,14 @@ if test "${PBX_PWLIB}" = "1" -a "${USE_OPENH323}" != "no" ; then
+@@ -1364,7 +1364,14 @@ if test "${PBX_PWLIB}" = "1" -a "${USE_OPENH323}" != "no" ; then
  		[${PWLIB_INCLUDE}], [${PWLIB_LIB}])
  fi
  
--LUA_INCLUDE="-I/usr/include/lua5.1"
--LUA_LIB="-llua5.1"
 -AST_EXT_LIB_CHECK([LUA], [lua5.1], [luaL_newstate], [lua5.1/lua.h]) 
 +PBX_LUA=0
 +AC_CHECK_TOOL(PKGCONFIG, pkg-config, No)

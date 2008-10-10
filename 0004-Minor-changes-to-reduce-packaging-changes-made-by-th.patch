@@ -1,4 +1,4 @@
-From 38df88e16ff71fd00dabc5e95e3692e4d37b5159 Mon Sep 17 00:00:00 2001
+From 0e62c215b2dbb4dde75801d1e78e7c8ed3357457 Mon Sep 17 00:00:00 2001
 From: tilghman <tilghman@614ede4d-c843-0410-af14-a771ab80d22e>
 Date: Tue, 29 Jul 2008 23:00:45 +0000
 Subject: [PATCH] Minor changes to reduce packaging changes made by the Fedora maintainer.
@@ -13,7 +13,7 @@ git-svn-id: http://svn.digium.com/svn/asterisk/trunk@134312 614ede4d-c843-0410-a
  1 files changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 7c44b41..a9fd366 100644
+index a874a7c..f82602c 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -221,10 +221,16 @@ ifeq ($(OSARCH),linux-gnu)

@@ -1,0 +1,29 @@
+From f8b34fb970f0022d4d1a61d1384c2dce65280954 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Fri, 10 Oct 2008 11:54:10 -0500
+Subject: [PATCH] Revert changes to pbx_lua from rev 126363 that cause some problems.
+
+---
+ pbx/pbx_lua.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pbx/pbx_lua.c b/pbx/pbx_lua.c
+index 704d811..6302ac6 100644
+--- a/pbx/pbx_lua.c
++++ b/pbx/pbx_lua.c
+@@ -41,9 +41,9 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
+ #include "asterisk/term.h"
+ #include "asterisk/paths.h"
+ 
+-#include <lua5.1/lua.h>
+-#include <lua5.1/lauxlib.h>
+-#include <lua5.1/lualib.h>
++#include <lua.h>
++#include <lauxlib.h>
++#include <lualib.h>
+ 
+ static char *config = "extensions.lua";
+ 
+-- 
+1.5.5.2
+

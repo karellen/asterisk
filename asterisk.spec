@@ -1,10 +1,9 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 9
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0
-Release: 0.22.beta%{beta}%{?dist}
+Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -20,15 +19,15 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 47998ad858e8ccadf5fa92311fc24b6e  asterisk-1.6.0-beta9.tar.gz
-# 4bc3d81f90935caf0bf344e3ee817b17  asterisk-1.6.0-beta9-stripped.tar.gz
-# 
+# 4031b05669be9d0556f52d88aa617803  asterisk-1.6.0.tar.gz
+# d7bdfb3605dfd6b02d85b679bc6dfa9f  asterisk-1.6.0-stripped.tar.gz
+#
 # SHA1 Sums
 # =========
-# 3f04cd803fea058ecec170db15a1a3e1738f0fc9  asterisk-1.6.0-beta9.tar.gz
-# a5d3d6699bcd55afe35c2e57059f3b3b32ebf112  asterisk-1.6.0-beta9-stripped.tar.gz
+# c96717d8cbb70b538b7b9183a76fd69c39543acc  asterisk-1.6.0.tar.gz
+# a8a68f260daaa66ac388c1f625ee859f6e9457d1  asterisk-1.6.0-stripped.tar.gz
 
-Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
+Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
@@ -41,11 +40,8 @@ Patch4:  0004-Minor-changes-to-reduce-packaging-changes-made-by-th.patch
 Patch5:  0005-Add-chan_mobile-from-asterisk-addons.patch
 Patch6:  0006-Use-pkgconfig-to-check-for-Lua.patch
 Patch7:  0007-Build-using-external-libedit.patch
-Patch8:  0008-Update-cdr_tds-to-latest.patch
-Patch9:  0009-Merged-revisions-123952-via-svnmerge-from.patch
-Patch10: 0010-Merged-revisions-132778-via-svnmerge-from.patch
-Patch11: 0011-Replace-app_rxfax-app_txfax-with-app_fax-pulled-from.patch
-Patch12: 0012-Update-autoconf.patch
+Patch8:  0008-Update-autoconf.patch
+Patch9:	 0009-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -135,6 +131,21 @@ BuildRequires: curl-devel
 %description curl
 Modules for Asterisk that use cURL.
 
+%package dahdi
+Summary: Modules for Asterisk that use DAHDI
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Requires: dahdi-tools >= 2.0.0
+Requires(pre): %{_sbindir}/usermod
+BuildRequires: dahdi-tools-devel >= 2.0.0
+BuildRequires: libpri-devel >= 1.4.6
+BuildRequires: libss7-devel >= 1.0.1
+Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
+Provides: asterisk-zaptel = %{version}-%{release}
+
+%description dahdi
+Modules for Asterisk that use DAHDI.
+
 %package devel
 Summary: Development files for Asterisk
 Group: Development/Libraries
@@ -195,6 +206,7 @@ Summary: JACK resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 BuildRequires: jack-audio-connection-kit-devel
+BuildRequires: libresample-devel
 
 %description jack
 JACK resources for Asterisk.
@@ -391,20 +403,8 @@ Provides: asterisk-voicemail-implementation = %{version}-%{release}
 Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
-%package zaptel
-Summary: Modules for Asterisk that use Zaptel
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: zaptel >= 1.4.0
-Requires(pre): %{_sbindir}/usermod
-BuildRequires: zaptel-devel >= 1.4.11
-BuildRequires: libpri-devel >= 1.4.6
-
-%description zaptel
-Modules for Asterisk that use Zaptel.
-
 %prep
-%setup0 -q -n asterisk-%{version}%{?beta:-beta%{beta}}
+%setup0 -q
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -414,9 +414,6 @@ Modules for Asterisk that use Zaptel.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -553,11 +550,11 @@ if [ "$1" -eq "0" ]; then
         /sbin/chkconfig --del asterisk
 fi
 
+%pre dahdi
+%{_sbindir}/usermod -a -G dahdi asterisk
+
 %pre misdn
 %{_sbindir}/usermod -a -G misdn asterisk
-
-%pre zaptel
-%{_sbindir}/usermod -a -G zaptel asterisk
 
 %files
 %defattr(-,root,root,-)
@@ -849,6 +846,19 @@ fi
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/res_config_curl.so
 
+%files dahdi
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/asterisk/meetme.conf
+%config(noreplace) %{_sysconfdir}/asterisk/chan_dahdi.conf
+%{_libdir}/asterisk/modules/app_flash.so
+%{_libdir}/asterisk/modules/app_meetme.so
+%{_libdir}/asterisk/modules/app_page.so
+%{_libdir}/asterisk/modules/app_dahdibarge.so
+%{_libdir}/asterisk/modules/app_dahdiras.so
+%{_libdir}/asterisk/modules/app_dahdiscan.so
+%{_libdir}/asterisk/modules/chan_dahdi.so
+%{_libdir}/asterisk/modules/codec_dahdi.so
+
 %files devel
 %defattr(-,root,root,-)
 %doc doc/CODING-GUIDELINES
@@ -1012,20 +1022,10 @@ fi
 %{_libdir}/asterisk/modules/app_directory_plain.so
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
-%files zaptel
-%defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/meetme.conf
-%config(noreplace) %{_sysconfdir}/asterisk/zapata.conf
-%{_libdir}/asterisk/modules/app_flash.so
-%{_libdir}/asterisk/modules/app_meetme.so
-%{_libdir}/asterisk/modules/app_page.so
-%{_libdir}/asterisk/modules/app_zapbarge.so
-%{_libdir}/asterisk/modules/app_zapras.so
-%{_libdir}/asterisk/modules/app_zapscan.so
-%{_libdir}/asterisk/modules/chan_zap.so
-%{_libdir}/asterisk/modules/codec_zap.so
-
 %changelog
+* Fri Oct 10 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-1
+- Update to final release.
+
 * Thu Sep 11 2008 - Bastien Nocera <bnocera@redhat.com> - 1.6.0-0.22.beta9
 - Rebuild
 

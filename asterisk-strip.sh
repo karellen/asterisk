@@ -11,11 +11,12 @@ rm asterisk-$version/sounds/*.tar.gz
 tar czf asterisk-$version-stripped.tar.gz asterisk-$version
 rm -rf asterisk-$version
 
-echo "MD5 Sums"
-echo "========"
-md5sum asterisk-$version.tar.gz  asterisk-$version-stripped.tar.gz
-echo
-echo "SHA1 Sums"
-echo "========="
-sha1sum asterisk-$version.tar.gz  asterisk-$version-stripped.tar.gz
+echo "# MD5 Sums"
+echo "# ========"
+md5sum asterisk-$version.tar.gz  asterisk-$version-stripped.tar.gz | sed -e 's/^/# /'
+echo "#"
+echo "# SHA1 Sums"
+echo "# ========="
+sha1sum asterisk-$version.tar.gz  asterisk-$version-stripped.tar.gz  | sed -e 's/^/# /'
+
 
