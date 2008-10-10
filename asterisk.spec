@@ -2,7 +2,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.0
+Version: 1.6.0.1
 Release: 1%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -19,13 +19,13 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 4031b05669be9d0556f52d88aa617803  asterisk-1.6.0.tar.gz
-# d7bdfb3605dfd6b02d85b679bc6dfa9f  asterisk-1.6.0-stripped.tar.gz
+# 5277db1134f0dc736932279c6a25c29a  asterisk-1.6.0.1.tar.gz
+# 00465d571b2cd9fd49c86b753aa3a551  asterisk-1.6.0.1-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# c96717d8cbb70b538b7b9183a76fd69c39543acc  asterisk-1.6.0.tar.gz
-# a8a68f260daaa66ac388c1f625ee859f6e9457d1  asterisk-1.6.0-stripped.tar.gz
+# 20d77f6a08a8d755eeadf431c1f692d5adeadde8  asterisk-1.6.0.1.tar.gz
+# 4f5d1f436ba1119db9dfea072b1e6ac59c9eebd5  asterisk-1.6.0.1-stripped.tar.gz
 
 Source0: asterisk-%{version}-stripped.tar.gz
 Source1: asterisk-logrotate
