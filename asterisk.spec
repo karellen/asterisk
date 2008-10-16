@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.0.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -138,6 +138,7 @@ Requires: asterisk = %{version}-%{release}
 Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
 BuildRequires: dahdi-tools-devel >= 2.0.0
+BuildRequires: dahdi-tools-libs >= 2.0.0
 BuildRequires: libpri-devel >= 1.4.6
 BuildRequires: libss7-devel >= 1.0.1
 Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
@@ -1023,6 +1024,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Oct 16 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0.1-2
+- Explicitly require dahdi-tools-libs to see if we can get this to build.
+
 * Fri Oct 10 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-1
 - Update to final release.
 
