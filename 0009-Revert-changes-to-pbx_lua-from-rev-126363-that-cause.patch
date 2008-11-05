@@ -1,4 +1,4 @@
-From f8b34fb970f0022d4d1a61d1384c2dce65280954 Mon Sep 17 00:00:00 2001
+From e56be188ad6c973b8899d6e34263da9ab322c8bd Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 10 Oct 2008 11:54:10 -0500
 Subject: [PATCH] Revert changes to pbx_lua from rev 126363 that cause some problems.
@@ -25,5 +25,5 @@ index 704d811..6302ac6 100644
  static char *config = "extensions.lua";
  
 -- 
-1.5.5.2
+1.5.6.5
 

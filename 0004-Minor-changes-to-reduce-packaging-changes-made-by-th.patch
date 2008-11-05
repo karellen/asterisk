@@ -1,4 +1,4 @@
-From 0e62c215b2dbb4dde75801d1e78e7c8ed3357457 Mon Sep 17 00:00:00 2001
+From 28e48a2b0b1b50a4dc09051f1250ae667614bedb Mon Sep 17 00:00:00 2001
 From: tilghman <tilghman@614ede4d-c843-0410-af14-a771ab80d22e>
 Date: Tue, 29 Jul 2008 23:00:45 +0000
 Subject: [PATCH] Minor changes to reduce packaging changes made by the Fedora maintainer.
@@ -49,5 +49,5 @@ index a874a7c..f82602c 100644
  
  ifeq ($(PROC),ppc)
 -- 
-1.5.5.2
+1.5.6.5
 

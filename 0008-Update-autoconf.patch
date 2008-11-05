@@ -1,4 +1,4 @@
-From a76ad8b9310d30d27afafe63c0e1aae1779784b6 Mon Sep 17 00:00:00 2001
+From 7400f417c1a50e8ee2bebb91a315970f1a55e93c Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Thu, 4 Sep 2008 11:52:21 -0500
 Subject: [PATCH] Update autoconf
@@ -1124,5 +1124,5 @@ index a79f773..1bdb72a 100644
  #undef HAVE_MALLOC_H
  
 -- 
-1.5.5.2
+1.5.6.5
 

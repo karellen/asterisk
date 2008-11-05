@@ -1,4 +1,4 @@
-From 3c8269faf056a4db7ba3cca418d466b0a1473cc7 Mon Sep 17 00:00:00 2001
+From 81bf87aedbf0f1ad5b8ecc97e3012821207445ca Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 25 Feb 2008 13:14:23 -0600
 Subject: [PATCH] Use pkgconfig to check for Lua.
@@ -28,5 +28,5 @@ index f86e8f5..f4e445c 100644
  AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
  
 -- 
-1.5.5.2
+1.5.6.5
 
