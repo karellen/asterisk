@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.4%{?beta:beta%{beta}}%{?dist}
+Release: 0.5%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -41,6 +41,7 @@ Patch5:  0005-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
 Patch6:  0006-Build-using-external-libedit.patch
 Patch7:  0007-Update-autoconf.patch
 Patch8:  0008-sys-io.h-is-not-available-on-PPC-systems.patch
+Patch9:  0009-Define-missing-variable-when-compiling-on-PPC.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -425,6 +426,7 @@ local filesystem.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1051,6 +1053,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Nov  7 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.5.beta2
+- Add patch to fix missing variable on PPC.
+
 * Fri Nov  7 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.4.beta2
 - Update PPC systems don't have sys/io.h patch.
 

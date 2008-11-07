@@ -1,0 +1,24 @@
+From 0972aac57b1afcbd39e0ef7ca899cb99b543b67d Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Fri, 7 Nov 2008 14:43:16 -0600
+Subject: [PATCH] Define missing variable when compiling on PPC.
+
+---
+ apps/app_festival.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/apps/app_festival.c b/apps/app_festival.c
+index d9659eb..0743c98 100644
+--- a/apps/app_festival.c
++++ b/apps/app_festival.c
+@@ -118,6 +118,7 @@ static int send_waveform_to_fd(char *waveform, int length, int fd)
+ {
+ 	int res;
+ #ifdef __PPC__ 
++	int x;
+ 	char c;
+ #endif
+ 
+-- 
+1.5.6.5
+
