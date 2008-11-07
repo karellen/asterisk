@@ -1,9 +1,9 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-
+%define beta 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.0.1
-Release: 3%{?dist}
+Version: 1.6.1
+Release: 0.2%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -19,15 +19,15 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 5277db1134f0dc736932279c6a25c29a  asterisk-1.6.0.1.tar.gz
-# 00465d571b2cd9fd49c86b753aa3a551  asterisk-1.6.0.1-stripped.tar.gz
+# 7dbcff5fb2d591b5b122ccb62909f641  asterisk-1.6.1-beta2.tar.gz
+# e2de68706687da9cce78d6f1e5e8d680  asterisk-1.6.1-beta2-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 20d77f6a08a8d755eeadf431c1f692d5adeadde8  asterisk-1.6.0.1.tar.gz
-# 4f5d1f436ba1119db9dfea072b1e6ac59c9eebd5  asterisk-1.6.0.1-stripped.tar.gz
+# 3ca20384c469c86aa87abb51f147ca6543740b72  asterisk-1.6.1-beta2.tar.gz
+# 8bcc273d4f499a974dd7df7b9c328e2cba4e75db  asterisk-1.6.1-beta2-stripped.tar.gz
 
-Source0: asterisk-%{version}-stripped.tar.gz
+Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
@@ -35,13 +35,11 @@ Source4: asterisk-strip.sh
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
-Patch3:  0003-Allow-alternate-extensions-to-be-specified-in-users.patch
-Patch4:  0004-Minor-changes-to-reduce-packaging-changes-made-by-th.patch
-Patch5:  0005-Add-chan_mobile-from-asterisk-addons.patch
-Patch6:  0006-Use-pkgconfig-to-check-for-Lua.patch
-Patch7:  0007-Build-using-external-libedit.patch
-Patch8:  0008-Update-autoconf.patch
-Patch9:	 0009-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
+Patch3:  0003-Add-chan_mobile-from-asterisk-addons.patch
+Patch4:  0004-Use-pkgconfig-to-check-for-Lua.patch
+Patch5:  0005-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
+Patch6:  0006-Build-using-external-libedit.patch
+Patch7:  0007-Update-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -57,6 +55,9 @@ BuildRequires: libtermcap-devel
 BuildRequires: ncurses-devel
 BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
+
+# for res_http_post
+BuildRequires: gmime-devel
 
 %if %{with_apidoc}
 # for building docs
@@ -93,6 +94,15 @@ all of the features you would expect from a PBX and more. Asterisk
 does voice over IP in three protocols, and can interoperate with
 almost all standards-based telephony equipment using relatively
 inexpensive hardware.
+
+%package ais
+Summary: Modules for Asterisk that use OpenAIS
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+BuildRequires: openais-devel
+
+%description ais
+Modules for Asterisk that use OpenAIS.
 
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
@@ -405,7 +415,7 @@ Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
 %prep
-%setup0 -q
+%setup0 -q -n asterisk-%{version}%{?beta:-beta%{beta}}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -413,8 +423,6 @@ local filesystem.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
-%patch9 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -429,6 +437,8 @@ iconv -f iso-8859-1 -t utf-8 -o main/fskmodem.c main/fskmodem.c.old
 touch -r main/fskmodem.c.old main/fskmodem.c
 rm main/fskmodem.c.old
 
+chmod -x contrib/scripts/dbsep.cgi
+
 %build
 
 # if we are building for i386 promote the CPU arch to i486 for atomic operations support
@@ -438,7 +448,7 @@ rm main/fskmodem.c.old
 %define optflags %(rpm --eval %%{optflags}) -Werror-implicit-function-declaration
 %endif
 
-#aclocal
+#aclocal -I autoconf
 #autoconf
 #autoheader
 
@@ -612,7 +622,7 @@ fi
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
 %{_libdir}/asterisk/modules/app_parkandannounce.so
-%{_libdir}/asterisk/modules/app_pickupchan.so
+#%{_libdir}/asterisk/modules/app_pickupchan.so
 %{_libdir}/asterisk/modules/app_playback.so
 %{_libdir}/asterisk/modules/app_privacy.so
 %{_libdir}/asterisk/modules/app_queue.so
@@ -679,7 +689,7 @@ fi
 %{_libdir}/asterisk/modules/func_callerid.so
 %{_libdir}/asterisk/modules/func_cdr.so
 %{_libdir}/asterisk/modules/func_channel.so
-%{_libdir}/asterisk/modules/func_curl.so
+%{_libdir}/asterisk/modules/func_config.so
 %{_libdir}/asterisk/modules/func_cut.so
 %{_libdir}/asterisk/modules/func_db.so
 %{_libdir}/asterisk/modules/func_devstate.so
@@ -700,6 +710,7 @@ fi
 %{_libdir}/asterisk/modules/func_realtime.so
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
+%{_libdir}/asterisk/modules/func_speex.so
 %{_libdir}/asterisk/modules/func_strings.so
 %{_libdir}/asterisk/modules/func_sysinfo.so
 %{_libdir}/asterisk/modules/func_timeout.so
@@ -719,6 +730,7 @@ fi
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
 %{_libdir}/asterisk/modules/res_indications.so
+%{_libdir}/asterisk/modules/res_http_post.so
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
@@ -726,17 +738,20 @@ fi
 %{_libdir}/asterisk/modules/res_realtime.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
+%{_libdir}/asterisk/modules/res_timing_pthread.so
+%{_libdir}/asterisk/modules/test_dlinklists.so
 
-%{_sbindir}/aelparse
+#%{_sbindir}/aelparse
 %{_sbindir}/astcanary
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
 %{_sbindir}/astman
 %{_sbindir}/autosupport
 %{_sbindir}/check_expr
-%{_sbindir}/conf2ael
+#%{_sbindir}/conf2ael
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
+%{_sbindir}/refcounter
 %{_sbindir}/safe_asterisk
 %{_sbindir}/smsq
 %{_sbindir}/stereorize
@@ -761,6 +776,7 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
 %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
+%config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
 %config(noreplace) %{_sysconfdir}/asterisk/enum.conf
 %config(noreplace) %{_sysconfdir}/asterisk/extconfig.conf
@@ -821,6 +837,11 @@ fi
 
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
 
+%files ais
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/asterisk/ais.conf
+%{_libdir}/asterisk/modules/res_ais.so
+
 %files alsa
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
@@ -844,8 +865,11 @@ fi
 
 %files curl
 %defattr(-,root,root,-)
+%doc contrib/scripts/dbsep.cgi
+%config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/res_config_curl.so
+%{_libdir}/asterisk/modules/res_curl.so
 
 %files dahdi
 %defattr(-,root,root,-)
@@ -859,6 +883,7 @@ fi
 %{_libdir}/asterisk/modules/app_dahdiscan.so
 %{_libdir}/asterisk/modules/chan_dahdi.so
 %{_libdir}/asterisk/modules/codec_dahdi.so
+%{_libdir}/asterisk/modules/res_timing_dahdi.so
 
 %files devel
 %defattr(-,root,root,-)
@@ -1024,6 +1049,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Nov  7 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.2.beta2
+- Update to 1.6.1 beta 2
+
 * Wed Nov  5 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0.1-3
 - Fix issue with init script giving wrong path to config file.
 
