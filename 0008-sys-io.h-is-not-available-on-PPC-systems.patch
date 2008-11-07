@@ -1,0 +1,24 @@
+From e3baaec0e4d45f36892c6d9eeba2cfbc99fa8219 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Fri, 7 Nov 2008 11:34:00 -0600
+Subject: [PATCH] sys/io.h is not available on PPC systems.
+
+---
+ channels/chan_usbradio.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/channels/chan_usbradio.c b/channels/chan_usbradio.c
+index a5daebe..172ab5d 100644
+--- a/channels/chan_usbradio.c
++++ b/channels/chan_usbradio.c
+@@ -63,7 +63,6 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
+ #include <math.h>
+ #include <string.h>
+ #include <unistd.h>
+-#include <sys/io.h>
+ #include <sys/ioctl.h>
+ #include <fcntl.h>
+ #include <sys/time.h>
+-- 
+1.5.6.5
+

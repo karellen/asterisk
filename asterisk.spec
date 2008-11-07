@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.2%{?beta:beta%{beta}}%{?dist}
+Release: 0.3%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -40,6 +40,7 @@ Patch4:  0004-Use-pkgconfig-to-check-for-Lua.patch
 Patch5:  0005-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
 Patch6:  0006-Build-using-external-libedit.patch
 Patch7:  0007-Update-autoconf.patch
+Patch8:  0008-sys-io.h-is-not-available-on-PPC-systems.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -423,6 +424,7 @@ local filesystem.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1049,6 +1051,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Nov  7 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.32:beta%{beta}}%{?dist}
+- PPC systems don't have sys/io.h
+
 * Fri Nov  7 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.2.beta2
 - Update to 1.6.1 beta 2
 
