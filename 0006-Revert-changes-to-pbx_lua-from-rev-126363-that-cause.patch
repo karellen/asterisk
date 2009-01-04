@@ -1,7 +1,7 @@
 From eb9cc1a836086024bb619948468a80c4ff75bed9 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 10 Oct 2008 11:54:10 -0500
-Subject: [PATCH 06/11] Revert changes to pbx_lua from rev 126363 that cause some problems.
+Subject: [PATCH 06/12] Revert changes to pbx_lua from rev 126363 that cause some problems.
 
 ---
  pbx/pbx_lua.c |    6 +++---

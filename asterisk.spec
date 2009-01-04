@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.9%{?beta:beta%{beta}}%{?dist}
+Release: 0.10%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -44,6 +44,7 @@ Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
 Patch9:  0009-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
 Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
 Patch11: 0011-Update-autoconf.patch
+Patch12: 0012-Fix-up-some-paths.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -431,6 +432,7 @@ local filesystem.
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -531,8 +533,10 @@ mkdir -p %{buildroot}%{_datadir}/asterisk/moh/
 mkdir -p %{buildroot}%{_datadir}/asterisk/sounds/
 mkdir -p %{buildroot}%{_localstatedir}/lib/asterisk
 mkdir -p %{buildroot}%{_localstatedir}/log/asterisk/cdr-custom/
+mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/festival/
 mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/monitor/
 mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/outgoing/
+mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/uploads/
 
 # We're not going to package any of the sample AGI scripts
 rm -f %{buildroot}%{_datadir}/asterisk/agi-bin/*
@@ -841,6 +845,7 @@ fi
 %attr(0770,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/monitor/
 %attr(0770,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/outgoing/
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/tmp/
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/uploads/
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/voicemail/
 
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
@@ -911,6 +916,7 @@ fi
 %files festival
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/festival.conf
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival/
 %{_libdir}/asterisk/modules/app_festival.so
 
 %files firmware
@@ -1057,6 +1063,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sun Jan  4 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.10.beta4
+- Fix up paths. BZ#477238
+
 * Sat Jan  3 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.9.beta4
 - Update patches
 
