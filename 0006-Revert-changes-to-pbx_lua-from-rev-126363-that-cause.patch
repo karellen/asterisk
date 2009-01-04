@@ -1,14 +1,14 @@
-From e4c9aec9934c8ec7d9f4833b9ce1a9e8925b7481 Mon Sep 17 00:00:00 2001
+From eb9cc1a836086024bb619948468a80c4ff75bed9 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 10 Oct 2008 11:54:10 -0500
-Subject: [PATCH] Revert changes to pbx_lua from rev 126363 that cause some problems.
+Subject: [PATCH 06/10] Revert changes to pbx_lua from rev 126363 that cause some problems.
 
 ---
  pbx/pbx_lua.c |    6 +++---
  1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/pbx/pbx_lua.c b/pbx/pbx_lua.c
-index ba6a7c4..cf138e2 100644
+index 7bc1a8a..2e2e5e8 100644
 --- a/pbx/pbx_lua.c
 +++ b/pbx/pbx_lua.c
 @@ -42,9 +42,9 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
@@ -25,5 +25,5 @@ index ba6a7c4..cf138e2 100644
  static char *config = "extensions.lua";
  static char *registrar = "pbx_lua";
 -- 
-1.5.6.5
+1.6.1
 

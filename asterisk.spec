@@ -1,9 +1,9 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 2
+%define beta 4
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.6%{?beta:beta%{beta}}%{?dist}
+Release: 0.8%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -19,13 +19,13 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 7dbcff5fb2d591b5b122ccb62909f641  asterisk-1.6.1-beta2.tar.gz
-# e2de68706687da9cce78d6f1e5e8d680  asterisk-1.6.1-beta2-stripped.tar.gz
+# 6ed4cad3cea37fc0c9bbcc3579a782ff  asterisk-1.6.1-beta4.tar.gz
+# ea9b4e1988c92cf40a913cb9e5fb32ef  asterisk-1.6.1-beta4-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 3ca20384c469c86aa87abb51f147ca6543740b72  asterisk-1.6.1-beta2.tar.gz
-# 8bcc273d4f499a974dd7df7b9c328e2cba4e75db  asterisk-1.6.1-beta2-stripped.tar.gz
+# 2b73ba5b94af16709f41ddeba7d9d93d7d5848af  asterisk-1.6.1-beta4.tar.gz
+# 1a5d21df9097baa28d44285a8e9b2e602e3b92ce  asterisk-1.6.1-beta4-stripped.tar.gz
 
 Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -37,11 +37,12 @@ Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch3:  0003-Add-chan_mobile-from-asterisk-addons.patch
 Patch4:  0004-Use-pkgconfig-to-check-for-Lua.patch
-Patch5:  0005-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
-Patch6:  0006-Build-using-external-libedit.patch
-Patch7:  0007-Update-autoconf.patch
-Patch8:  0008-sys-io.h-is-not-available-on-PPC-systems.patch
-Patch9:  0009-Define-missing-variable-when-compiling-on-PPC.patch
+Patch5:  0005-Build-using-external-libedit.patch
+Patch6:  0006-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
+Patch7:  0007-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
+Patch8:  0008-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
+Patch9:  0009-my-guess-as-replacements-for-the-missing-broken-stuf.patch
+Patch10: 0010-Update-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -427,6 +428,7 @@ local filesystem.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -745,14 +747,14 @@ fi
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %{_libdir}/asterisk/modules/test_dlinklists.so
 
-#%{_sbindir}/aelparse
+%{_sbindir}/aelparse
 %{_sbindir}/astcanary
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
 %{_sbindir}/astman
 %{_sbindir}/autosupport
 %{_sbindir}/check_expr
-#%{_sbindir}/conf2ael
+%{_sbindir}/conf2ael
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
 %{_sbindir}/refcounter
@@ -1053,6 +1055,12 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sat Jan  3 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.8.beta4
+- Update to 1.6.1-beta4
+
+* Tue Dec  9 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.7.beta3
+- Update to 1.6.1-beta3
+
 * Tue Dec  9 2008 Alex Lancaster <alexlan[AT]fedoraproject org> - 1.6.1-0.6.beta2
 - Rebuild for new gmime
 
