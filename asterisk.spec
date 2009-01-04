@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.8%{?beta:beta%{beta}}%{?dist}
+Release: 0.9%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -39,10 +39,11 @@ Patch3:  0003-Add-chan_mobile-from-asterisk-addons.patch
 Patch4:  0004-Use-pkgconfig-to-check-for-Lua.patch
 Patch5:  0005-Build-using-external-libedit.patch
 Patch6:  0006-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
-Patch7:  0007-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
-Patch8:  0008-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
-Patch9:  0009-my-guess-as-replacements-for-the-missing-broken-stuf.patch
-Patch10: 0010-Update-autoconf.patch
+Patch7:  0007-Define-missing-variable-when-compiling-on-PPC.patch
+Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
+Patch9:  0009-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
+Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
+Patch11: 0011-Update-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -429,6 +430,7 @@ local filesystem.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1055,6 +1057,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sat Jan  3 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.9.beta4
+- Update patches
+
 * Sat Jan  3 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.8.beta4
 - Update to 1.6.1-beta4
 

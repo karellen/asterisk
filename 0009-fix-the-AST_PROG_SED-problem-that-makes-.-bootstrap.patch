@@ -1,7 +1,7 @@
-From b68f0fd7319a1b8593aa57fc08825d50a617d29a Mon Sep 17 00:00:00 2001
+From fc4a4f6207cb8454b6d3ec673dba10f8daf57050 Mon Sep 17 00:00:00 2001
 From: Caolan McNamara <caolanm@redhat.com>
 Date: Sat, 3 Jan 2009 19:12:18 -0600
-Subject: [PATCH 08/10] fix the AST_PROG_SED problem that makes ./bootstrap.sh fail
+Subject: [PATCH 09/11] fix the AST_PROG_SED problem that makes ./bootstrap.sh fail
 
 Need to regenerate configure from configure.ac after patch one with
 ./bootsrap.sh, so fix the broken .m4 in the autoconfig dir. (alternatively
