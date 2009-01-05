@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.10%{?beta:beta%{beta}}%{?dist}
+Release: 0.11%{?beta:beta%{beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -45,6 +45,7 @@ Patch9:  0009-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
 Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
 Patch11: 0011-Update-autoconf.patch
 Patch12: 0012-Fix-up-some-paths.patch
+Patch13: 0013-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -245,6 +246,16 @@ BuildRequires: openldap-devel
 %description ldap
 LDAP resources for Asterisk.
 
+%package ldap-fds
+Summary: LDAP resources for Asterisk and the Fedora Directory Server
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Requires: asterisk-ldap = %{version}-%{release}
+Requires: fedora-ds-base
+
+%description ldap-fds
+LDAP resources for Asterisk and the Fedora Directory Server.
+
 %package misdn
 Summary: mISDN channel for Asterisk
 Group: Applications/Internet
@@ -433,6 +444,7 @@ local filesystem.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -515,6 +527,7 @@ ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVA
 
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
+install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 install -D -p -m 0644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
 install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
@@ -953,6 +966,10 @@ fi
 %doc doc/ldap.txt
 %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
+
+%files ldap-fds
+%defattr(-,root,root,-)
+%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 
 %files minivm
 %defattr(-,root,root,-)

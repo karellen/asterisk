@@ -1,7 +1,7 @@
 From b7ccdf7e246f75f67529126fb309efd2e6793446 Mon Sep 17 00:00:00 2001
 From: Caolan McNamara <caolanm@redhat.com>
 Date: Sat, 3 Jan 2009 19:15:12 -0600
-Subject: [PATCH 10/12] my guess as replacements for the missing/broken stuff against the new gmime api
+Subject: [PATCH 10/13] my guess as replacements for the missing/broken stuff against the new gmime api
 
 ---
  res/res_http_post.c |   12 ++++--------

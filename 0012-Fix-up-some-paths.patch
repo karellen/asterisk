@@ -1,7 +1,7 @@
 From 561e2656fc6f73d256419aaa025ce391e67a96e6 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 4 Jan 2009 12:51:05 -0600
-Subject: [PATCH 12/12] Fix up some paths.
+Subject: [PATCH 12/13] Fix up some paths.
 
 ---
  UPGRADE-1.4.txt                             |    2 +-

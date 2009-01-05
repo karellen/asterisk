@@ -1,7 +1,7 @@
 From 1fc4e0fd9d7d24fd087a1c0d6f4dff5a1fec010f Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Tue, 25 Mar 2008 00:50:27 -0500
-Subject: [PATCH 05/12] Build using external libedit.
+Subject: [PATCH 05/13] Build using external libedit.
 
 ---
  build_tools/menuselect-deps.in |    1 +
