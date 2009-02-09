@@ -1,7 +1,7 @@
-From 06b01dff16e335004e107352fb9a87d56ab5dc57 Mon Sep 17 00:00:00 2001
+From 635e74de63418f0cd61ec5b1098e451a17b7d360 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 7 Nov 2008 14:43:16 -0600
-Subject: [PATCH 07/13] Define missing variable when compiling on PPC.
+Subject: [PATCH 07/15] Define missing variable when compiling on PPC.
 
 ---
  apps/app_festival.c |    1 +

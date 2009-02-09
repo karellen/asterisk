@@ -1,7 +1,7 @@
-From d397bc03e86335ed571121fa501dfefdc2ddbd4c Mon Sep 17 00:00:00 2001
+From 6cd5722ba64b7cb24b8475395edcc6555e2326d4 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 18 Nov 2007 21:47:59 -0600
-Subject: [PATCH 01/13] Modify init scripts for better Fedora compatibility.
+Subject: [PATCH 01/15] Modify init scripts for better Fedora compatibility.
 
 ---
  contrib/init.d/rc.redhat.asterisk |   61 +++++++++++++++++-------------------

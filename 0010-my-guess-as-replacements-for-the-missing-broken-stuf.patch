@@ -1,14 +1,14 @@
-From b7ccdf7e246f75f67529126fb309efd2e6793446 Mon Sep 17 00:00:00 2001
+From 8c0899c97ac05f3c84ef61c4e95e4aa0309b1570 Mon Sep 17 00:00:00 2001
 From: Caolan McNamara <caolanm@redhat.com>
 Date: Sat, 3 Jan 2009 19:15:12 -0600
-Subject: [PATCH 10/13] my guess as replacements for the missing/broken stuff against the new gmime api
+Subject: [PATCH 10/15] my guess as replacements for the missing/broken stuff against the new gmime api
 
 ---
  res/res_http_post.c |   12 ++++--------
  1 files changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/res/res_http_post.c b/res/res_http_post.c
-index deab15c..563ab9c 100644
+index 5fbf46a..8827e65 100644
 --- a/res/res_http_post.c
 +++ b/res/res_http_post.c
 @@ -119,14 +119,10 @@ static void process_message_callback(GMimeObject *part, gpointer user_data)

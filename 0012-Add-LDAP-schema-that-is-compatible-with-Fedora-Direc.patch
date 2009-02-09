@@ -1,7 +1,7 @@
-From b3f7c393cf33589d4ae68639cc1adffe51879a95 Mon Sep 17 00:00:00 2001
+From e60e1cdc9a967778a007acfefa80184125b58d0c Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 4 Jan 2009 19:22:39 -0600
-Subject: [PATCH 13/13] Add LDAP schema that is compatible with Fedora Directory Server.
+Subject: [PATCH 12/15] Add LDAP schema that is compatible with Fedora Directory Server.
 
 ---
  contrib/scripts/99asterisk.ldif |  489 +++++++++++++++++++++++++++++++++++++++

@@ -1,7 +1,7 @@
-From acb8f9151b2cf455374f877ce3ae81ffceb5d5dd Mon Sep 17 00:00:00 2001
+From 0948a45b88c8d1e4be6bdadc7ad4f87acf691c33 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Sat, 3 Jan 2009 22:26:11 -0600
-Subject: [PATCH 11/13] Update autoconf.
+Date: Fri, 30 Jan 2009 16:13:36 -0600
+Subject: [PATCH 15/15] Update autoconf.
 
 ---
  configure                        |23473 ++++++++++++++++++++------------------

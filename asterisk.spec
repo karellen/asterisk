@@ -1,9 +1,9 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define beta 4
+%define _rc 1
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.13.%{?beta:beta%{beta}}%{?dist}
+Release: 0.21.%{?_rc:rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -11,7 +11,7 @@ URL: http://www.asterisk.org/
 # The Asterisk tarball contains some items that we don't want in there,
 # so start with the original tarball from here:
 #
-# http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?beta:-beta%{beta}}.tar.gz
+# http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz
 #
 # Then run the included script file to build the stripped tarball:
 #
@@ -19,15 +19,15 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 6ed4cad3cea37fc0c9bbcc3579a782ff  asterisk-1.6.1-beta4.tar.gz
-# ea9b4e1988c92cf40a913cb9e5fb32ef  asterisk-1.6.1-beta4-stripped.tar.gz
+# 29f7285b673d52b49d91c8e797acbbb0  asterisk-1.6.1-rc1.tar.gz
+# 077741b7f993925f61bb50ab29b49063  asterisk-1.6.1-rc1-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 2b73ba5b94af16709f41ddeba7d9d93d7d5848af  asterisk-1.6.1-beta4.tar.gz
-# 1a5d21df9097baa28d44285a8e9b2e602e3b92ce  asterisk-1.6.1-beta4-stripped.tar.gz
+# 517176cad6ecf1e223749ae927a5989f2d2c0c29  asterisk-1.6.1-rc1.tar.gz
+# 3e22952202fafc49f13addaf8852cfa3ebc05fc2  asterisk-1.6.1-rc1-stripped.tar.gz
 
-Source0: asterisk-%{version}%{?beta:-beta%{beta}}-stripped.tar.gz
+Source0: asterisk-%{version}%{?_rc:-rc%{_rc}}-stripped.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
@@ -43,9 +43,11 @@ Patch7:  0007-Define-missing-variable-when-compiling-on-PPC.patch
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
 Patch9:  0009-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
 Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
-Patch11: 0011-Update-autoconf.patch
-Patch12: 0012-Fix-up-some-paths.patch
-Patch13: 0013-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch11: 0011-Fix-up-some-paths.patch
+Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch13: 0013-Bridging-work-as-of-svn-rev-174216.patch
+Patch14: 0014-Adding-in-CLI-apps.patch
+Patch15: 0015-Update-autoconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -431,7 +433,7 @@ Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
 %prep
-%setup0 -q -n asterisk-%{version}%{?beta:-beta%{beta}}
+%setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -445,6 +447,8 @@ local filesystem.
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
+%patch15 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -623,10 +627,12 @@ fi
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_authenticate.so
+%{_libdir}/asterisk/modules/app_bridgetest.so
 %{_libdir}/asterisk/modules/app_cdr.so
 %{_libdir}/asterisk/modules/app_chanisavail.so
 %{_libdir}/asterisk/modules/app_channelredirect.so
 %{_libdir}/asterisk/modules/app_chanspy.so
+%{_libdir}/asterisk/modules/app_confbridge.so
 %{_libdir}/asterisk/modules/app_controlplayback.so
 %{_libdir}/asterisk/modules/app_db.so
 %{_libdir}/asterisk/modules/app_dial.so
@@ -675,10 +681,15 @@ fi
 %{_libdir}/asterisk/modules/app_waituntil.so
 %{_libdir}/asterisk/modules/app_while.so
 %{_libdir}/asterisk/modules/app_zapateller.so
+%{_libdir}/asterisk/modules/bridge_builtin_features.so
+%{_libdir}/asterisk/modules/bridge_multiplexed.so
+%{_libdir}/asterisk/modules/bridge_simple.so
+%{_libdir}/asterisk/modules/bridge_softmix.so
 %{_libdir}/asterisk/modules/cdr_csv.so
 %{_libdir}/asterisk/modules/cdr_custom.so
 %{_libdir}/asterisk/modules/cdr_manager.so
 %{_libdir}/asterisk/modules/chan_agent.so
+%{_libdir}/asterisk/modules/chan_bridge.so
 %{_libdir}/asterisk/modules/chan_features.so
 %{_libdir}/asterisk/modules/chan_iax2.so
 %{_libdir}/asterisk/modules/chan_local.so
@@ -709,6 +720,7 @@ fi
 %{_libdir}/asterisk/modules/format_vox.so
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
+%{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
 %{_libdir}/asterisk/modules/func_callerid.so
@@ -1080,6 +1092,11 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sun Feb  8 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.21.rc1
+- Update to 1.6.1-rc1
+- Add backport of conference bridging that is slated for 1.6.2
+- Add patches to conference bridging that implement CLI apps
+
 * Thu Jan 15 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-0.13.beta4
 - rebuild with new openssl
 
