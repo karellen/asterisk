@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.22.%{?_rc:rc%{_rc}}%{?dist}
+Release: 0.23.%{?_rc:rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -20,18 +20,25 @@ URL: http://www.asterisk.org/
 # MD5 Sums
 # ========
 # 29f7285b673d52b49d91c8e797acbbb0  asterisk-1.6.1-rc1.tar.gz
-# 077741b7f993925f61bb50ab29b49063  asterisk-1.6.1-rc1-stripped.tar.gz
+# d77d5521c9e742c81356f49ebcf6051a  asterisk-1.6.1-rc1-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
 # 517176cad6ecf1e223749ae927a5989f2d2c0c29  asterisk-1.6.1-rc1.tar.gz
-# 3e22952202fafc49f13addaf8852cfa3ebc05fc2  asterisk-1.6.1-rc1-stripped.tar.gz
+# 1fe8c924945ff04acd7883f086cf7f1ce0fc8d88  asterisk-1.6.1-rc1-stripped.tar.gz
+#
+# SHA256 Sums
+# =========
+# 730dea578f72b51ff13f21320ff81f06e1c10a02a0f723b61c5bf8e47bee5e3b  asterisk-1.6.1-rc1.tar.gz
+# 93b2635208318c834917fad0a75fd59d04c282ca15d7dba2ba494cee22e88b73  asterisk-1.6.1-rc1-stripped.tar.gz
 
 Source0: asterisk-%{version}%{?_rc:-rc%{_rc}}-stripped.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source4: asterisk-strip.sh
+Source5: asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
+Source6: asterisk-developer-pubring.gpg
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
@@ -1092,6 +1099,11 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Mar  5 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.23.rc1
+- Rebuild to pick up new AIS and ODBC deps.
+- Update script that strips out bad content from tarball to do the
+  download and to check the GPG signature.
+
 * Mon Feb 23 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.1-0.22.rc1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
