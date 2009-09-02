@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1
-Release: 0.25.%{?_rc:rc%{_rc}}%{?dist}
+Release: 0.26.%{?_rc:rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -55,6 +55,7 @@ Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 Patch13: 0013-Bridging-work-as-of-svn-rev-174216.patch
 Patch14: 0014-Adding-in-CLI-apps.patch
 Patch15: 0015-Update-autoconf.patch
+Patch16: 0016-pagecount.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -456,6 +457,7 @@ local filesystem.
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
+%patch16 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1099,6 +1101,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Sep  1 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.26.rc1
+- Add a patch from Quentin Armitage and rebuld.
+
 * Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-0.25.rc1
 - rebuilt with new openssl
 
