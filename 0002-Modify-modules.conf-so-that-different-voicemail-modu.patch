@@ -1,20 +1,11 @@
-From fa2cd0b2b289e51cba4329c420d2da1855f860c5 Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jcollie@pc21224.campus.dmacc.edu>
-Date: Thu, 8 Nov 2007 15:52:36 -0600
-Subject: [PATCH 02/15] Modify modules.conf so that different voicemail modules can be loaded.
-
----
- configs/modules.conf.sample |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
-
-diff --git a/configs/modules.conf.sample b/configs/modules.conf.sample
-index 8f73de1..7dd8940 100644
---- a/configs/modules.conf.sample
-+++ b/configs/modules.conf.sample
-@@ -44,3 +44,29 @@ noload => chan_alsa.so
- ; 
- ;noload => res_timing_dahdi.so
- ;noload => res_timing_pthread.so
+Index: configs/modules.conf.sample
+===================================================================
+--- configs/modules.conf.sample	(revision 216642)
++++ configs/modules.conf.sample	(working copy)
+@@ -38,3 +38,29 @@
+ ;noload => chan_oss.so
+ noload => chan_console.so
+ ;
 +
 +;
 +; Voicemail storage selection
@@ -41,6 +32,3 @@ index 8f73de1..7dd8940 100644
 +;
 +;noload => app_directory_plain.so
 +;noload => app_voicemail_plain.so
--- 
-1.6.1
-

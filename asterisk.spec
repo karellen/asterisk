@@ -1,9 +1,9 @@
 %define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
-%define _rc 1
+#define _rc 1
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1
-Release: 0.26.%{?_rc:rc%{_rc}}%{?dist}
+Version: 1.6.1.6
+Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -19,18 +19,18 @@ URL: http://www.asterisk.org/
 
 # MD5 Sums
 # ========
-# 29f7285b673d52b49d91c8e797acbbb0  asterisk-1.6.1-rc1.tar.gz
-# d77d5521c9e742c81356f49ebcf6051a  asterisk-1.6.1-rc1-stripped.tar.gz
+# 63a928373e741524aac09d8c078df7d5  asterisk-1.6.1.6.tar.gz
+# 4f57c6c9fff1bfeb9061679c123f7468  asterisk-1.6.1.6-stripped.tar.gz
 #
 # SHA1 Sums
 # =========
-# 517176cad6ecf1e223749ae927a5989f2d2c0c29  asterisk-1.6.1-rc1.tar.gz
-# 1fe8c924945ff04acd7883f086cf7f1ce0fc8d88  asterisk-1.6.1-rc1-stripped.tar.gz
+# 79a9a3635fdf2e8422dadabd9f05da3329e60dc1  asterisk-1.6.1.6.tar.gz
+# b6ef13ec7b7b2335cd98dec09f143f9f446d9bb1  asterisk-1.6.1.6-stripped.tar.gz
 #
 # SHA256 Sums
 # =========
-# 730dea578f72b51ff13f21320ff81f06e1c10a02a0f723b61c5bf8e47bee5e3b  asterisk-1.6.1-rc1.tar.gz
-# 93b2635208318c834917fad0a75fd59d04c282ca15d7dba2ba494cee22e88b73  asterisk-1.6.1-rc1-stripped.tar.gz
+# ce56be843b85946bebbb89af06819585f45dd50ac544c21ca81acab994036c22  asterisk-1.6.1.6.tar.gz
+# 4a91e3b8a420756f3b7b2b2d85335e0c47431bcaa8f02ea40e2c9ed835283fe3  asterisk-1.6.1.6-stripped.tar.gz
 
 Source0: asterisk-%{version}%{?_rc:-rc%{_rc}}-stripped.tar.gz
 Source1: asterisk-logrotate
@@ -42,25 +42,17 @@ Source6: asterisk-developer-pubring.gpg
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
-Patch3:  0003-Add-chan_mobile-from-asterisk-addons.patch
-Patch4:  0004-Use-pkgconfig-to-check-for-Lua.patch
 Patch5:  0005-Build-using-external-libedit.patch
 Patch6:  0006-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
-Patch7:  0007-Define-missing-variable-when-compiling-on-PPC.patch
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
-Patch9:  0009-fix-the-AST_PROG_SED-problem-that-makes-.-bootstrap.patch
 Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
-Patch13: 0013-Bridging-work-as-of-svn-rev-174216.patch
-Patch14: 0014-Adding-in-CLI-apps.patch
-Patch15: 0015-Update-autoconf.patch
-Patch16: 0016-pagecount.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
-#BuildRequires: autoconf
-#BuildRequires: automake
+BuildRequires: autoconf
+BuildRequires: automake
 
 # core build requirements
 BuildRequires: openssl-devel
@@ -103,6 +95,7 @@ Requires(preun): /sbin/service
 
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
+Obsoletes: asterisk-mobile <= 1.6.1-0.23.rc1
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -138,15 +131,6 @@ Requires: asterisk = %{version}-%{release}
 %description apidoc
 API documentation for Asterisk.
 %endif
-
-#%package conference
-#Summary: Audio/video conferencing application for Asterisk
-#Group: Applications/Internet
-#Requires: asterisk = %{version}-%{release}
-#BuildRequires: speex-devel
-#
-#%description conference
-#Audio/video conferencing application for Asterisk.
 
 %package curl
 Summary: Modules for Asterisk that use cURL
@@ -283,16 +267,6 @@ Requires: asterisk = %{version}-%{release}
 
 %description minivm
 MiniVM application for Asterisk.
-
-%package mobile
-Summary: Asterisk channel driver for bluetooth phones and headsets
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: bluez-libs-devel
-
-%description mobile
-Asterisk channel driver to allow Bluetooth cell/mobile phones to be
-used as FXO devices, and headsets as FXS devices.
 
 %package odbc
 Summary: Applications for Asterisk that use ODBC (except voicemail)
@@ -443,21 +417,13 @@ local filesystem.
 %prep
 %setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
+%patch2 -p0
+%patch5 -p0
 %patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
+%patch8 -p0
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -476,16 +442,11 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %build
 
-# if we are building for i386 promote the CPU arch to i486 for atomic operations support
-%ifarch i386
-%define optflags %{__global_cflags} -m32 -march=i486 -mtune=generic -fasynchronous-unwind-tables -Werror-implicit-function-declaration
-%else
 %define optflags %(rpm --eval %%{optflags}) -Werror-implicit-function-declaration
-%endif
 
-#aclocal -I autoconf
-#autoconf
-#autoheader
+aclocal -I autoconf
+autoconf
+autoheader
 
 pushd menuselect/mxml
 %configure
@@ -636,12 +597,10 @@ fi
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_authenticate.so
-%{_libdir}/asterisk/modules/app_bridgetest.so
 %{_libdir}/asterisk/modules/app_cdr.so
 %{_libdir}/asterisk/modules/app_chanisavail.so
 %{_libdir}/asterisk/modules/app_channelredirect.so
 %{_libdir}/asterisk/modules/app_chanspy.so
-%{_libdir}/asterisk/modules/app_confbridge.so
 %{_libdir}/asterisk/modules/app_controlplayback.so
 %{_libdir}/asterisk/modules/app_db.so
 %{_libdir}/asterisk/modules/app_dial.so
@@ -662,7 +621,6 @@ fi
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
 %{_libdir}/asterisk/modules/app_parkandannounce.so
-#%{_libdir}/asterisk/modules/app_pickupchan.so
 %{_libdir}/asterisk/modules/app_playback.so
 %{_libdir}/asterisk/modules/app_privacy.so
 %{_libdir}/asterisk/modules/app_queue.so
@@ -690,16 +648,10 @@ fi
 %{_libdir}/asterisk/modules/app_waituntil.so
 %{_libdir}/asterisk/modules/app_while.so
 %{_libdir}/asterisk/modules/app_zapateller.so
-%{_libdir}/asterisk/modules/bridge_builtin_features.so
-%{_libdir}/asterisk/modules/bridge_multiplexed.so
-%{_libdir}/asterisk/modules/bridge_simple.so
-%{_libdir}/asterisk/modules/bridge_softmix.so
 %{_libdir}/asterisk/modules/cdr_csv.so
 %{_libdir}/asterisk/modules/cdr_custom.so
 %{_libdir}/asterisk/modules/cdr_manager.so
 %{_libdir}/asterisk/modules/chan_agent.so
-%{_libdir}/asterisk/modules/chan_bridge.so
-%{_libdir}/asterisk/modules/chan_features.so
 %{_libdir}/asterisk/modules/chan_iax2.so
 %{_libdir}/asterisk/modules/chan_local.so
 %{_libdir}/asterisk/modules/chan_mgcp.so
@@ -786,6 +738,7 @@ fi
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %{_libdir}/asterisk/modules/test_dlinklists.so
+%{_libdir}/asterisk/modules/test_heap.so
 
 %{_sbindir}/aelparse
 %{_sbindir}/astcanary
@@ -793,7 +746,6 @@ fi
 %{_sbindir}/astgenkey
 %{_sbindir}/astman
 %{_sbindir}/autosupport
-%{_sbindir}/check_expr
 %{_sbindir}/conf2ael
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
@@ -900,16 +852,6 @@ fi
 %doc doc/api/html/*
 %endif
 
-#%files conference
-#%defattr(-,root,root,-)
-#%doc apps/conference/CLI.txt
-#%doc apps/conference/Flags.txt
-#%doc apps/conference/LICENSE
-#%doc apps/conference/README
-#%doc apps/conference/README.videoswitch
-#%doc apps/conference/TODO
-#%{_libdir}/asterisk/modules/app_conference.so
-
 %files curl
 %defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
@@ -1003,12 +945,6 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
 %{_libdir}/asterisk/modules/chan_misdn.so
 
-%files mobile
-%defattr(-,root,root,-)
-%doc doc/chan_mobile.txt
-%config(noreplace) %{_sysconfdir}/asterisk/mobile.conf
-%{_libdir}/asterisk/modules/chan_mobile.so
-
 %files odbc
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
@@ -1101,6 +1037,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sun Sep  6 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.6-1
+- Update to 1.6.1.6
+- Drop patches that are too troublesome to maintain anymore or have been integrated upstream.
+
 * Tue Sep  1 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1-0.26.rc1
 - Add a patch from Quentin Armitage and rebuld.
 

@@ -1,5 +1,4 @@
 MENUSELECT_APPS=app_ivrdemo app_mp3 app_osplookup app_rpt app_skel 
-MENUSELECT_BRIDGES=bridge_zaptel
 MENUSELECT_CDR=cdr_sqlite
 MENUSELECT_CHANNELS=chan_h323 chan_nbs chan_vpb 
 MENUSELECT_CODECS=codec_ilbc

@@ -1,21 +1,8 @@
-From 64a709b530b0fc1dd74805641f7279a6f83e97b7 Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Tue, 25 Mar 2008 00:50:27 -0500
-Subject: [PATCH 05/15] Build using external libedit.
-
----
- build_tools/menuselect-deps.in |    1 +
- configure.ac                   |   22 ++++++++++++++++++++++
- main/Makefile                  |    8 +++++---
- main/cli.c                     |    3 ++-
- makeopts.in                    |    4 ++++
- 5 files changed, 34 insertions(+), 4 deletions(-)
-
-diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 6d94984..7832687 100644
---- a/build_tools/menuselect-deps.in
-+++ b/build_tools/menuselect-deps.in
-@@ -18,6 +18,7 @@ ISDNNET=@PBX_ISDNNET@
+Index: build_tools/menuselect-deps.in
+===================================================================
+--- build_tools/menuselect-deps.in	(revision 216642)
++++ build_tools/menuselect-deps.in	(working copy)
+@@ -17,6 +17,7 @@
  IXJUSER=@PBX_IXJUSER@
  JACK=@PBX_JACK@
  LDAP=@PBX_LDAP@
@@ -23,11 +10,11 @@ index 6d94984..7832687 100644
  LTDL=@PBX_LTDL@
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
-diff --git a/configure.ac b/configure.ac
-index 4519ec9..891548f 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -230,6 +230,7 @@ AST_EXT_LIB_SETUP([IMAP_TK], [UW IMAP Toolkit], [imap])
+Index: configure.ac
+===================================================================
+--- configure.ac	(revision 216642)
++++ configure.ac	(working copy)
+@@ -232,6 +232,7 @@
  AST_EXT_LIB_SETUP([ISDNNET], [ISDN4Linux Library], [isdnnet])
  AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
  AST_EXT_LIB_SETUP([LDAP], [OpenLDAP], [ldap])
@@ -35,7 +22,7 @@ index 4519ec9..891548f 100644
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
  AST_EXT_LIB_SETUP([MISDN], [mISDN User Library], [misdn])
-@@ -1602,6 +1603,27 @@ AC_SUBST(PBX_GTK2)
+@@ -1621,6 +1622,27 @@
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -48,7 +35,7 @@ index 4519ec9..891548f 100644
 +   if test "${PKGCONFIG}" != "no"; then
 +      if ${PKGCONFIG} --exists libedit; then
 +         LIBEDIT_INCLUDE=$(${PKGCONFIG} libedit --cflags)
-+	 LIBEDIT_LIB=$(${PKGCONFIG} libedit --libs)
++         LIBEDIT_LIB=$(${PKGCONFIG} libedit --libs)
 +         LIBEDIT_OBJ=
 +         PBX_LIBEDIT=1
 +         AC_DEFINE([HAVE_LIBEDIT], 1, [Define if your system has the NetBSD Editline libraries.])
@@ -63,26 +50,26 @@ index 4519ec9..891548f 100644
  if test "${USE_CURL}" != "no"; then
     AC_PATH_TOOL([CURL_CONFIG], [curl-config], No)
     if test ! x"${CURL_CONFIG}" = xNo; then
-diff --git a/main/Makefile b/main/Makefile
-index 446bbb2..86a0f3c 100644
---- a/main/Makefile
-+++ b/main/Makefile
-@@ -138,6 +138,8 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
+Index: main/Makefile
+===================================================================
+--- main/Makefile	(revision 216642)
++++ main/Makefile	(working copy)
+@@ -129,6 +129,8 @@
  	$(CC) -g -o testexpr2 ast_expr2f.o ast_expr2.o -lm
  	rm ast_expr2.o ast_expr2f.o 
  
 +cli.o: ASTCFLAGS+=$(LIBEDIT_INCLUDE)
 +
  ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
- http.o: ASTCFLAGS+=$(GMIME_INCLUDE)
+ http.o: _ASTCFLAGS+=$(GMIME_INCLUDE)
  endif
-@@ -170,13 +172,13 @@ ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
+@@ -161,13 +163,13 @@
  GMIMELDFLAGS+=$(GMIME_LIB)
  endif
  
 -$(MAIN_TGT): $(OBJS) editline/libedit.a db1-ast/libdb1.a $(AST_EMBED_LDSCRIPTS)
 +$(MAIN_TGT): $(OBJS) $(LIBEDIT_OBJ) db1-ast/libdb1.a $(AST_EMBED_LDSCRIPTS)
- 	@$(CC) -c -o buildinfo.o $(ASTCFLAGS) buildinfo.c
+ 	@$(CC) -c -o buildinfo.o $(_ASTCFLAGS) buildinfo.c $(ASTCFLAGS)
  	$(ECHO_PREFIX) echo "   [LD] $^ -> $@"
  ifneq ($(findstring chan_h323,$(MENUSELECT_CHANNELS)),)
 -	$(CMD_PREFIX) $(CC) $(STATIC_BUILD) -o $@ $(ASTLINK) $(AST_EMBED_LDFLAGS) $(ASTLDFLAGS) $^ buildinfo.o $(AST_LIBS) $(AST_EMBED_LIBS) $(GMIMELDFLAGS)
@@ -93,11 +80,11 @@ index 446bbb2..86a0f3c 100644
  endif
  	$(CMD_PREFIX) $(ASTTOPDIR)/build_tools/strip_nonapi $@ || rm $@
  
-diff --git a/main/cli.c b/main/cli.c
-index f6982ad..286d775 100644
---- a/main/cli.c
-+++ b/main/cli.c
-@@ -34,6 +34,8 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
+Index: main/cli.c
+===================================================================
+--- main/cli.c	(revision 216642)
++++ main/cli.c	(working copy)
+@@ -34,6 +34,8 @@
  #include <ctype.h>
  #include <regex.h>
  
@@ -106,7 +93,7 @@ index f6982ad..286d775 100644
  #include "asterisk/cli.h"
  #include "asterisk/linkedlists.h"
  #include "asterisk/module.h"
-@@ -42,7 +44,6 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
+@@ -42,7 +44,6 @@
  #include "asterisk/utils.h"
  #include "asterisk/app.h"
  #include "asterisk/lock.h"
@@ -114,11 +101,11 @@ index f6982ad..286d775 100644
  #include "asterisk/threadstorage.h"
  
  /*!
-diff --git a/makeopts.in b/makeopts.in
-index a5b2a5f..e2a8306 100644
---- a/makeopts.in
-+++ b/makeopts.in
-@@ -249,3 +249,7 @@ TINFO_DIR=@TINFO_DIR@
+Index: makeopts.in
+===================================================================
+--- makeopts.in	(revision 216642)
++++ makeopts.in	(working copy)
+@@ -246,3 +246,7 @@
  
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@
@@ -126,6 +113,3 @@ index a5b2a5f..e2a8306 100644
 +LIBEDIT_INCLUDE=@LIBEDIT_INCLUDE@
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
--- 
-1.6.1
-

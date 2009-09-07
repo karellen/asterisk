@@ -1,18 +1,9 @@
-From 0d6267e70e805371772d4375318d08437fe6b5ca Mon Sep 17 00:00:00 2001
-From: Caolan McNamara <caolanm@redhat.com>
-Date: Sat, 3 Jan 2009 19:06:18 -0600
-Subject: [PATCH 08/15] change configure.ac to look for pkg-config gmime-2.4 instead of gmime-2.4 gmime-config
-
----
- configure.ac |   12 +++++++++++-
- 1 files changed, 11 insertions(+), 1 deletions(-)
-
-diff --git a/configure.ac b/configure.ac
-index 891548f..5cfc205 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1475,7 +1475,17 @@ then
-     AST_EXT_LIB_CHECK([OSPTK], [osptk], [OSPPCryptoDecrypt], [osp/osp.h], [-lcrypto -lssl])
+Index: configure.ac
+===================================================================
+--- configure.ac	(revision 216642)
++++ configure.ac	(working copy)
+@@ -1493,7 +1493,17 @@
+     AST_CHECK_OSPTK([3], [5], [0])
  fi
  
 -AST_EXT_TOOL_CHECK([GMIME], [gmime], [], [], [#include <gmime/gmime.h>], [gboolean q = g_mime_check_version(0,0,0);])
@@ -30,6 +21,3 @@ index 891548f..5cfc205 100644
  
  AST_EXT_LIB_CHECK([HOARD], [hoard], [malloc], [])
  
--- 
-1.6.1
-
