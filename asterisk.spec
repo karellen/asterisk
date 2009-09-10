@@ -1,9 +1,8 @@
-%define with_apidoc %{?_with_apidoc: 1} %{!?_with_apidoc: 0}
 #define _rc 1
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1.6
-Release: 1%{?_rc:.rc%{_rc}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -67,15 +66,13 @@ BuildRequires: gtk2-devel
 # for res_http_post
 BuildRequires: gmime-devel
 
-%if %{with_apidoc}
 # for building docs
 BuildRequires: doxygen
 BuildRequires: graphviz
 BuildRequires: graphviz-gd
-%endif
 
 # for codec_speex
-BuildRequires: speex-devel
+BuildRequires: speex-devel >= 1.2
 
 # for format_ogg_vorbis
 BuildRequires: libogg-devel
@@ -122,7 +119,6 @@ BuildRequires: alsa-lib-devel
 %description alsa
 Modules for Asterisk that use Alsa sound drivers.
 
-%if %{with_apidoc}
 %package apidoc
 Summary: API documentation for Asterisk
 Group: Applications/Internet
@@ -130,7 +126,6 @@ Requires: asterisk = %{version}-%{release}
 
 %description apidoc
 API documentation for Asterisk.
-%endif
 
 %package curl
 Summary: Modules for Asterisk that use cURL
@@ -486,12 +481,10 @@ mv apps/app_directory.so apps/app_directory_odbc.so
 touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
 
-%if %{with_apidoc}
 ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
-%endif
 
 %install
 rm -rf %{buildroot}
@@ -538,9 +531,7 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
 
-%if %{with_apidoc}
 find doc/api/html -name \*.map -size 0 -delete
-%endif
 
 %clean
 rm -rf %{buildroot}
@@ -846,11 +837,9 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
 %{_libdir}/asterisk/modules/chan_alsa.so
 
-%if %{with_apidoc}
 %files apidoc
 %defattr(-,root,root,-)
 %doc doc/api/html/*
-%endif
 
 %files curl
 %defattr(-,root,root,-)
@@ -1037,6 +1026,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Sep  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.6-2
+- Enable building of API docs.
+- Depend on version 1.2 or newer of speex
+
 * Sun Sep  6 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.6-1
 - Update to 1.6.1.6
 - Drop patches that are too troublesome to maintain anymore or have been integrated upstream.
