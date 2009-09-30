@@ -1,48 +1,22 @@
-#define _rc 1
+%define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.6
-Release: 2%{?_rc:.rc%{_rc}}%{?dist}
+Version: 1.6.2.0
+Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
 
-# The Asterisk tarball contains some items that we don't want in there,
-# so start with the original tarball from here:
-#
-# http://downloads.digium.com/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz
-#
-# Then run the included script file to build the stripped tarball:
-#
-# sh asterisk-strip.sh %{version}
-
-# MD5 Sums
-# ========
-# 63a928373e741524aac09d8c078df7d5  asterisk-1.6.1.6.tar.gz
-# 4f57c6c9fff1bfeb9061679c123f7468  asterisk-1.6.1.6-stripped.tar.gz
-#
-# SHA1 Sums
-# =========
-# 79a9a3635fdf2e8422dadabd9f05da3329e60dc1  asterisk-1.6.1.6.tar.gz
-# b6ef13ec7b7b2335cd98dec09f143f9f446d9bb1  asterisk-1.6.1.6-stripped.tar.gz
-#
-# SHA256 Sums
-# =========
-# ce56be843b85946bebbb89af06819585f45dd50ac544c21ca81acab994036c22  asterisk-1.6.1.6.tar.gz
-# 4a91e3b8a420756f3b7b2b2d85335e0c47431bcaa8f02ea40e2c9ed835283fe3  asterisk-1.6.1.6-stripped.tar.gz
-
-Source0: asterisk-%{version}%{?_rc:-rc%{_rc}}-stripped.tar.gz
+Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz
 Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
-Source4: asterisk-strip.sh
-Source5: asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
+Source5: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
 Source6: asterisk-developer-pubring.gpg
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch5:  0005-Build-using-external-libedit.patch
-Patch6:  0006-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
 Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
 Patch11: 0011-Fix-up-some-paths.patch
@@ -70,6 +44,7 @@ BuildRequires: gmime-devel
 BuildRequires: doxygen
 BuildRequires: graphviz
 BuildRequires: graphviz-gd
+BuildRequires: libxml2-devel
 
 # for codec_speex
 BuildRequires: speex-devel >= 1.2
@@ -414,10 +389,9 @@ local filesystem.
 %patch1 -p1
 %patch2 -p0
 %patch5 -p0
-%patch6 -p1
 %patch8 -p0
-%patch10 -p1
-%patch11 -p1
+%patch10 -p0
+%patch11 -p0
 %patch12 -p1
 
 cp %{SOURCE2} menuselect.makedeps
@@ -501,22 +475,22 @@ install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIU
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
-install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/
-install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/
-install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules/
-install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules/
-install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules/
-install -D -p -m 0755 apps/app_voicemail_plain.so %{buildroot}%{_libdir}/asterisk/modules/
+install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_voicemail_plain.so %{buildroot}%{_libdir}/asterisk/modules
 
 # create some directories that need to be packaged
-mkdir -p %{buildroot}%{_datadir}/asterisk/moh/
-mkdir -p %{buildroot}%{_datadir}/asterisk/sounds/
+mkdir -p %{buildroot}%{_datadir}/asterisk/moh
+mkdir -p %{buildroot}%{_datadir}/asterisk/sounds
 mkdir -p %{buildroot}%{_localstatedir}/lib/asterisk
-mkdir -p %{buildroot}%{_localstatedir}/log/asterisk/cdr-custom/
-mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/festival/
-mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/monitor/
-mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/outgoing/
-mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/uploads/
+mkdir -p %{buildroot}%{_localstatedir}/log/asterisk/cdr-custom
+mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/festival
+mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/monitor
+mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/outgoing
+mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/uploads
 
 # We're not going to package any of the sample AGI scripts
 rm -f %{buildroot}%{_datadir}/asterisk/agi-bin/*
@@ -530,6 +504,8 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 # these are compiled with -O0 and thus include unfortified code.
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
+
+rm -rf %{buildroot}%{_datadir}/asterisk/documentation
 
 find doc/api/html -name \*.map -size 0 -delete
 
@@ -561,9 +537,11 @@ fi
 %defattr(-,root,root,-)
 %doc README* *.txt ChangeLog BUGS CREDITS configs
 
+%doc doc/appdocsxml.dtd
 %doc doc/asterisk.sgml
 %doc doc/backtrace.txt
 %doc doc/callfiles.txt
+%doc doc/core-*.xml
 %doc doc/externalivr.txt
 %doc doc/macroexclusive.txt
 %doc doc/manager_1_1.txt
@@ -592,6 +570,7 @@ fi
 %{_libdir}/asterisk/modules/app_chanisavail.so
 %{_libdir}/asterisk/modules/app_channelredirect.so
 %{_libdir}/asterisk/modules/app_chanspy.so
+%{_libdir}/asterisk/modules/app_confbridge.so
 %{_libdir}/asterisk/modules/app_controlplayback.so
 %{_libdir}/asterisk/modules/app_db.so
 %{_libdir}/asterisk/modules/app_dial.so
@@ -611,8 +590,10 @@ fi
 %{_libdir}/asterisk/modules/app_mixmonitor.so
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
+%{_libdir}/asterisk/modules/app_originate.so
 %{_libdir}/asterisk/modules/app_parkandannounce.so
 %{_libdir}/asterisk/modules/app_playback.so
+%{_libdir}/asterisk/modules/app_playtones.so
 %{_libdir}/asterisk/modules/app_privacy.so
 %{_libdir}/asterisk/modules/app_queue.so
 %{_libdir}/asterisk/modules/app_readexten.so
@@ -639,10 +620,15 @@ fi
 %{_libdir}/asterisk/modules/app_waituntil.so
 %{_libdir}/asterisk/modules/app_while.so
 %{_libdir}/asterisk/modules/app_zapateller.so
+%{_libdir}/asterisk/modules/bridge_builtin_features.so
+%{_libdir}/asterisk/modules/bridge_multiplexed.so
+%{_libdir}/asterisk/modules/bridge_simple.so
+%{_libdir}/asterisk/modules/bridge_softmix.so
 %{_libdir}/asterisk/modules/cdr_csv.so
 %{_libdir}/asterisk/modules/cdr_custom.so
 %{_libdir}/asterisk/modules/cdr_manager.so
 %{_libdir}/asterisk/modules/chan_agent.so
+%{_libdir}/asterisk/modules/chan_bridge.so
 %{_libdir}/asterisk/modules/chan_iax2.so
 %{_libdir}/asterisk/modules/chan_local.so
 %{_libdir}/asterisk/modules/chan_mgcp.so
@@ -667,11 +653,14 @@ fi
 %{_libdir}/asterisk/modules/format_jpeg.so
 %{_libdir}/asterisk/modules/format_ogg_vorbis.so
 %{_libdir}/asterisk/modules/format_pcm.so
+%{_libdir}/asterisk/modules/format_siren14.so
+%{_libdir}/asterisk/modules/format_siren7.so
 %{_libdir}/asterisk/modules/format_sln.so
 %{_libdir}/asterisk/modules/format_sln16.so
 %{_libdir}/asterisk/modules/format_vox.so
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
+%{_libdir}/asterisk/modules/func_aes.so
 %{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
@@ -700,6 +689,7 @@ fi
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
 %{_libdir}/asterisk/modules/func_speex.so
+%{_libdir}/asterisk/modules/func_sprintf.so
 %{_libdir}/asterisk/modules/func_strings.so
 %{_libdir}/asterisk/modules/func_sysinfo.so
 %{_libdir}/asterisk/modules/func_timeout.so
@@ -715,10 +705,10 @@ fi
 %{_libdir}/asterisk/modules/res_adsi.so
 %{_libdir}/asterisk/modules/res_ael_share.so
 %{_libdir}/asterisk/modules/res_agi.so
+%{_libdir}/asterisk/modules/res_clialiases.so
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
-%{_libdir}/asterisk/modules/res_indications.so
 %{_libdir}/asterisk/modules/res_http_post.so
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
@@ -728,8 +718,10 @@ fi
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
+%{_libdir}/asterisk/modules/res_timing_timerfd.so
 %{_libdir}/asterisk/modules/test_dlinklists.so
 %{_libdir}/asterisk/modules/test_heap.so
+%{_libdir}/asterisk/modules/test_sched.so
 
 %{_sbindir}/aelparse
 %{_sbindir}/astcanary
@@ -763,6 +755,8 @@ fi
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
 %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
+%config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
+%config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
 %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
 %config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
@@ -986,6 +980,7 @@ fi
 %files sqlite
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
+%config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
 
 %files tds
@@ -1026,6 +1021,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.1.rc2
+- Update to 1.6.2.0-rc2
+- We no longer need to strip the tarball as it no longer includes non-free items.
+
 * Wed Sep  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.6-2
 - Enable building of API docs.
 - Depend on version 1.2 or newer of speex
