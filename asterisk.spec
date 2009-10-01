@@ -2,7 +2,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.0
-Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.3%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -68,6 +68,7 @@ Requires(preun): /sbin/service
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
 Obsoletes: asterisk-mobile <= 1.6.1-0.23.rc1
+Obsoletes: asterisk-firmware <= 1.6.2.0-0.2.rc1
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -152,15 +153,6 @@ Requires: festival
 
 %description festival
 Application for the Asterisk PBX that uses Festival to convert text to speech.
-
-%package firmware
-Summary: Firmware for the Digium S101I (IAXy)
-Group: Applications/Internet
-License: Redistributable, no modification permitted
-Requires: asterisk = %{version}-%{release}
-
-%description firmware
-Firmware for the Digium S101I (IAXy).
 
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
@@ -431,21 +423,21 @@ popd
 
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes
 
-ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
-ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
 
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
-ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_odbc.so
@@ -455,7 +447,7 @@ mv apps/app_directory.so apps/app_directory_odbc.so
 touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
 
-ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk  ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
@@ -463,8 +455,8 @@ find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
 %install
 rm -rf %{buildroot}
 
-ASTCFLAGS="%{optflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk
-ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk
+ASTCFLAGS="%{optflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk
+ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk
 
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
@@ -505,8 +497,6 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
 
-rm -rf %{buildroot}%{_datadir}/asterisk/documentation
-
 find doc/api/html -name \*.map -size 0 -delete
 
 %clean
@@ -537,11 +527,9 @@ fi
 %defattr(-,root,root,-)
 %doc README* *.txt ChangeLog BUGS CREDITS configs
 
-%doc doc/appdocsxml.dtd
 %doc doc/asterisk.sgml
 %doc doc/backtrace.txt
 %doc doc/callfiles.txt
-%doc doc/core-*.xml
 %doc doc/externalivr.txt
 %doc doc/macroexclusive.txt
 %doc doc/manager_1_1.txt
@@ -797,27 +785,30 @@ fi
 
 %config(noreplace) %{_sysconfdir}/logrotate.d/asterisk
 
-%dir %{_datadir}/asterisk/
-%dir %{_datadir}/asterisk/agi-bin/
-%{_datadir}/asterisk/images/
-%{_datadir}/asterisk/keys/
-%{_datadir}/asterisk/phoneprov/
-%{_datadir}/asterisk/static-http/
-%dir %{_datadir}/asterisk/moh/
-%dir %{_datadir}/asterisk/sounds/
+%dir %{_datadir}/asterisk
+%dir %{_datadir}/asterisk/agi-bin
+%{_datadir}/asterisk/documentation
+%dir %{_datadir}/asterisk/firmware
+%dir %{_datadir}/asterisk/firmware/iax
+%{_datadir}/asterisk/images
+%{_datadir}/asterisk/keys
+%{_datadir}/asterisk/phoneprov
+%{_datadir}/asterisk/static-http
+%dir %{_datadir}/asterisk/moh
+%dir %{_datadir}/asterisk/sounds
 
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/lib/asterisk/
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/lib/asterisk
 
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/log/asterisk/
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/log/asterisk/cdr-csv/
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/log/asterisk/cdr-custom/
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/log/asterisk
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/log/asterisk/cdr-csv
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/log/asterisk/cdr-custom
 
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/
-%attr(0770,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/monitor/
-%attr(0770,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/outgoing/
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/tmp/
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/uploads/
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/voicemail/
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk
+%attr(0770,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/monitor
+%attr(0770,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/outgoing
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/tmp
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/uploads
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/voicemail
 
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
 
@@ -875,12 +866,8 @@ fi
 %files festival
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/asterisk/festival.conf
-%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival/
+%attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival
 %{_libdir}/asterisk/modules/app_festival.so
-
-%files firmware
-%defattr(-,root,root,-)
-%{_datadir}/asterisk/firmware/
 
 %files ices
 %defattr(-,root,root,-)
@@ -1021,6 +1008,13 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.3.rc2
+- Merge firmware subpackage back into the main package.
+
+* Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.2.rc2
+- Package internal help.
+- Fix up some more paths in the configs so that everything ends up where we want them.
+
 * Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.1.rc2
 - Update to 1.6.2.0-rc2
 - We no longer need to strip the tarball as it no longer includes non-free items.
