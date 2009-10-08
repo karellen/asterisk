@@ -2,7 +2,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.0
-Release: 0.4%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.5%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -731,57 +731,57 @@ fi
 %{_mandir}/man8/autosupport.8*
 %{_mandir}/man8/safe_asterisk.8*
 
-%dir %{_sysconfdir}/asterisk
-%config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
-%config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
-%config(noreplace) %{_sysconfdir}/asterisk/agents.conf
-%config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
-%config(noreplace) %{_sysconfdir}/asterisk/amd.conf
-%config(noreplace) %{_sysconfdir}/asterisk/asterisk.adsi
-%config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cdr.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cli.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
-%config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
-%config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
-%config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
-%config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
-%config(noreplace) %{_sysconfdir}/asterisk/enum.conf
-%config(noreplace) %{_sysconfdir}/asterisk/extconfig.conf
-%config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
-%config(noreplace) %{_sysconfdir}/asterisk/extensions.conf
-%config(noreplace) %{_sysconfdir}/asterisk/features.conf
-%config(noreplace) %{_sysconfdir}/asterisk/followme.conf
-%config(noreplace) %{_sysconfdir}/asterisk/h323.conf
-%config(noreplace) %{_sysconfdir}/asterisk/http.conf
-%config(noreplace) %{_sysconfdir}/asterisk/iax.conf
-%config(noreplace) %{_sysconfdir}/asterisk/iaxprov.conf
-%config(noreplace) %{_sysconfdir}/asterisk/indications.conf
-%config(noreplace) %{_sysconfdir}/asterisk/logger.conf
-%config(noreplace) %{_sysconfdir}/asterisk/manager.conf
-%config(noreplace) %{_sysconfdir}/asterisk/mgcp.conf
-%config(noreplace) %{_sysconfdir}/asterisk/modules.conf
-%config(noreplace) %{_sysconfdir}/asterisk/musiconhold.conf
-%config(noreplace) %{_sysconfdir}/asterisk/muted.conf
-%config(noreplace) %{_sysconfdir}/asterisk/osp.conf
-%config(noreplace) %{_sysconfdir}/asterisk/phone.conf
-%config(noreplace) %{_sysconfdir}/asterisk/phoneprov.conf
-%config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
-%config(noreplace) %{_sysconfdir}/asterisk/queues.conf
-%config(noreplace) %{_sysconfdir}/asterisk/rpt.conf
-%config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
-%config(noreplace) %{_sysconfdir}/asterisk/say.conf
-%config(noreplace) %{_sysconfdir}/asterisk/sip.conf
-%config(noreplace) %{_sysconfdir}/asterisk/sip_notify.conf
-%config(noreplace) %{_sysconfdir}/asterisk/sla.conf
-%config(noreplace) %{_sysconfdir}/asterisk/smdi.conf
-%config(noreplace) %{_sysconfdir}/asterisk/telcordia-1.adsi
-%config(noreplace) %{_sysconfdir}/asterisk/udptl.conf
-%config(noreplace) %{_sysconfdir}/asterisk/users.conf
-%config(noreplace) %{_sysconfdir}/asterisk/vpb.conf
+%attr(0750,asterisk,asterisk) %dir %{_sysconfdir}/asterisk
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/agents.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/amd.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.adsi
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/enum.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extconfig.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/features.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/followme.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/h323.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/http.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iax.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iaxprov.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/indications.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/logger.conf
+%attr(0600,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/manager.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/mgcp.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/modules.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/musiconhold.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/muted.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/osp.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phone.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phoneprov.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rpt.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip_notify.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sla.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/smdi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/telcordia-1.adsi
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/udptl.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/users.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/vpb.conf
 
 %config(noreplace) %{_sysconfdir}/logrotate.d/asterisk
 
@@ -791,7 +791,7 @@ fi
 %dir %{_datadir}/asterisk/firmware
 %dir %{_datadir}/asterisk/firmware/iax
 %{_datadir}/asterisk/images
-%{_datadir}/asterisk/keys
+%attr(0750,asterisk,asterisk) %{_datadir}/asterisk/keys
 %{_datadir}/asterisk/phoneprov
 %{_datadir}/asterisk/static-http
 %dir %{_datadir}/asterisk/moh
@@ -814,12 +814,12 @@ fi
 
 %files ais
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/ais.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ais.conf
 %{_libdir}/asterisk/modules/res_ais.so
 
 %files alsa
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
 %{_libdir}/asterisk/modules/chan_alsa.so
 
 %files apidoc
@@ -829,15 +829,15 @@ fi
 %files curl
 %defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
-%config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/res_config_curl.so
 %{_libdir}/asterisk/modules/res_curl.so
 
 %files dahdi
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/meetme.conf
-%config(noreplace) %{_sysconfdir}/asterisk/chan_dahdi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/meetme.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_dahdi.conf
 %{_libdir}/asterisk/modules/app_flash.so
 %{_libdir}/asterisk/modules/app_meetme.so
 %{_libdir}/asterisk/modules/app_page.so
@@ -865,7 +865,7 @@ fi
 
 %files festival
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/festival.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/festival.conf
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival
 %{_libdir}/asterisk/modules/app_festival.so
 
@@ -878,9 +878,9 @@ fi
 %defattr(-,root,root,-)
 %doc doc/jabber.txt
 %doc doc/jingle.txt
-%config(noreplace) %{_sysconfdir}/asterisk/gtalk.conf
-%config(noreplace) %{_sysconfdir}/asterisk/jabber.conf
-%config(noreplace) %{_sysconfdir}/asterisk/jingle.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/gtalk.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jabber.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jingle.conf
 %{_libdir}/asterisk/modules/chan_gtalk.so
 %{_libdir}/asterisk/modules/chan_jingle.so
 %{_libdir}/asterisk/modules/res_jabber.so
@@ -891,13 +891,13 @@ fi
 
 %files lua
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/extensions.lua
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.lua
 %{_libdir}/asterisk/modules/pbx_lua.so
 
 %files ldap
 %defattr(-,root,root,-)
 %doc doc/ldap.txt
-%config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
 
 %files ldap-fds
@@ -906,21 +906,21 @@ fi
 
 %files minivm
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/extensions_minivm.conf
-%config(noreplace) %{_sysconfdir}/asterisk/minivm.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions_minivm.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/minivm.conf
 %{_libdir}/asterisk/modules/app_minivm.so
 
 %files misdn
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
 %{_libdir}/asterisk/modules/chan_misdn.so
 
 %files odbc
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
-%config(noreplace) %{_sysconfdir}/asterisk/func_odbc.conf
-%config(noreplace) %{_sysconfdir}/asterisk/res_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/func_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_odbc.conf
 %{_libdir}/asterisk/modules/cdr_adaptive_odbc.so
 %{_libdir}/asterisk/modules/cdr_odbc.so
 %{_libdir}/asterisk/modules/func_odbc.so
@@ -929,18 +929,18 @@ fi
 
 %files oss
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/oss.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/oss.conf
 %{_libdir}/asterisk/modules/chan_oss.so
 
 %files portaudio
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/console.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/console.conf
 %{_libdir}/asterisk/modules/chan_console.so
 
 %files postgresql
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
-%config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
 %doc contrib/scripts/realtime_pgsql.sql
 %{_libdir}/asterisk/modules/cdr_pgsql.so
 %{_libdir}/asterisk/modules/res_config_pgsql.so
@@ -951,7 +951,7 @@ fi
 
 %files skinny
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/skinny.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/skinny.conf
 %{_libdir}/asterisk/modules/chan_skinny.so
 
 %files snmp
@@ -959,36 +959,36 @@ fi
 %doc doc/asterisk-mib.txt
 %doc doc/digium-mib.txt
 %doc doc/snmp.txt
-%config(noreplace) %{_sysconfdir}/asterisk/res_snmp.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_snmp.conf
 %{_datadir}/snmp/mibs/ASTERISK-MIB.txt
 %{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 %{_libdir}/asterisk/modules/res_snmp.so
 
 %files sqlite
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
-%config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
 
 %files tds
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/cdr_tds.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_tds.conf
 %{_libdir}/asterisk/modules/cdr_tds.so
 
 %files unistim
 %defattr(-,root,root,-)
 %doc doc/unistim.txt
-%config(noreplace) %{_sysconfdir}/asterisk/unistim.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/unistim.conf
 %{_libdir}/asterisk/modules/chan_unistim.so
 
 %files usbradio
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/usbradio.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/usbradio.conf
 %{_libdir}/asterisk/modules/chan_usbradio.so
 
 %files voicemail
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
 %files voicemail-imap
@@ -1008,6 +1008,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Oct  7 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.5.rc3
+- Change ownership and permissions on config files to protect them.
+
 * Tue Oct  6 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.4.rc3
 - Update to 1.6.2.0-rc3
 
