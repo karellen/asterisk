@@ -2,7 +2,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.0
-Release: 0.5%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.6%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -64,6 +64,9 @@ Requires(pre): %{_sbindir}/groupadd
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
+
+# needed for icons used from %{_datadir}/asterisk/static-http/*
+Requires: latex2html
 
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
@@ -1008,6 +1011,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Oct  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.6.rc3
+- Require latex2html used in static-http documents
+
 * Wed Oct  7 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.5.rc3
 - Change ownership and permissions on config files to protect them.
 
