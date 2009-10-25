@@ -1,18 +1,7 @@
-From 6cd5722ba64b7cb24b8475395edcc6555e2326d4 Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jeff@ocjtech.us>
-Date: Sun, 18 Nov 2007 21:47:59 -0600
-Subject: [PATCH 01/15] Modify init scripts for better Fedora compatibility.
-
----
- contrib/init.d/rc.redhat.asterisk |   61 +++++++++++++++++-------------------
- contrib/sysconfig/asterisk        |   16 ++++++++++
- 2 files changed, 45 insertions(+), 32 deletions(-)
- create mode 100644 contrib/sysconfig/asterisk
-
-diff --git a/contrib/init.d/rc.redhat.asterisk b/contrib/init.d/rc.redhat.asterisk
-index d2a630e..7ac830d 100755
---- a/contrib/init.d/rc.redhat.asterisk
-+++ b/contrib/init.d/rc.redhat.asterisk
+Index: contrib/init.d/rc.redhat.asterisk
+===================================================================
+--- contrib/init.d/rc.redhat.asterisk	(revision 225759)
++++ contrib/init.d/rc.redhat.asterisk	(working copy)
 @@ -3,7 +3,7 @@
  #
  # asterisk    Starts, Stops and Reloads Asterisk.
@@ -30,10 +19,10 @@ index d2a630e..7ac830d 100755
 -#AST_CONFIG=/etc/asterisk
 +# Do not modify this script to change any of the settings, instead
 +# edit /etc/sysconfig/asterisk
-+
+ 
 +# Specify the configuration file
 +AST_CONFIG=/etc/asterisk/asterisk.conf
- 
++
  # Installation directory
  AST_SBIN=/usr/sbin
  
@@ -50,7 +39,7 @@ index d2a630e..7ac830d 100755
 +# as to the primary group of the user, as well as initialize the
 +# supplementary groups.  If you want to run Asterisk as a different
 +# group, set AST_GROUP to the group that Asterisk should run as.  Note
-+# that this may break Zaptel devices as supplementary groups will not
++# that this may break DAHDI devices as supplementary groups will not
 +# be initialized.
  #AST_GROUP="asterisk"
  
@@ -100,7 +89,7 @@ index d2a630e..7ac830d 100755
  RETVAL=0
  
  start() {
-@@ -78,9 +78,6 @@ start() {
+@@ -78,19 +78,17 @@
  
  	# Start daemons.
  	echo -n $"Starting asterisk: "
@@ -108,18 +97,24 @@ index d2a630e..7ac830d 100755
 -		DAEMON=$SAFE_ASTERISK
 -	fi
  	if [ $AST_USER ] ; then
- 		ASTARGS="-U $AST_USER"
+-		ASTARGS="-U $AST_USER"
++		AST_ARGS="-U $AST_USER"
  	fi
-@@ -88,7 +85,7 @@ start() {
- 		ASTARGS="$ASTARGS -G $AST_GROUP"
+ 	if [ $AST_GROUP ] ; then
+-		ASTARGS="$ASTARGS -G $AST_GROUP"
++		AST_ARGS="$AST_ARGS -G $AST_GROUP"
  	fi
  	if [ $AST_CONFIG ]; then
 -		ASTARGS="$ASTARGS -C $AST_CONFIG/asterisk.conf"
-+		ASTARGS="$ASTARGS -C $AST_CONFIG"
++		AST_ARGS="$AST_ARGS -C $AST_CONFIG"
  	fi
- 	daemon $DAEMON $ASTARGS
+-	daemon $DAEMON $ASTARGS
++	cd /var/spool/asterisk
++	daemon $DAEMON $AST_ARGS $AST_EXTRA_ARGS
  	RETVAL=$?
-@@ -99,7 +96,7 @@ start() {
+ 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/asterisk
+ 	echo
+@@ -99,7 +97,7 @@
  
  stop() {
  	# Stop daemons.
@@ -128,12 +123,11 @@ index d2a630e..7ac830d 100755
  	killproc asterisk
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/asterisk
-diff --git a/contrib/sysconfig/asterisk b/contrib/sysconfig/asterisk
-new file mode 100644
-index 0000000..2d3598a
---- /dev/null
-+++ b/contrib/sysconfig/asterisk
-@@ -0,0 +1,16 @@
+Index: contrib/sysconfig/asterisk
+===================================================================
+--- contrib/sysconfig/asterisk	(revision 225759)
++++ contrib/sysconfig/asterisk	(working copy)
+@@ -0,0 +1,19 @@
 +# Specify the configuration file
 +AST_CONFIG=/etc/asterisk/asterisk.conf
 +
@@ -150,6 +144,6 @@ index 0000000..2d3598a
 +# that this may break Zaptel devices as supplementary groups will not
 +# be initialized.
 +#AST_GROUP="asterisk"
--- 
-1.6.1
-
++
++# A place to specify extra arguments for the Asterisk command line
++AST_EXTRA_ARGS=""

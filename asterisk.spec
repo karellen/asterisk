@@ -2,7 +2,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.1.7
-Release: 0.2%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.4%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -17,8 +17,7 @@ Source6: asterisk-developer-pubring.gpg
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch5:  0005-Build-using-external-libedit.patch
-Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.4.patch
-Patch10: 0010-my-guess-as-replacements-for-the-missing-broken-stuf.patch
+Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
@@ -38,7 +37,7 @@ BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
 
 # for res_http_post
-BuildRequires: gmime-devel
+BuildRequires: gmime22-devel
 
 # for building docs
 BuildRequires: doxygen
@@ -380,11 +379,10 @@ local filesystem.
 
 %prep
 %setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
-%patch1 -p1
+%patch1 -p0
 %patch2 -p0
 %patch5 -p0
 %patch8 -p0
-%patch10 -p1
 %patch11 -p0
 %patch12 -p1
 
@@ -992,6 +990,13 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.4.rc2
+- Add an AST_EXTRA_ARGS option to the init script
+- have the init script to cd to /var/spool/asterisk to prevent annoying message
+
+* Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.3.rc2
+- Compile against gmime 2.2 instead of gmime 2.4 because the patch to convert the API calls from 2.2 to 2.4 caused crashes.
+
 * Fri Oct  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.2.rc2
 - Require latex2html used in static-http documents
 

@@ -1,8 +1,8 @@
 Index: configure.ac
 ===================================================================
---- configure.ac	(revision 216642)
+--- configure.ac	(revision 221084)
 +++ configure.ac	(working copy)
-@@ -1493,7 +1493,17 @@
+@@ -1520,7 +1520,17 @@
      AST_CHECK_OSPTK([3], [5], [0])
  fi
  
@@ -10,8 +10,8 @@ Index: configure.ac
 +PBX_GMIME=0
 +AC_CHECK_TOOL(PKGCONFIG, pkg-config, No)
 +if test ! "x${PKGCONFIG}" = xNo; then
-+   GMIME_INCLUDE=$(${PKGCONFIG} gmime-2.4 --cflags 2>/dev/null)
-+   GMIME_LIB=$(${PKGCONFIG} gmime-2.4 --libs)
++   GMIME_INCLUDE=$(${PKGCONFIG} gmime-2.0 --cflags 2>/dev/null)
++   GMIME_LIB=$(${PKGCONFIG} gmime-2.0 --libs)
 +   PBX_GMIME=1
 +   AC_DEFINE([HAVE_GMIME], 1, [Define if your system has the GMIME libraries.])
 +fi
