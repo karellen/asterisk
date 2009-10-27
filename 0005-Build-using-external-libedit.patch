@@ -1,6 +1,6 @@
 Index: build_tools/menuselect-deps.in
 ===================================================================
---- build_tools/menuselect-deps.in	(revision 222649)
+--- build_tools/menuselect-deps.in	(revision 226061)
 +++ build_tools/menuselect-deps.in	(working copy)
 @@ -17,6 +17,7 @@
  IXJUSER=@PBX_IXJUSER@
@@ -12,9 +12,9 @@ Index: build_tools/menuselect-deps.in
  MISDN=@PBX_MISDN@
 Index: configure.ac
 ===================================================================
---- configure.ac	(revision 222649)
+--- configure.ac	(revision 226061)
 +++ configure.ac	(working copy)
-@@ -244,6 +244,7 @@
+@@ -232,6 +232,7 @@
  AST_EXT_LIB_SETUP([ISDNNET], [ISDN4Linux Library], [isdnnet])
  AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
  AST_EXT_LIB_SETUP([LDAP], [OpenLDAP], [ldap])
@@ -22,9 +22,9 @@ Index: configure.ac
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
  AST_EXT_LIB_SETUP([MISDN], [mISDN User Library], [misdn])
-@@ -1605,6 +1606,27 @@
- AC_SUBST(GTK2_INCLUDE)
- AC_SUBST(GTK2_LIB)
+@@ -1593,6 +1594,27 @@
+ AST_EXT_LIB_CHECK([SDL_IMAGE], [SDL_image], [IMG_Load], [SDL_image.h], [${SDL_LIB}], [${SDL_INCLUDE}])
+ AST_EXT_LIB_CHECK([FFMPEG], [avcodec], [sws_getContext], [ffmpeg/avcodec.h], [-lpthread -lz -lm])
  
 +PBX_LIBEDIT=0
 +LIBEDIT_INCLUDE=-Ieditline/readline
@@ -47,12 +47,12 @@ Index: configure.ac
 +AC_SUBST(LIBEDIT_LIB)
 +AC_SUBST(LIBEDIT_OBJ)
 +
- AST_LIBCURL_CHECK_CONFIG([], [7.10.1])
- 
- AC_CONFIG_FILES([build_tools/menuselect-deps makeopts channels/h323/Makefile])
+ # possible places for video4linux version 1
+ AC_CHECK_HEADER([linux/videodev.h],
+ 	[AC_DEFINE_UNQUOTED([HAVE_VIDEODEV_H], 1, [Define to 1 if your system has linux/videodev.h.])])
 Index: main/Makefile
 ===================================================================
---- main/Makefile	(revision 222649)
+--- main/Makefile	(revision 226061)
 +++ main/Makefile	(working copy)
 @@ -129,6 +129,8 @@
  	$(CC) -g -o testexpr2 ast_expr2f.o ast_expr2.o -lm
@@ -82,7 +82,7 @@ Index: main/Makefile
  
 Index: main/cli.c
 ===================================================================
---- main/cli.c	(revision 222649)
+--- main/cli.c	(revision 226061)
 +++ main/cli.c	(working copy)
 @@ -34,6 +34,8 @@
  #include <ctype.h>
@@ -103,9 +103,9 @@ Index: main/cli.c
  /*!
 Index: makeopts.in
 ===================================================================
---- makeopts.in	(revision 222649)
+--- makeopts.in	(revision 226061)
 +++ makeopts.in	(working copy)
-@@ -249,3 +249,7 @@
+@@ -246,3 +246,7 @@
  
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@

@@ -1,8 +1,8 @@
-%define _rc 2
+#define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.7
-Release: 0.4%{?_rc:.rc%{_rc}}%{?dist}
+Version: 1.6.1.8
+Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -12,12 +12,12 @@ Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source5: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
-Source6: asterisk-developer-pubring.gpg
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch5:  0005-Build-using-external-libedit.patch
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
+Patch9:  0008-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
@@ -383,6 +383,7 @@ local filesystem.
 %patch2 -p0
 %patch5 -p0
 %patch8 -p0
+%patch9 -p1
 %patch11 -p0
 %patch12 -p1
 
@@ -496,6 +497,8 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 # these are compiled with -O0 and thus include unfortified code.
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
+
+rm -rf %{buildroot}%{_datadir}/asterisk/firmware/iax/*
 
 find doc/api/html -name \*.map -size 0 -delete
 
@@ -990,6 +993,16 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Oct 27 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.8-1
+- Update to 1.6.1.8 to fix bug 531199:
+-
+- http://downloads.asterisk.org/pub/security/AST-2009-007.html
+-
+- A missing ACL check for handling SIP INVITEs allows a device to make
+- calls on networks intended to be prohibited as defined by the "deny"
+- and "permit" lines in sip.conf. The ACL check for handling SIP
+- registrations was not affected.
+
 * Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.4.rc2
 - Add an AST_EXTRA_ARGS option to the init script
 - have the init script to cd to /var/spool/asterisk to prevent annoying message
