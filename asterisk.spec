@@ -1,7 +1,7 @@
 #define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.8
+Version: 1.6.1.9
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -69,7 +69,7 @@ Requires: latex2html
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
 Obsoletes: asterisk-mobile <= 1.6.1-0.23.rc1
-Obsoletes: asterisk-firmware <= 1.6.1.6-1
+Obsoletes: asterisk-firmware < 1.6.1.9-1
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -993,6 +993,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Nov  4 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.9-1
+- Update to 1.6.1.9 to fix AST-2009-009/CVE-2008-7220 and AST-2009-008
+- Fix obsoletes for firmware subpackage
+
 * Tue Oct 27 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.8-1
 - Update to 1.6.1.8 to fix bug 531199:
 -
