@@ -2,7 +2,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.0
-Release: 0.8%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.9%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -12,14 +12,17 @@ Source1: asterisk-logrotate
 Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source5: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
-Source6: asterisk-developer-pubring.gpg
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
+
 Patch5:  0005-Build-using-external-libedit.patch
+
+# Submitted upstream: https://issues.asterisk.org/view.php?id=16155
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch13: 0013-res_http_post-path-issue.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -386,6 +389,7 @@ local filesystem.
 %patch8 -p0
 %patch11 -p0
 %patch12 -p1
+%patch13 -p0
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1009,6 +1013,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Oct 27 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.9.rc3
+- Add patch from upstream to fix how res_http_post forms paths.
+
 * Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.8.rc3
 - Add an AST_EXTRA_ARGS option to the init script
 - have the init script to cd to /var/spool/asterisk to prevent annoying message
