@@ -1,6 +1,6 @@
 Index: contrib/init.d/rc.redhat.asterisk
 ===================================================================
---- contrib/init.d/rc.redhat.asterisk	(revision 225759)
+--- contrib/init.d/rc.redhat.asterisk	(revision 228657)
 +++ contrib/init.d/rc.redhat.asterisk	(working copy)
 @@ -3,7 +3,7 @@
  #
@@ -114,13 +114,21 @@ Index: contrib/init.d/rc.redhat.asterisk
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/asterisk
  	echo
-@@ -99,7 +97,7 @@
+@@ -98,14 +96,8 @@
+ }
  
  stop() {
- 	# Stop daemons.
+-	# Stop daemons.
+-	if [ -f $SAFE_ASTERISK ]; then
+-		# Kill safe_asterisk first, to prevent us from starting up 2 instances of safe_asterisk
+-		echo -n $"Stopping safe_asterisk: "
+-		killproc `basename $SAFE_ASTERISK`
+-		echo
+-	fi
 -	echo -n $"Shutting down asterisk: "
++	# Stop daemon.
 +	echo -n $"Stopping asterisk: "
- 	killproc asterisk
+ 	killproc `basename $DAEMON`
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/asterisk
 Index: contrib/sysconfig/asterisk

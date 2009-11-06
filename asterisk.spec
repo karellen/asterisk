@@ -1,8 +1,8 @@
-%define _rc 3
+%define _rc 4
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.0
-Release: 0.9%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.10%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -22,7 +22,6 @@ Patch5:  0005-Build-using-external-libedit.patch
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
-Patch13: 0013-res_http_post-path-issue.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -389,7 +388,6 @@ local filesystem.
 %patch8 -p0
 %patch11 -p0
 %patch12 -p1
-%patch13 -p0
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -1013,6 +1011,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Nov  6 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.10.rc4
+- Update to 1.6.2.0-rc4
+
 * Tue Oct 27 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.9.rc3
 - Add patch from upstream to fix how res_http_post forms paths.
 
