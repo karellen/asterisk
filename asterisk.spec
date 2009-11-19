@@ -1,7 +1,7 @@
 #define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.9
+Version: 1.6.1.10
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -17,7 +17,6 @@ Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch5:  0005-Build-using-external-libedit.patch
 Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
-Patch9:  0008-Revert-changes-to-pbx_lua-from-rev-126363-that-cause.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
@@ -383,7 +382,6 @@ local filesystem.
 %patch2 -p0
 %patch5 -p0
 %patch8 -p0
-%patch9 -p1
 %patch11 -p0
 %patch12 -p1
 
@@ -993,6 +991,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Nov 19 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.10-1
+- Update to 1.6.1.10
+- Drop unneeded patch to get Lua extensions building
+
 * Wed Nov  4 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.9-1
 - Update to 1.6.1.9 to fix AST-2009-009/CVE-2008-7220 and AST-2009-008
 - Fix obsoletes for firmware subpackage
