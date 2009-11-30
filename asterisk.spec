@@ -1,7 +1,7 @@
 #define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.10
+Version: 1.6.1.11
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -991,6 +991,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Nov 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.11-1
+- Update to 1.6.1.11 to fix AST-2009-010/CVE-2009-4055
+
 * Thu Nov 19 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.10-1
 - Update to 1.6.1.10
 - Drop unneeded patch to get Lua extensions building
