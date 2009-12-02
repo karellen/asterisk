@@ -89,7 +89,7 @@ Index: contrib/init.d/rc.redhat.asterisk
  RETVAL=0
  
  start() {
-@@ -78,19 +78,17 @@
+@@ -78,19 +78,18 @@
  
  	# Start daemons.
  	echo -n $"Starting asterisk: "
@@ -109,7 +109,8 @@ Index: contrib/init.d/rc.redhat.asterisk
 +		AST_ARGS="$AST_ARGS -C $AST_CONFIG"
  	fi
 -	daemon $DAEMON $ASTARGS
-+	cd /var/spool/asterisk
++	export HOME=~asterisk
++	cd $HOME
 +	daemon $DAEMON $AST_ARGS $AST_EXTRA_ARGS
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/asterisk

@@ -1,8 +1,8 @@
-%define _rc 6
+%define _rc 7
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.0
-Release: 0.12%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.15%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -39,7 +39,12 @@ BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
 
 # for res_http_post
+%if 0%{?fedora} > 0
 BuildRequires: gmime22-devel
+%endif
+%if 0%{?rhel} > 0
+BuildRequires: gmime-devel
+%endif
 
 # for building docs
 BuildRequires: doxygen
@@ -346,6 +351,7 @@ Requires: /usr/sbin/sendmail
 %description voicemail
 Common Voicemail Modules for Asterisk.
 
+%if 0%{?fedora} > 0
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Group: Applications/Internet
@@ -357,6 +363,7 @@ BuildRequires: uw-imap-devel
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
 server.
+%endif
 
 %package voicemail-odbc
 Summary: Store voicemail in a database using ODBC
@@ -404,6 +411,15 @@ rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
 
+%if 0%{?rhel} > 0
+# Get the autoconf scripts working with 2.59
+%{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
+%{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
+%{__perl} -pi -e 's/AST_PROG_SED/SED=sed/g' autoconf/ast_prog_ld.m4
+# kernel/glibc in RHEL5 does not support the timerfd
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_timing_timerfd/g' menuselect.makeopts
+%endif
+
 %build
 
 %define optflags %(rpm --eval %%{optflags}) -Werror-implicit-function-declaration
@@ -424,7 +440,11 @@ pushd main/editline
 %configure
 popd
 
+%if 0%{?fedora} > 0
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes
+%else
+%configure --with-gsm=/usr --with-libedit=yes
+%endif
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
@@ -432,12 +452,14 @@ rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
+%if 0%{?fedora} > 0
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
+%endif
 
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
@@ -470,8 +492,10 @@ install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIU
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
+%if 0%{?fedora} > 0
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules
+%endif
 install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules
 install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules
 install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules
@@ -709,7 +733,9 @@ fi
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
+%if 0%{?fedora} > 0
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
+%endif
 %{_libdir}/asterisk/modules/test_dlinklists.so
 %{_libdir}/asterisk/modules/test_heap.so
 %{_libdir}/asterisk/modules/test_sched.so
@@ -994,10 +1020,12 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
+%if 0%{?fedora} > 0
 %files voicemail-imap
 %defattr(-,root,root,)
 %{_libdir}/asterisk/modules/app_directory_imap.so
 %{_libdir}/asterisk/modules/app_voicemail_imap.so
+%endif
 
 %files voicemail-odbc
 %defattr(-,root,root,-)
@@ -1011,6 +1039,17 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Dec  2 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.15.rc7
+- Update to 1.6.2.0-rc7
+
+* Tue Dec  1 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.14.rc6
+- Change the logrotate and the init scripts so that Asterisk doesn't
+  try and write to / or /root
+
+* Thu Nov 19 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.13.rc6
+- Make dependency on uw-imap conditional and some other changes to
+  make building on RHEL5 easier.
+
 * Fri Nov 13 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.12.rc6
 - Update to 1.6.2.0-rc6
 
