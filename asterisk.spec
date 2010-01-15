@@ -1,8 +1,8 @@
-%global _rc 1
+#global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.1
-Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
+Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1039,6 +1039,26 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jan 15 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-1
+- Update to 1.6.2.1 final:
+- 
+- * CLI 'queue show' formatting fix.
+-   (Closes issue #16078. Reported by RoadKill. Tested by dvossel. Patched by
+-    ppyy.)
+- 
+- * Fix misreverting from 177158.
+-   (Closes issue #15725. Reported, Tested by shanermn. Patched by dimas.)
+- 
+- * Fixes subscriptions being lost after 'module reload'.
+-   (Closes issue #16093. Reported by jlaroff. Patched by dvossel.)
+- 
+- * app_queue segfaults if realtime field uniqueid is NULL
+-  (Closes issue #16385. Reported, Tested, Patched by haakon.)
+- 
+- * Fix to Monitor which previously assumed the file to write to did not contain
+-   pathing.
+-   (Closes issue #16377, #16376. Reported by bcnit. Patched by dant.
+
 * Tue Jan 12 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-0.1.rc1
 - Update to 1.6.2.1-rc1
 
