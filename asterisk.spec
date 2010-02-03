@@ -1,7 +1,7 @@
 #global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.1
+Version: 1.6.2.2
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1039,6 +1039,15 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Feb  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.2-1
+- Update to 1.6.2.2
+-
+-	* AST-2010-001: An attacker attempting to negotiate T.38 over SIP can 
+-	  remotely crash Asterisk by modifying the FaxMaxDatagram field of 
+-	  the SDP to contain either a negative or exceptionally large value.
+-	  The same crash occurs when the FaxMaxDatagram field is omitted from 
+-	  the SDP as well.
+
 * Fri Jan 15 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-1
 - Update to 1.6.2.1 final:
 - 
