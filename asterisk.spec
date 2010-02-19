@@ -1,7 +1,7 @@
 #global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.2
+Version: 1.6.2.4
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1039,6 +1039,14 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Feb 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.4-1
+- Update to 1.6.2.4
+-
+-        * AST-2010-002: This security release is intended to raise awareness 
+-          of how it is possible to insert malicious strings into dialplans, 
+-          and to advise developers to read the best practices documents so 
+-          that they may easily avoid these dangers.
+
 * Wed Feb  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.2-1
 - Update to 1.6.2.2
 -
