@@ -1,7 +1,7 @@
 #global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.4
+Version: 1.6.2.5
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1039,6 +1039,11 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Feb 25 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-1
+- Update to 1.6.2.5
+- 
+-         * AST-2010-002: Invalid parsing of ACL rules can compromise security
+
 * Thu Feb 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.4-1
 - Update to 1.6.2.4
 -
