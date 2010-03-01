@@ -1,7 +1,7 @@
 #define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.12
+Version: 1.6.1.17
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -991,6 +991,20 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Mar  1 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.17-1
+- Update to 1.6.1.17
+- 
+- * AST-2010-003: Invalid parsing of ACL rules can compromise security
+- * AST-2010-002: This security release is intended to raise awareness
+-   of how it is possible to insert malicious strings into dialplans,
+-   and to advise developers to read the best practices documents so
+-   that they may easily avoid these dangers.
+- * AST-2010-001: An attacker attempting to negotiate T.38 over SIP can
+-   remotely crash Asterisk by modifying the FaxMaxDatagram field of 
+-   the SDP to contain either a negative or exceptionally large value.
+-   The same crash occurs when the FaxMaxDatagram field is omitted from 
+-   the SDP as well.
+
 * Mon Dec 21 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.12-1
 - Update to 1.6.1.12
 
