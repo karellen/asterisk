@@ -1,0 +1,36 @@
+Index: main/asterisk.c
+===================================================================
+--- main/asterisk.c	(revision 250967)
++++ main/asterisk.c	(working copy)
+@@ -2567,29 +2567,12 @@
+ 
+ static int ast_el_read_history(char *filename)
+ {
+-	char buf[MAX_HISTORY_COMMAND_LENGTH];
+-	FILE *f;
+-	int ret = -1;
++	HistEvent ev;
+ 
+ 	if (el_hist == NULL || el == NULL)
+ 		ast_el_initialize();
+ 
+-	if ((f = fopen(filename, "r")) == NULL)
+-		return ret;
+-
+-	while (!feof(f)) {
+-		if (!fgets(buf, sizeof(buf), f))
+-			break;
+-		if (!strcmp(buf, "_HiStOrY_V2_\n"))
+-			continue;
+-		if (ast_all_zeros(buf))
+-			continue;
+-		if ((ret = ast_el_add_history(buf)) == -1)
+-			break;
+-	}
+-	fclose(f);
+-
+-	return ret;
++	return (history(el_hist, &ev, H_LOAD, filename));
+ }
+ 
+ static void ast_remotecontrol(char *data)
