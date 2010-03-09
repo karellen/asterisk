@@ -1,8 +1,8 @@
-#global _rc 1
+%global _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.5
-Release: 2%{?_rc:.rc%{_rc}}%{?dist}
+Version: 1.6.2.6
+Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -393,8 +393,8 @@ local filesystem.
 %setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
 %patch1 -p0
 %patch2 -p0
-%patch5 -p0
-%patch6 -p0
+%patch5 -p1
+%patch6 -p1
 %patch8 -p0
 %patch11 -p0
 %patch12 -p1
@@ -1038,6 +1038,12 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Mar  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-0.1.rc2
+- Update to 1.6.2.6-rc2
+
+* Mon Mar  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-2
+- Add a patch that fixes CLI history when linking against external libedit.
+
 * Thu Feb 25 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-1
 - Update to 1.6.2.5
 - 
