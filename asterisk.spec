@@ -1,8 +1,8 @@
-%global _rc 2
+#global _rc 2
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.6
-Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
+Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1038,6 +1038,33 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Mar 12 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-1
+- Update to final 1.6.2.6
+- 
+- The following are a few of the issues resolved by community developers:
+- 
+-  * Make sure to clear red alarm after polarity reversal.
+-    (Closes issue #14163. Reported, patched by jedi98. Tested by mattbrown,
+-     Chainsaw, mikeeccleston)
+- 
+-  * Fix problem with duplicate TXREQ packets in chan_iax2
+-    (Closes issue #16904. Reported, patched by rain. Tested by rain, dvossel)
+- 
+-  * Fix crash in app_voicemail related to message counting.
+-    (Closes issue #16921. Reported, tested by whardier. Patched by seanbright)
+- 
+-  * Overlap receiving: Automatically send CALL PROCEEDING when dialplan starts
+-    (Reported, Patched, and Tested by alecdavis)
+- 
+-  * For T.38 reINVITEs treat a 606 the same as a 488.
+-    (Closes issue #16792. Reported, patched by vrban)
+- 
+-  * Fix ConfBridge crash when no timing module is loaded.
+-    (Closes issue #16471. Reported, tested by kjotte. Patched, tested by junky)
+- 
+- For a full list of changes in this releases, please see the ChangeLog:
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.6
+
 * Mon Mar  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-0.1.rc2
 - Update to 1.6.2.6-rc2
 
