@@ -1,7 +1,7 @@
 #define _rc 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.17
+Version: 1.6.1.18
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -991,6 +991,30 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Apr  7 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.18-1
+- Update to 1.6.1.18
+- 
+- The following are a few of the issues resolved by community developers:
+- 
+-  * Make sure to clear red alarm after polarity reversal.
+-    (Closes issue #14163. Reported, patched by jedi98. Tested by mattbrown,
+-     Chainsaw, mikeeccleston)
+- 
+-  * Fix problem with duplicate TXREQ packets in chan_iax2.
+-    (Closes issue #16904. Reported, patched by rain. Tested by rain, dvossel)
+- 
+-  *  Update documentation to not imply we support overriding options.
+-     (Closes issue #16855. Reported by davidw)
+- 
+-  * Modify queued frames from Local channels to not set the other side to up.
+-    (Closes issue #16816. Reported, tested by jamhed)
+- 
+-  *  For T.38 reINVITEs treat a 606 the same as a 488.
+-     (Closes issue #16792. Reported, patched by vrban)
+- 
+- For a full list of changes in this releases, please see the ChangeLog:
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.1.18
+
 * Mon Mar  1 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.17-1
 - Update to 1.6.1.17
 - 
