@@ -1,8 +1,8 @@
-%global _rc 3
+#global _rc 3
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.7
-Release: 0.2%{?_rc:.rc%{_rc}}%{?dist}
+Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1039,6 +1039,26 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue May  4 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-1
+-  * Fix building CDR and CEL SQLite3 modules.
+-    (Closes issue #17017. Reported by alephlg. Patched by seanbright)
+- 
+-  * Resolve crash in SLAtrunk when the specified trunk doesn't exist.
+-    (Reported in #asterisk-dev by philipp64. Patched by seanbright)
+- 
+-  * Include an extra newline after "Aliased CLI command" to get back the prompt.
+-    (Issue #16978. Reported by jw-asterisk. Tested, patched by seanbright)
+- 
+-  * Prevent segfault if bad magic number is encountered.
+-    (Issue #17037. Reported, patched by alecdavis)
+- 
+-  * Update code to reflect that handle_speechset has 4 arguments.
+-    (Closes issue #17093. Reported, patched by gpatri. Tested by pabelanger,
+-     mmichelson)
+- 
+-  * Resolve a deadlock in chan_local.
+-    (Closes issue #16840. Reported, patched by bzing2, russell. Tested by bzing2)
+
 * Mon May  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-0.2.rc3
 - Update to 1.6.2.7-rc3
 
