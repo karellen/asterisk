@@ -25,6 +25,8 @@ Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
 Patch11: 0011-Fix-up-some-paths.patch
 Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
+Patch14: 0014-latex2html-local_icons.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires: autoconf
@@ -53,6 +55,7 @@ BuildRequires: doxygen
 BuildRequires: graphviz
 BuildRequires: graphviz-gd
 BuildRequires: libxml2-devel
+BuildRequires: latex2html
 
 # for codec_speex
 BuildRequires: speex-devel >= 1.2
@@ -72,9 +75,6 @@ Requires(pre): %{_sbindir}/groupadd
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
-
-# needed for icons used from %{_datadir}/asterisk/static-http/*
-Requires: latex2html
 
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
@@ -398,6 +398,7 @@ local filesystem.
 %patch8 -p0
 %patch11 -p0
 %patch12 -p1
+%patch14 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -475,6 +476,8 @@ ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstat
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
+
+cd doc/tex && ASTCFLAGS="%{optflags}" make html
 
 %install
 rm -rf %{buildroot}

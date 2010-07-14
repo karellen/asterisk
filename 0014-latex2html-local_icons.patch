@@ -1,0 +1,11 @@
+--- asterisk-1.6.2.8-rc1/doc/tex/Makefile.org	2010-07-14 17:55:01.000000000 +0200
++++ asterisk-1.6.2.8-rc1/doc/tex/Makefile	2010-07-14 17:55:51.000000000 +0200
+@@ -41,7 +41,7 @@
+ 	@cp asterisk.tex asterisk.tex.orig
+ 	@sed -e 's/ASTERISKVERSION/$(ASTERISKVERSION)/' asterisk.tex > asterisk_local.tex
+ 	@mv asterisk_local.tex asterisk.tex
+-	@latex2html asterisk.tex
++	@latex2html -local_icons asterisk.tex
+ 	@mv asterisk.tex.orig asterisk.tex
+ 
+ txt: asterisk.txt
