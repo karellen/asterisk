@@ -1,7 +1,7 @@
-From 6e551983f559c1ca1efa5f452c91f90b20eeb882 Mon Sep 17 00:00:00 2001
+From 61006b2d0679cadf369ce6028cf98ebf722db600 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 5 Mar 2010 14:10:52 -0600
-Subject: [PATCH 1/2] Allow linking/building against an external libedit.
+Subject: [PATCH 3/8] Allow linking/building against an external libedit.
 
 The Asterisk tarball includes a very old copy of the editline library
 that manages command line history and editing.  Fedora (and several
@@ -31,18 +31,18 @@ index 5f399fc..695622c 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index d4a980d..a9f5646 100644
+index 0b6748e..1b3f9c7 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -312,6 +312,7 @@ AST_EXT_LIB_SETUP([IODBC], [iODBC], [iodbc])
- AST_EXT_LIB_SETUP([ISDNNET], [ISDN4Linux Library], [isdnnet])
+@@ -315,6 +315,7 @@ AST_EXT_LIB_SETUP([ISDNNET], [ISDN4Linux], [isdnnet])
  AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
  AST_EXT_LIB_SETUP([LDAP], [OpenLDAP], [ldap])
+ AST_LIBCURL_CHECK_CONFIG([], [7.10.1])
 +AST_EXT_LIB_SETUP([LIBEDIT], [NetBSD Editline library], [libedit])
  AST_EXT_LIB_SETUP([LIBXML2], [LibXML2], [libxml2])
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
-@@ -1748,6 +1749,27 @@ AC_SUBST(PBX_GTK2)
+@@ -1778,6 +1779,27 @@ AC_SUBST(PBX_GTK2)
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -67,14 +67,14 @@ index d4a980d..a9f5646 100644
 +AC_SUBST(LIBEDIT_LIB)
 +AC_SUBST(LIBEDIT_OBJ)
 +
- AST_LIBCURL_CHECK_CONFIG([], [7.10.1])
- 
  # build a GENERIC_ODBC result based on the presence of either UnixODBC (preferred)
+ # or iODBC
+ 
 diff --git a/main/Makefile b/main/Makefile
-index 4b0de7e..8e43a0a 100644
+index 6e61808..ec2c2bc 100644
 --- a/main/Makefile
 +++ b/main/Makefile
-@@ -142,6 +142,8 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
+@@ -145,6 +145,8 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
  	$(CC) -g -o testexpr2 ast_expr2f.o ast_expr2.o -lm
  	rm ast_expr2.o ast_expr2f.o 
  
@@ -83,7 +83,7 @@ index 4b0de7e..8e43a0a 100644
  ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  http.o: _ASTCFLAGS+=$(GMIME_INCLUDE)
  endif
-@@ -174,13 +176,13 @@ ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
+@@ -177,13 +179,13 @@ ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  GMIMELDFLAGS+=$(GMIME_LIB)
  endif
  
@@ -101,7 +101,7 @@ index 4b0de7e..8e43a0a 100644
  	$(CMD_PREFIX) $(ASTTOPDIR)/build_tools/strip_nonapi $@ || rm $@
  
 diff --git a/main/cli.c b/main/cli.c
-index e411c0d..2b6624f 100644
+index 8361e4e..4655ae3 100644
 --- a/main/cli.c
 +++ b/main/cli.c
 @@ -36,6 +36,8 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
@@ -122,10 +122,10 @@ index e411c0d..2b6624f 100644
  
  /*!
 diff --git a/makeopts.in b/makeopts.in
-index a8adbad..c314b9f 100644
+index 8de43af..9b6f757 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -265,3 +265,7 @@ TINFO_DIR=@TINFO_DIR@
+@@ -260,3 +260,7 @@ TINFO_DIR=@TINFO_DIR@
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@
  TIMERFD_INCLUDE=@TIMERFD_INCLUDE@
@@ -134,5 +134,5 @@ index a8adbad..c314b9f 100644
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
 -- 
-1.6.6.1
+1.7.2
 

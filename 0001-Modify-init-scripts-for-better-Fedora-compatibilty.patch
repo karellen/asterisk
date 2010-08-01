@@ -1,7 +1,18 @@
-Index: contrib/init.d/rc.redhat.asterisk
-===================================================================
---- contrib/init.d/rc.redhat.asterisk	(revision 228657)
-+++ contrib/init.d/rc.redhat.asterisk	(working copy)
+From ed8a94405e46074833a9fc0e7b09db428d3afecd Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Wed, 28 Jul 2010 07:22:21 -0500
+Subject: [PATCH 1/8] Modify init scripts for better Fedora compatibilty.
+
+---
+ contrib/init.d/rc.redhat.asterisk |   75 +++++++++++++++++--------------------
+ contrib/sysconfig/asterisk        |   19 +++++++++
+ 2 files changed, 53 insertions(+), 41 deletions(-)
+ create mode 100644 contrib/sysconfig/asterisk
+
+diff --git a/contrib/init.d/rc.redhat.asterisk b/contrib/init.d/rc.redhat.asterisk
+index 3841afe..a72ea2a 100755
+--- a/contrib/init.d/rc.redhat.asterisk
++++ b/contrib/init.d/rc.redhat.asterisk
 @@ -3,7 +3,7 @@
  #
  # asterisk    Starts, Stops and Reloads Asterisk.
@@ -10,21 +21,20 @@ Index: contrib/init.d/rc.redhat.asterisk
 +# chkconfig: - 90 60
  # description: Asterisk PBX and telephony daemon.
  # processname: asterisk
- # pidfile: /var/run/asterisk.pid
+ # pidfile: __ASTERISK_VARRUN_DIR__/asterisk.pid
 @@ -20,51 +20,51 @@
  # - Added support for -U and -G command line options
  # - Modified "reload" to call asterisk -rx 'reload' 
  
--# Use this option to specify a different configuration directory
--#AST_CONFIG=/etc/asterisk
 +# Do not modify this script to change any of the settings, instead
 +# edit /etc/sysconfig/asterisk
- 
-+# Specify the configuration file
-+AST_CONFIG=/etc/asterisk/asterisk.conf
 +
+ # Use this option to specify a different configuration directory
+-#AST_CONFIG=__ASTERISK_ETC_DIR__
++AST_CONFIG=__ASTERISK_ETC_DIR__/asterisk.conf
+ 
  # Installation directory
- AST_SBIN=/usr/sbin
+ AST_SBIN=__ASTERISK_SBIN_DIR__
  
 -# Uncomment the following and set them to the user/groups that you
 -# want to run Asterisk as. NOTE: this requires substantial work to
@@ -89,7 +99,7 @@ Index: contrib/init.d/rc.redhat.asterisk
  RETVAL=0
  
  start() {
-@@ -78,19 +78,18 @@
+@@ -78,19 +78,18 @@ start() {
  
  	# Start daemons.
  	echo -n $"Starting asterisk: "
@@ -115,7 +125,7 @@ Index: contrib/init.d/rc.redhat.asterisk
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/asterisk
  	echo
-@@ -98,14 +96,8 @@
+@@ -98,14 +97,8 @@ start() {
  }
  
  stop() {
@@ -132,10 +142,11 @@ Index: contrib/init.d/rc.redhat.asterisk
  	killproc `basename $DAEMON`
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/asterisk
-Index: contrib/sysconfig/asterisk
-===================================================================
---- contrib/sysconfig/asterisk	(revision 225759)
-+++ contrib/sysconfig/asterisk	(working copy)
+diff --git a/contrib/sysconfig/asterisk b/contrib/sysconfig/asterisk
+new file mode 100644
+index 0000000..dab2e33
+--- /dev/null
++++ b/contrib/sysconfig/asterisk
 @@ -0,0 +1,19 @@
 +# Specify the configuration file
 +AST_CONFIG=/etc/asterisk/asterisk.conf
@@ -156,3 +167,6 @@ Index: contrib/sysconfig/asterisk
 +
 +# A place to specify extra arguments for the Asterisk command line
 +AST_EXTRA_ARGS=""
+-- 
+1.7.2
+

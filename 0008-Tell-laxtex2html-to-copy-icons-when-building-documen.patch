@@ -1,0 +1,25 @@
+From 9bba846cd52ec6d026daec14b8c65bb1a38711b3 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Wed, 28 Jul 2010 07:32:19 -0500
+Subject: [PATCH 8/8] Tell laxtex2html to copy icons when building documentation so that we don't have run-time dependencies on latex2html.
+
+---
+ doc/tex/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/doc/tex/Makefile b/doc/tex/Makefile
+index 4add45a..e448c95 100644
+--- a/doc/tex/Makefile
++++ b/doc/tex/Makefile
+@@ -41,7 +41,7 @@ html:
+ 	@cp asterisk.tex asterisk.tex.orig
+ 	@sed -e 's/ASTERISKVERSION/$(ASTERISKVERSION)/' asterisk.tex > asterisk_local.tex
+ 	@mv asterisk_local.tex asterisk.tex
+-	@latex2html asterisk.tex
++	@latex2html -local_icons asterisk.tex
+ 	@mv asterisk.tex.orig asterisk.tex
+ 
+ txt: asterisk.txt
+-- 
+1.7.2
+
