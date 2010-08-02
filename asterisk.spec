@@ -2,7 +2,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.10
-Release: 1%{?_rc:.rc%{_rc}}%{?dist}
+Release: 1.1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -43,9 +43,6 @@ BuildRequires: gtk2-devel
 %if 0%{?fedora} > 0
 BuildRequires: gmime22-devel
 %endif
-%if 0%{?rhel} > 0
-BuildRequires: gmime-devel
-%endif
 
 # for building docs
 BuildRequires: doxygen
@@ -85,6 +82,7 @@ does voice over IP in three protocols, and can interoperate with
 almost all standards-based telephony equipment using relatively
 inexpensive hardware.
 
+%if 0%{?fedora} > 0
 %package ais
 Summary: Modules for Asterisk that use OpenAIS
 Group: Applications/Internet
@@ -93,6 +91,7 @@ BuildRequires: openais-devel
 
 %description ais
 Modules for Asterisk that use OpenAIS.
+%endif
 
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
@@ -525,6 +524,10 @@ rm -rf %{buildroot}%{_sbindir}/hashtest2
 
 find doc/api/html -name \*.map -size 0 -delete
 
+%if 0%{?fedora} == 0
+rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
+%endif
+
 %clean
 rm -rf %{buildroot}
 
@@ -723,7 +726,9 @@ fi
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
+%if 0%{?fedora} > 0
 %{_libdir}/asterisk/modules/res_http_post.so
+%endif
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
@@ -837,10 +842,12 @@ fi
 
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
 
+%if 0%{?fedora} > 0
 %files ais
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ais.conf
 %{_libdir}/asterisk/modules/res_ais.so
+%endif
 
 %files alsa
 %defattr(-,root,root,-)
@@ -1035,6 +1042,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1.1
+- Disable res_http_post on EPEL until gmime22-devel is available
+- Disable res_ais on EPEL until openais brokenness can be investigated
+
 * Sat Jul 31 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1
 - Update to 1.6.2.10
 
