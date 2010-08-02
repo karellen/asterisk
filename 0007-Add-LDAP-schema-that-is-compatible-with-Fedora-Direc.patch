@@ -1,7 +1,7 @@
-From e60e1cdc9a967778a007acfefa80184125b58d0c Mon Sep 17 00:00:00 2001
+From 88a8723215b9c27ece6c18d7ef6019a50b0178af Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 4 Jan 2009 19:22:39 -0600
-Subject: [PATCH 12/15] Add LDAP schema that is compatible with Fedora Directory Server.
+Subject: [PATCH 7/8] Add LDAP schema that is compatible with Fedora Directory Server.
 
 ---
  contrib/scripts/99asterisk.ldif |  489 +++++++++++++++++++++++++++++++++++++++
@@ -10,14 +10,14 @@ Subject: [PATCH 12/15] Add LDAP schema that is compatible with Fedora Directory 
 
 diff --git a/contrib/scripts/99asterisk.ldif b/contrib/scripts/99asterisk.ldif
 new file mode 100644
-index 0000000..ef878a8
+index 0000000..f3bdf4e
 --- /dev/null
 +++ b/contrib/scripts/99asterisk.ldif
 @@ -0,0 +1,489 @@
 +dn: cn=schema
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstContext'
 +  DESC 'Asterisk Context'
 +  EQUALITY caseIgnoreMatch
@@ -26,7 +26,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstExtension'
 +  DESC 'Asterisk Extension'
 +  EQUALITY caseIgnoreMatch
@@ -35,7 +35,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstPriority'
 +  DESC 'Asterisk Priority'
 +  EQUALITY caseIgnoreMatch
@@ -44,7 +44,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstApplication'
 +  DESC 'Asterisk Application'
 +  EQUALITY caseIgnoreMatch
@@ -53,7 +53,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstApplicationData'
 +  DESC 'Asterisk Application Data'
 +  EQUALITY caseIgnoreMatch
@@ -62,7 +62,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountAMAFlags'
 +  DESC 'Asterisk Account AMA Flags'
 +  EQUALITY caseIgnoreMatch
@@ -71,7 +71,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountCallerID'
 +  DESC 'Asterisk Account CallerID'
 +  EQUALITY caseIgnoreMatch
@@ -80,7 +80,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountContext'
 +  DESC 'Asterisk Account Context'
 +  EQUALITY caseIgnoreMatch
@@ -89,7 +89,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountMailbox'
 +  DESC 'Asterisk Account Mailbox'
 +  EQUALITY caseIgnoreMatch
@@ -98,7 +98,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstMD5secret'
 +  DESC 'Asterisk Account MD5 Secret'
 +  EQUALITY caseIgnoreMatch
@@ -107,7 +107,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountDeny'
 +  DESC 'Asterisk Account Deny'
 +  EQUALITY caseIgnoreMatch
@@ -116,7 +116,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountPermit'
 +  DESC 'Asterisk Account Permit'
 +  EQUALITY caseIgnoreMatch
@@ -125,7 +125,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountQualify'
 +  DESC 'Asterisk Account Qualify'
 +  EQUALITY caseIgnoreMatch
@@ -134,7 +134,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountType'
 +  DESC 'Asterisk Account Type'
 +  EQUALITY caseIgnoreMatch
@@ -143,7 +143,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountDisallowedCodec'
 +  DESC 'Asterisk Account Disallowed Codec'
 +  EQUALITY caseIgnoreMatch
@@ -152,7 +152,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountExpirationTimestamp'
 +  DESC 'Asterisk Account Allowed Codec'
 +  EQUALITY caseIgnoreMatch
@@ -161,7 +161,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRegistrationContext'
 +  DESC 'Asterisk Account AMA Flags'
 +  EQUALITY caseIgnoreMatch
@@ -170,7 +170,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRegistrationExten'
 +  DESC 'Asterisk Account AMA Flags'
 +  EQUALITY caseIgnoreMatch
@@ -179,7 +179,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountNoTransfer'
 +  DESC 'Asterisk Account AMA Flags'
 +  EQUALITY caseIgnoreMatch
@@ -188,7 +188,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountCallGroup'
 +  DESC 'Asterisk Account Call Group'
 +  EQUALITY caseIgnoreMatch
@@ -197,7 +197,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountCanReinvite'
 +  DESC 'Asterisk Account Can Reinvite'
 +  EQUALITY caseIgnoreMatch
@@ -206,7 +206,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountDTMFMode'
 +  DESC 'Asterisk Account DTMF Flags'
 +  EQUALITY caseIgnoreMatch
@@ -215,14 +215,14 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountFromUser'
 +  DESC 'Asterisk Account From User'
 +  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountFromDomain'
 +  DESC 'Asterisk Account From Domain'
 +  EQUALITY caseIgnoreMatch
@@ -231,7 +231,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountFullContact'
 +  DESC 'Asterisk Account Full Contact'
 +  EQUALITY caseIgnoreMatch
@@ -240,7 +240,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountHost'
 +  DESC 'Asterisk Account Host'
 +  EQUALITY caseIgnoreMatch
@@ -249,7 +249,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountInsecure'
 +  DESC 'Asterisk Account Insecure'
 +  EQUALITY caseIgnoreMatch
@@ -258,7 +258,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountNAT'
 +  DESC 'Asterisk Account NAT'
 +  EQUALITY caseIgnoreMatch
@@ -267,7 +267,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountPickupGroup'
 +  DESC 'Asterisk Account PickupGroup'
 +  EQUALITY caseIgnoreMatch
@@ -276,7 +276,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountPort'
 +  DESC 'Asterisk Account Port'
 +  EQUALITY caseIgnoreMatch
@@ -285,7 +285,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRestrictCID'
 +  DESC 'Asterisk Restrict CallerID'
 +  EQUALITY caseIgnoreMatch
@@ -294,7 +294,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRTPTimeout'
 +  DESC 'Asterisk RTP Timeout'
 +  EQUALITY caseIgnoreMatch
@@ -303,7 +303,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRTPHoldTimeout'
 +  DESC 'Asterisk RTP Hold Timeout'
 +  EQUALITY caseIgnoreMatch
@@ -312,7 +312,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRealmedPassword'
 +  DESC 'Asterisk RTP Hold Timeout'
 +  EQUALITY caseIgnoreMatch
@@ -321,7 +321,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountAllowedCodec'
 +  DESC 'Asterisk Account Allowed Codec'
 +  EQUALITY caseIgnoreMatch
@@ -330,7 +330,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountMusicOnHold'
 +  DESC 'Asterisk Account Allowed Codec'
 +  EQUALITY caseIgnoreMatch
@@ -339,7 +339,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountCanCallForward'
 +  DESC 'Asterisk Can CAll Forward'
 +  EQUALITY caseIgnoreMatch
@@ -348,7 +348,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountSecret'
 +  DESC 'Asterisk Can CAll Forward'
 +  EQUALITY caseIgnoreMatch
@@ -357,7 +357,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountName'
 +  DESC 'Asterisk Account Username'
 +  EQUALITY caseIgnoreMatch
@@ -366,7 +366,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstConfigFilename'
 +  DESC 'Asterisk LDAP Configuration Filename'
 +  EQUALITY caseIgnoreMatch
@@ -375,7 +375,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstConfigCategory'
 +  DESC 'Asterisk LDAP Configuration Category'
 +  EQUALITY caseIgnoreMatch
@@ -384,7 +384,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstConfigCategoryMetric'
 +  DESC 'Asterisk LDAP Configuration Category Metric'
 +  EQUALITY caseIgnoreMatch
@@ -393,7 +393,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstConfigVariableName'
 +  DESC 'Asterisk LDAP Configuration Variable Name'
 +  EQUALITY caseIgnoreMatch
@@ -402,7 +402,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstConfigVariableValue'
 +  DESC 'Asterisk LDAP Configuration Variable Value'
 +  EQUALITY caseIgnoreMatch
@@ -411,7 +411,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstConfigCommented'
 +  DESC 'Asterisk LDAP Configuration Commented'
 +  EQUALITY caseIgnoreMatch
@@ -420,7 +420,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountIPAddress'
 +  DESC 'Asterisk Account IP Address'
 +  EQUALITY caseIgnoreMatch
@@ -429,7 +429,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountDefaultUser'
 +  DESC 'Asterisk Account Default User'
 +  EQUALITY caseIgnoreMatch
@@ -438,7 +438,7 @@ index 0000000..ef878a8
 +  )
 +#
 +attributeTypes: (
-+  
++
 +  NAME 'AstAccountRegistrationServer'
 +  DESC 'Asterisk Account Registration Server'
 +  EQUALITY caseIgnoreMatch
@@ -447,62 +447,62 @@ index 0000000..ef878a8
 +  )
 +#
 +objectClasses: (
-+  
++
 +  NAME 'AsteriskExtension'
 +  DESC 'PBX Extension Information for Asterisk'
 +  SUP top
 +  AUXILIARY
 +  MUST cn
-+  MAY ( AstContext $ AstExtension $ AstPriority $ AstApplication 
++  MAY ( AstContext $ AstExtension $ AstPriority $ AstApplication
 +      $ AstApplicationData )
 +  )
 +#
 +objectClasses: (
-+  
++
 +  NAME 'AsteriskIAXUser'
 +  DESC 'IAX2 User information for Asterisk'
 +  SUP AsteriskExtension
 +  AUXILIARY
 +  MUST cn
-+  MAY ( AstAccountAMAFlags $ AstAccountCallerID $ AstAccountContext 
-+      $ AstAccountFullContact $ AstAccountHost $ AstAccountMailbox $ AstMD5secret 
-+      $ AstAccountDeny $ AstAccountPermit $ AstAccountPort $ AstAccountQualify 
-+      $ AstAccountType $ AstAccountDisallowedCodec $ AstAccountExpirationTimestamp 
-+      $ AstAccountRegistrationContext$ AstAccountRegistrationExten 
++  MAY ( AstAccountAMAFlags $ AstAccountCallerID $ AstAccountContext
++      $ AstAccountFullContact $ AstAccountHost $ AstAccountMailbox $ AstMD5secret
++      $ AstAccountDeny $ AstAccountPermit $ AstAccountPort $ AstAccountQualify
++      $ AstAccountType $ AstAccountDisallowedCodec $ AstAccountExpirationTimestamp
++      $ AstAccountRegistrationContext$ AstAccountRegistrationExten
 +      $ AstAccountNoTransfer $ AstAccountName )
 +  )
 +#
 +objectClasses: (
-+  
++
 +  NAME 'AsteriskSIPUser'
 +  DESC 'SIP User information for Asterisk'
 +  SUP AsteriskExtension
 +  AUXILIARY
 +  MUST cn
-+  MAY ( AstAccountAMAFlags $ AstAccountCallGroup $ AstAccountCallerID 
++  MAY ( AstAccountAMAFlags $ AstAccountCallGroup $ AstAccountCallerID
 +      $ AstAccountCanReinvite $ AstAccountContext $ AstAccountDefaultUser
-+      $ AstAccountDTMFMode $ AstAccountFromUser $ AstAccountFromDomain 
-+      $ AstAccountFullContact $ AstAccountHost $ AstAccountInsecure 
-+      $ AstAccountIPAddress $ AstAccountMailbox $ AstAccountRealmedPassword 
-+      $ AstAccountNAT $ AstAccountDeny $ AstAccountPermit $ AstAccountPickupGroup 
-+      $ AstAccountPort $ AstAccountQualify $ AstAccountRestrictCID 
-+      $ AstAccountRTPTimeout $ AstAccountRTPHoldTimeout $ AstAccountType 
-+      $ AstAccountDisallowedCodec $ AstAccountAllowedCodec $ AstAccountMusicOnHold 
-+      $ AstAccountExpirationTimestamp $ AstAccountRegistrationContext 
-+      $ AstAccountRegistrationExten $ AstAccountRegistrationServer 
++      $ AstAccountDTMFMode $ AstAccountFromUser $ AstAccountFromDomain
++      $ AstAccountFullContact $ AstAccountHost $ AstAccountInsecure
++      $ AstAccountIPAddress $ AstAccountMailbox $ AstAccountRealmedPassword
++      $ AstAccountNAT $ AstAccountDeny $ AstAccountPermit $ AstAccountPickupGroup
++      $ AstAccountPort $ AstAccountQualify $ AstAccountRestrictCID
++      $ AstAccountRTPTimeout $ AstAccountRTPHoldTimeout $ AstAccountType
++      $ AstAccountDisallowedCodec $ AstAccountAllowedCodec $ AstAccountMusicOnHold
++      $ AstAccountExpirationTimestamp $ AstAccountRegistrationContext
++      $ AstAccountRegistrationExten $ AstAccountRegistrationServer
 +      $ AstAccountCanCallForward $ AstAccountSecret $ AstAccountName )
 +  )
 +#
 +objectClasses: (
-+  
++
 +  NAME 'AsteriskConfig'
 +  DESC 'Asterisk configuration Information'
 +  SUP top
 +  AUXILIARY
 +  MUST cn
-+  MAY ( AstConfigFilename $ AstConfigCategory $ AstConfigCategoryMetric 
++  MAY ( AstConfigFilename $ AstConfigCategory $ AstConfigCategoryMetric
 +      $ AstConfigVariableName $ AstConfigVariableValue $ AstConfigCommented )
 +  )
 -- 
-1.6.1
+1.7.2
 

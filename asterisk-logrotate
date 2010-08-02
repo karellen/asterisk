@@ -4,6 +4,6 @@
     create 0640 asterisk asterisk
     sharedscripts
     postrotate
-	/usr/sbin/asterisk -rx 'logger reload' >/dev/null 2>/dev/null || true
+	/sbin/runuser --login --shell=/bin/bash --command="/usr/sbin/asterisk -rx 'logger reload'" asterisk >/dev/null 2>/dev/null || true
     endscript
 }

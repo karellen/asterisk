@@ -1,7 +1,7 @@
-#define _rc 2
+#global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.1.18
+Version: 1.6.2.10
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -13,12 +13,16 @@ Source2: menuselect.makedeps
 Source3: menuselect.makeopts
 Source5: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
 
-Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibility.patch
+Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibilty.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
-Patch5:  0005-Build-using-external-libedit.patch
-Patch8:  0008-change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
-Patch11: 0011-Fix-up-some-paths.patch
-Patch12: 0012-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+# Submitted upstream: https://issues.asterisk.org/view.php?id=16858
+Patch3:  0003-Allow-linking-building-against-an-external-libedit.patch
+Patch4:  0004-Use-the-library-function-for-loading-command-history.patch
+# Submitted upstream: https://issues.asterisk.org/view.php?id=16155
+Patch5:  0005-Change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
+Patch6:  0006-Fix-up-some-paths.patch
+Patch7:  0007-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch8:  0008-Tell-laxtex2html-to-copy-icons-when-building-documen.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -36,12 +40,19 @@ BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
 
 # for res_http_post
+%if 0%{?fedora} > 0
 BuildRequires: gmime22-devel
+%endif
+%if 0%{?rhel} > 0
+BuildRequires: gmime-devel
+%endif
 
 # for building docs
 BuildRequires: doxygen
 BuildRequires: graphviz
 BuildRequires: graphviz-gd
+BuildRequires: libxml2-devel
+BuildRequires: latex2html
 
 # for codec_speex
 BuildRequires: speex-devel >= 1.2
@@ -62,13 +73,10 @@ Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
 
-# needed for icons used from %{_datadir}/asterisk/static-http/*
-Requires: latex2html
-
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
 Obsoletes: asterisk-mobile <= 1.6.1-0.23.rc1
-Obsoletes: asterisk-firmware < 1.6.1.9-1
+Obsoletes: asterisk-firmware <= 1.6.2.0-0.2.rc1
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -342,6 +350,7 @@ Requires: /usr/sbin/sendmail
 %description voicemail
 Common Voicemail Modules for Asterisk.
 
+%if 0%{?fedora} > 0
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Group: Applications/Internet
@@ -353,6 +362,7 @@ BuildRequires: uw-imap-devel
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
 server.
+%endif
 
 %package voicemail-odbc
 Summary: Store voicemail in a database using ODBC
@@ -378,12 +388,14 @@ local filesystem.
 
 %prep
 %setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
-%patch1 -p0
-%patch2 -p0
-%patch5 -p0
-%patch8 -p0
-%patch11 -p0
-%patch12 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 cp %{SOURCE2} menuselect.makedeps
 cp %{SOURCE3} menuselect.makeopts
@@ -399,6 +411,15 @@ touch -r main/fskmodem.c.old main/fskmodem.c
 rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
+
+%if 0%{?rhel} > 0
+# Get the autoconf scripts working with 2.59
+%{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
+%{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
+%{__perl} -pi -e 's/AST_PROG_SED/SED=sed/g' autoconf/ast_prog_ld.m4
+# kernel/glibc in RHEL5 does not support the timerfd
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_timing_timerfd/g' menuselect.makeopts
+%endif
 
 %build
 
@@ -416,11 +437,11 @@ pushd menuselect
 %configure
 popd 
 
-pushd main/editline
-%configure
-popd
-
+%if 0%{?fedora} > 0
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes
+%else
+%configure --with-gsm=/usr --with-libedit=yes
+%endif
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
@@ -428,12 +449,14 @@ rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
+%if 0%{?fedora} > 0
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
+%endif
 
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
@@ -451,6 +474,8 @@ ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstat
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
 
+cd doc/tex && ASTCFLAGS="%{optflags}" make html
+
 %install
 rm -rf %{buildroot}
 
@@ -466,8 +491,10 @@ install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIU
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
+%if 0%{?fedora} > 0
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules
+%endif
 install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules
 install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules
 install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules
@@ -495,8 +522,6 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 # these are compiled with -O0 and thus include unfortified code.
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
-
-rm -rf %{buildroot}%{_datadir}/asterisk/firmware/iax/*
 
 find doc/api/html -name \*.map -size 0 -delete
 
@@ -559,6 +584,7 @@ fi
 %{_libdir}/asterisk/modules/app_chanisavail.so
 %{_libdir}/asterisk/modules/app_channelredirect.so
 %{_libdir}/asterisk/modules/app_chanspy.so
+%{_libdir}/asterisk/modules/app_confbridge.so
 %{_libdir}/asterisk/modules/app_controlplayback.so
 %{_libdir}/asterisk/modules/app_db.so
 %{_libdir}/asterisk/modules/app_dial.so
@@ -578,8 +604,10 @@ fi
 %{_libdir}/asterisk/modules/app_mixmonitor.so
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
+%{_libdir}/asterisk/modules/app_originate.so
 %{_libdir}/asterisk/modules/app_parkandannounce.so
 %{_libdir}/asterisk/modules/app_playback.so
+%{_libdir}/asterisk/modules/app_playtones.so
 %{_libdir}/asterisk/modules/app_privacy.so
 %{_libdir}/asterisk/modules/app_queue.so
 %{_libdir}/asterisk/modules/app_readexten.so
@@ -606,10 +634,15 @@ fi
 %{_libdir}/asterisk/modules/app_waituntil.so
 %{_libdir}/asterisk/modules/app_while.so
 %{_libdir}/asterisk/modules/app_zapateller.so
+%{_libdir}/asterisk/modules/bridge_builtin_features.so
+%{_libdir}/asterisk/modules/bridge_multiplexed.so
+%{_libdir}/asterisk/modules/bridge_simple.so
+%{_libdir}/asterisk/modules/bridge_softmix.so
 %{_libdir}/asterisk/modules/cdr_csv.so
 %{_libdir}/asterisk/modules/cdr_custom.so
 %{_libdir}/asterisk/modules/cdr_manager.so
 %{_libdir}/asterisk/modules/chan_agent.so
+%{_libdir}/asterisk/modules/chan_bridge.so
 %{_libdir}/asterisk/modules/chan_iax2.so
 %{_libdir}/asterisk/modules/chan_local.so
 %{_libdir}/asterisk/modules/chan_mgcp.so
@@ -634,11 +667,14 @@ fi
 %{_libdir}/asterisk/modules/format_jpeg.so
 %{_libdir}/asterisk/modules/format_ogg_vorbis.so
 %{_libdir}/asterisk/modules/format_pcm.so
+%{_libdir}/asterisk/modules/format_siren14.so
+%{_libdir}/asterisk/modules/format_siren7.so
 %{_libdir}/asterisk/modules/format_sln.so
 %{_libdir}/asterisk/modules/format_sln16.so
 %{_libdir}/asterisk/modules/format_vox.so
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
+%{_libdir}/asterisk/modules/func_aes.so
 %{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
@@ -667,6 +703,7 @@ fi
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
 %{_libdir}/asterisk/modules/func_speex.so
+%{_libdir}/asterisk/modules/func_sprintf.so
 %{_libdir}/asterisk/modules/func_strings.so
 %{_libdir}/asterisk/modules/func_sysinfo.so
 %{_libdir}/asterisk/modules/func_timeout.so
@@ -682,10 +719,10 @@ fi
 %{_libdir}/asterisk/modules/res_adsi.so
 %{_libdir}/asterisk/modules/res_ael_share.so
 %{_libdir}/asterisk/modules/res_agi.so
+%{_libdir}/asterisk/modules/res_clialiases.so
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
-%{_libdir}/asterisk/modules/res_indications.so
 %{_libdir}/asterisk/modules/res_http_post.so
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
@@ -695,8 +732,9 @@ fi
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
-%{_libdir}/asterisk/modules/test_dlinklists.so
-%{_libdir}/asterisk/modules/test_heap.so
+%if 0%{?fedora} > 0
+%{_libdir}/asterisk/modules/res_timing_timerfd.so
+%endif
 
 %{_sbindir}/aelparse
 %{_sbindir}/astcanary
@@ -730,6 +768,8 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
@@ -746,7 +786,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iaxprov.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/indications.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/logger.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/manager.conf
+%attr(0600,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/manager.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/mgcp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/modules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/musiconhold.conf
@@ -772,6 +812,7 @@ fi
 
 %dir %{_datadir}/asterisk
 %dir %{_datadir}/asterisk/agi-bin
+%{_datadir}/asterisk/documentation
 %dir %{_datadir}/asterisk/firmware
 %dir %{_datadir}/asterisk/firmware/iax
 %{_datadir}/asterisk/images
@@ -951,6 +992,7 @@ fi
 %files sqlite
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
 
 %files tds
@@ -974,10 +1016,12 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
+%if 0%{?fedora} > 0
 %files voicemail-imap
 %defattr(-,root,root,)
 %{_libdir}/asterisk/modules/app_directory_imap.so
 %{_libdir}/asterisk/modules/app_voicemail_imap.so
+%endif
 
 %files voicemail-odbc
 %defattr(-,root,root,-)
@@ -991,8 +1035,43 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
-* Wed Apr  7 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.18-1
-- Update to 1.6.1.18
+* Sat Jul 31 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1
+- Update to 1.6.2.10
+
+* Wed Jul 14 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.8-0.3.rc1
+- Add patch to remove requirement on latex2html
+
+* Tue Jun 01 2010 Marcela Maslanova <mmaslano@redhat.com> - 1.6.2.8-0.2.rc1
+- Mass rebuild with perl-5.12.0
+
+* Tue May  4 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-1
+-  * Fix building CDR and CEL SQLite3 modules.
+-    (Closes issue #17017. Reported by alephlg. Patched by seanbright)
+- 
+-  * Resolve crash in SLAtrunk when the specified trunk doesn't exist.
+-    (Reported in #asterisk-dev by philipp64. Patched by seanbright)
+- 
+-  * Include an extra newline after "Aliased CLI command" to get back the prompt.
+-    (Issue #16978. Reported by jw-asterisk. Tested, patched by seanbright)
+- 
+-  * Prevent segfault if bad magic number is encountered.
+-    (Issue #17037. Reported, patched by alecdavis)
+- 
+-  * Update code to reflect that handle_speechset has 4 arguments.
+-    (Closes issue #17093. Reported, patched by gpatri. Tested by pabelanger,
+-     mmichelson)
+- 
+-  * Resolve a deadlock in chan_local.
+-    (Closes issue #16840. Reported, patched by bzing2, russell. Tested by bzing2)
+
+* Mon May  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-0.2.rc3
+- Update to 1.6.2.7-rc3
+
+* Thu Apr 15 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-0.1.rc2
+- Update to 1.6.2.7-rc2
+
+* Fri Mar 12 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-1
+- Update to final 1.6.2.6
 - 
 - The following are a few of the issues resolved by community developers:
 - 
@@ -1000,76 +1079,130 @@ fi
 -    (Closes issue #14163. Reported, patched by jedi98. Tested by mattbrown,
 -     Chainsaw, mikeeccleston)
 - 
--  * Fix problem with duplicate TXREQ packets in chan_iax2.
+-  * Fix problem with duplicate TXREQ packets in chan_iax2
 -    (Closes issue #16904. Reported, patched by rain. Tested by rain, dvossel)
 - 
--  *  Update documentation to not imply we support overriding options.
--     (Closes issue #16855. Reported by davidw)
+-  * Fix crash in app_voicemail related to message counting.
+-    (Closes issue #16921. Reported, tested by whardier. Patched by seanbright)
 - 
--  * Modify queued frames from Local channels to not set the other side to up.
--    (Closes issue #16816. Reported, tested by jamhed)
+-  * Overlap receiving: Automatically send CALL PROCEEDING when dialplan starts
+-    (Reported, Patched, and Tested by alecdavis)
 - 
--  *  For T.38 reINVITEs treat a 606 the same as a 488.
--     (Closes issue #16792. Reported, patched by vrban)
+-  * For T.38 reINVITEs treat a 606 the same as a 488.
+-    (Closes issue #16792. Reported, patched by vrban)
+- 
+-  * Fix ConfBridge crash when no timing module is loaded.
+-    (Closes issue #16471. Reported, tested by kjotte. Patched, tested by junky)
 - 
 - For a full list of changes in this releases, please see the ChangeLog:
-- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.1.18
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.6
 
-* Mon Mar  1 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.17-1
-- Update to 1.6.1.17
+* Mon Mar  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-0.1.rc2
+- Update to 1.6.2.6-rc2
+
+* Mon Mar  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-2
+- Add a patch that fixes CLI history when linking against external libedit.
+
+* Thu Feb 25 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-1
+- Update to 1.6.2.5
 - 
-- * AST-2010-003: Invalid parsing of ACL rules can compromise security
-- * AST-2010-002: This security release is intended to raise awareness
--   of how it is possible to insert malicious strings into dialplans,
--   and to advise developers to read the best practices documents so
--   that they may easily avoid these dangers.
-- * AST-2010-001: An attacker attempting to negotiate T.38 over SIP can
--   remotely crash Asterisk by modifying the FaxMaxDatagram field of 
--   the SDP to contain either a negative or exceptionally large value.
--   The same crash occurs when the FaxMaxDatagram field is omitted from 
--   the SDP as well.
+-         * AST-2010-002: Invalid parsing of ACL rules can compromise security
 
-* Mon Dec 21 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.12-1
-- Update to 1.6.1.12
-
-* Mon Nov 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.11-1
-- Update to 1.6.1.11 to fix AST-2009-010/CVE-2009-4055
-
-* Thu Nov 19 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.10-1
-- Update to 1.6.1.10
-- Drop unneeded patch to get Lua extensions building
-
-* Wed Nov  4 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.9-1
-- Update to 1.6.1.9 to fix AST-2009-009/CVE-2008-7220 and AST-2009-008
-- Fix obsoletes for firmware subpackage
-
-* Tue Oct 27 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.8-1
-- Update to 1.6.1.8 to fix bug 531199:
+* Thu Feb 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.4-1
+- Update to 1.6.2.4
 -
-- http://downloads.asterisk.org/pub/security/AST-2009-007.html
--
-- A missing ACL check for handling SIP INVITEs allows a device to make
-- calls on networks intended to be prohibited as defined by the "deny"
-- and "permit" lines in sip.conf. The ACL check for handling SIP
-- registrations was not affected.
+-        * AST-2010-002: This security release is intended to raise awareness 
+-          of how it is possible to insert malicious strings into dialplans, 
+-          and to advise developers to read the best practices documents so 
+-          that they may easily avoid these dangers.
 
-* Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.4.rc2
+* Wed Feb  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.2-1
+- Update to 1.6.2.2
+-
+-	* AST-2010-001: An attacker attempting to negotiate T.38 over SIP can 
+-	  remotely crash Asterisk by modifying the FaxMaxDatagram field of 
+-	  the SDP to contain either a negative or exceptionally large value.
+-	  The same crash occurs when the FaxMaxDatagram field is omitted from 
+-	  the SDP as well.
+
+* Fri Jan 15 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-1
+- Update to 1.6.2.1 final:
+- 
+- * CLI 'queue show' formatting fix.
+-   (Closes issue #16078. Reported by RoadKill. Tested by dvossel. Patched by
+-    ppyy.)
+- 
+- * Fix misreverting from 177158.
+-   (Closes issue #15725. Reported, Tested by shanermn. Patched by dimas.)
+- 
+- * Fixes subscriptions being lost after 'module reload'.
+-   (Closes issue #16093. Reported by jlaroff. Patched by dvossel.)
+- 
+- * app_queue segfaults if realtime field uniqueid is NULL
+-  (Closes issue #16385. Reported, Tested, Patched by haakon.)
+- 
+- * Fix to Monitor which previously assumed the file to write to did not contain
+-   pathing.
+-   (Closes issue #16377, #16376. Reported by bcnit. Patched by dant.
+
+* Tue Jan 12 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-0.1.rc1
+- Update to 1.6.2.1-rc1
+
+* Sat Dec 19 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-1
+- Released version of 1.6.2.0
+
+* Wed Dec  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.16.rc8
+- Update to 1.6.2.0-rc8
+
+* Wed Dec  2 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.15.rc7
+- Update to 1.6.2.0-rc7
+
+* Tue Dec  1 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.14.rc6
+- Change the logrotate and the init scripts so that Asterisk doesn't
+  try and write to / or /root
+
+* Thu Nov 19 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.13.rc6
+- Make dependency on uw-imap conditional and some other changes to
+  make building on RHEL5 easier.
+
+* Fri Nov 13 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.12.rc6
+- Update to 1.6.2.0-rc6
+
+* Mon Nov  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.11.rc5
+- Update to 1.6.2.0-rc5
+
+* Fri Nov  6 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.10.rc4
+- Update to 1.6.2.0-rc4
+
+* Tue Oct 27 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.9.rc3
+- Add patch from upstream to fix how res_http_post forms paths.
+
+* Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.8.rc3
 - Add an AST_EXTRA_ARGS option to the init script
 - have the init script to cd to /var/spool/asterisk to prevent annoying message
 
-* Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.3.rc2
+* Sat Oct 24 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.7.rc3
 - Compile against gmime 2.2 instead of gmime 2.4 because the patch to convert the API calls from 2.2 to 2.4 caused crashes.
 
-* Fri Oct  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.2.rc2
+* Fri Oct  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.6.rc3
 - Require latex2html used in static-http documents
 
-* Thu Oct  8 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.7-0.1.rc2
-- Update to 1.6.1.7-rc2
-- Merge firmware subpackage back into main package
-- No longer need to strip tarball since it no longer contains any non-free items
-- Tighten up permissions/ownership of config files.
-- Fix up some more paths
-- Drop unneeded patch
+* Wed Oct  7 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.5.rc3
+- Change ownership and permissions on config files to protect them.
+
+* Tue Oct  6 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.4.rc3
+- Update to 1.6.2.0-rc3
+
+* Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.3.rc2
+- Merge firmware subpackage back into the main package.
+
+* Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.2.rc2
+- Package internal help.
+- Fix up some more paths in the configs so that everything ends up where we want them.
+
+* Wed Sep 30 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.0-0.1.rc2
+- Update to 1.6.2.0-rc2
+- We no longer need to strip the tarball as it no longer includes non-free items.
 
 * Wed Sep  9 2009 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.1.6-2
 - Enable building of API docs.

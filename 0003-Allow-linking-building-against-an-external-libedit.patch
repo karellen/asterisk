@@ -1,8 +1,28 @@
-Index: build_tools/menuselect-deps.in
-===================================================================
---- build_tools/menuselect-deps.in	(revision 256425)
-+++ build_tools/menuselect-deps.in	(working copy)
-@@ -19,6 +19,7 @@
+From 61006b2d0679cadf369ce6028cf98ebf722db600 Mon Sep 17 00:00:00 2001
+From: Jeffrey C. Ollie <jeff@ocjtech.us>
+Date: Fri, 5 Mar 2010 14:10:52 -0600
+Subject: [PATCH 3/8] Allow linking/building against an external libedit.
+
+The Asterisk tarball includes a very old copy of the editline library
+that manages command line history and editing.  Fedora (and several
+other distributions) highly discourage this practice because if there
+are security problems (or even just severe bugs) in the library it can
+be very difficult to track down all instances of the library.  This
+patch adds the option of building/linking against an external copy of
+the libedit library.
+---
+ build_tools/menuselect-deps.in |    1 +
+ configure.ac                   |   22 ++++++++++++++++++++++
+ main/Makefile                  |    8 +++++---
+ main/cli.c                     |    3 ++-
+ makeopts.in                    |    4 ++++
+ 5 files changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
+index 5f399fc..695622c 100644
+--- a/build_tools/menuselect-deps.in
++++ b/build_tools/menuselect-deps.in
+@@ -21,6 +21,7 @@ ISDNNET=@PBX_ISDNNET@
  IXJUSER=@PBX_IXJUSER@
  JACK=@PBX_JACK@
  LDAP=@PBX_LDAP@
@@ -10,21 +30,21 @@ Index: build_tools/menuselect-deps.in
  LTDL=@PBX_LTDL@
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
-Index: configure.ac
-===================================================================
---- configure.ac	(revision 256425)
-+++ configure.ac	(working copy)
-@@ -292,6 +292,7 @@
- AST_EXT_LIB_SETUP([ISDNNET], [ISDN4Linux Library], [isdnnet])
+diff --git a/configure.ac b/configure.ac
+index 0b6748e..1b3f9c7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -315,6 +315,7 @@ AST_EXT_LIB_SETUP([ISDNNET], [ISDN4Linux], [isdnnet])
  AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
  AST_EXT_LIB_SETUP([LDAP], [OpenLDAP], [ldap])
+ AST_LIBCURL_CHECK_CONFIG([], [7.10.1])
 +AST_EXT_LIB_SETUP([LIBEDIT], [NetBSD Editline library], [libedit])
+ AST_EXT_LIB_SETUP([LIBXML2], [LibXML2], [libxml2])
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
- AST_EXT_LIB_SETUP([MISDN], [mISDN User Library], [misdn])
-@@ -1660,6 +1661,27 @@
- AST_EXT_LIB_CHECK([SDL_IMAGE], [SDL_image], [IMG_Load], [SDL_image.h], [${SDL_LIB}], [${SDL_INCLUDE}])
- AST_EXT_LIB_CHECK([FFMPEG], [avcodec], [sws_getContext], [ffmpeg/avcodec.h], [-lpthread -lz -lm])
+@@ -1778,6 +1779,27 @@ AC_SUBST(PBX_GTK2)
+ AC_SUBST(GTK2_INCLUDE)
+ AC_SUBST(GTK2_LIB)
  
 +PBX_LIBEDIT=0
 +LIBEDIT_INCLUDE=-Ieditline/readline
@@ -47,14 +67,14 @@ Index: configure.ac
 +AC_SUBST(LIBEDIT_LIB)
 +AC_SUBST(LIBEDIT_OBJ)
 +
- # possible places for video4linux version 1
- AC_CHECK_HEADER([linux/videodev.h],
- 	[AC_DEFINE_UNQUOTED([HAVE_VIDEODEV_H], 1, [Define to 1 if your system has linux/videodev.h.])])
-Index: main/Makefile
-===================================================================
---- main/Makefile	(revision 256425)
-+++ main/Makefile	(working copy)
-@@ -139,6 +139,8 @@
+ # build a GENERIC_ODBC result based on the presence of either UnixODBC (preferred)
+ # or iODBC
+ 
+diff --git a/main/Makefile b/main/Makefile
+index 6e61808..ec2c2bc 100644
+--- a/main/Makefile
++++ b/main/Makefile
+@@ -145,6 +145,8 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
  	$(CC) -g -o testexpr2 ast_expr2f.o ast_expr2.o -lm
  	rm ast_expr2.o ast_expr2f.o 
  
@@ -63,7 +83,7 @@ Index: main/Makefile
  ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  http.o: _ASTCFLAGS+=$(GMIME_INCLUDE)
  endif
-@@ -171,13 +173,13 @@
+@@ -177,13 +179,13 @@ ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  GMIMELDFLAGS+=$(GMIME_LIB)
  endif
  
@@ -80,20 +100,20 @@ Index: main/Makefile
  endif
  	$(CMD_PREFIX) $(ASTTOPDIR)/build_tools/strip_nonapi $@ || rm $@
  
-Index: main/cli.c
-===================================================================
---- main/cli.c	(revision 256425)
-+++ main/cli.c	(working copy)
-@@ -34,6 +34,8 @@
- #include <ctype.h>
- #include <regex.h>
+diff --git a/main/cli.c b/main/cli.c
+index 8361e4e..4655ae3 100644
+--- a/main/cli.c
++++ b/main/cli.c
+@@ -36,6 +36,8 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
+ #include <pwd.h>
+ #include <grp.h>
  
 +#include <readline.h>
 +
  #include "asterisk/cli.h"
  #include "asterisk/linkedlists.h"
  #include "asterisk/module.h"
-@@ -42,7 +44,6 @@
+@@ -44,7 +46,6 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
  #include "asterisk/utils.h"
  #include "asterisk/app.h"
  #include "asterisk/lock.h"
@@ -101,15 +121,18 @@ Index: main/cli.c
  #include "asterisk/threadstorage.h"
  
  /*!
-Index: makeopts.in
-===================================================================
---- makeopts.in	(revision 256425)
-+++ makeopts.in	(working copy)
-@@ -251,3 +251,7 @@
- 
+diff --git a/makeopts.in b/makeopts.in
+index 8de43af..9b6f757 100644
+--- a/makeopts.in
++++ b/makeopts.in
+@@ -260,3 +260,7 @@ TINFO_DIR=@TINFO_DIR@
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@
+ TIMERFD_INCLUDE=@TIMERFD_INCLUDE@
 +
 +LIBEDIT_INCLUDE=@LIBEDIT_INCLUDE@
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
+-- 
+1.7.2
+
