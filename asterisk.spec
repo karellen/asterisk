@@ -1,17 +1,39 @@
 #global _rc 1
+%global _beta 2
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.10
-Release: 1%{?_rc:.rc%{_rc}}%{?dist}
+Version: 1.8.0
+Release: 0.1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
 
-Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz
-Source1: asterisk-logrotate
-Source2: menuselect.makedeps
-Source3: menuselect.makeopts
-Source5: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
+#Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
+#Source1: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+
+# The Asterisk tarball contains some items that we don't want in there,
+# so start with the original tarball from here:
+#
+# http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
+# http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+#
+# Then run the included script file to build the stripped tarball:
+#
+# sh asterisk-strip.sh %{version}
+
+#
+# SHA256 Sums
+# =========
+# 4ece4a654e36513b195c518e217ec3dfba206ee7492332dd2e5ec54c9339a2a0 *asterisk-1.8.0-beta2.tar.gz
+# b4de3f943128bef4760c1b8c925dbf3724e2a3478ec3e0fbb9e5c3e99ff9fb80 *asterisk-1.8.0-beta2-stripped.tar.gz
+# 8b5d12291972eaa59737e3399fb437dd3a995c2a7c966c2f4da563f2dfa4de7b *asterisk-1.8.0-beta2.tar.gz.asc
+
+Source0: asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}-stripped.tar.gz
+Source1: asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+Source2: asterisk-logrotate
+Source3: menuselect.makedeps
+Source4: menuselect.makeopts
+Source5: asterisk-strip.sh
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibilty.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
@@ -53,6 +75,10 @@ BuildRequires: graphviz
 BuildRequires: graphviz-gd
 BuildRequires: libxml2-devel
 BuildRequires: latex2html
+
+# for building res_calendar_caldav
+BuildRequires: neon-devel
+BuildRequires: libical-devel
 
 # for codec_speex
 BuildRequires: speex-devel >= 1.2
@@ -110,6 +136,14 @@ Requires: asterisk = %{version}-%{release}
 
 %description apidoc
 API documentation for Asterisk.
+
+%package calendar
+Summary: Calendar applications for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description calendar
+Calendar applications for Asterisk.
 
 %package curl
 Summary: Modules for Asterisk that use cURL
@@ -230,6 +264,16 @@ BuildRequires: mISDN-devel
 %description misdn
 mISDN channel for Asterisk.
 
+%package mobile
+Summary: Mobile (BlueTooth) channel for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Requires(pre): %{_sbindir}/usermod
+BuildRequires: bluez-libs-devel
+
+%description mobile
+Mobile (BlueTooth) channel for Asterisk.
+
 %package minivm
 Summary: MiniVM applicaton for Asterisk
 Group: Applications/Internet
@@ -237,6 +281,15 @@ Requires: asterisk = %{version}-%{release}
 
 %description minivm
 MiniVM application for Asterisk.
+
+%package mysql
+Summary: Applications for Asterisk that use MySQL
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+BuildRequires: mysql-devel
+
+%description mysql
+Applications for Asterisk that use MySQL.
 
 %package odbc
 Summary: Applications for Asterisk that use ODBC (except voicemail)
@@ -247,6 +300,16 @@ BuildRequires: unixODBC-devel
 
 %description odbc
 Applications for Asterisk that use ODBC (except voicemail)
+
+%package ooh323
+Summary: H.323 channel for Asterisk using the Objective Systems Open H.323 for C library
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+BuildRequires: libtool-ltdl-devel
+BuildRequires: unixODBC-devel
+
+%description ooh323
+H.323 channel for Asterisk using the Objective Systems Open H.323 for C library.
 
 %package oss
 Summary: Modules for Asterisk that use OSS sound drivers
@@ -387,7 +450,7 @@ Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
 %prep
-%setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
+%setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -397,8 +460,8 @@ local filesystem.
 %patch7 -p1
 %patch8 -p1
 
-cp %{SOURCE2} menuselect.makedeps
-cp %{SOURCE3} menuselect.makeopts
+cp %{S:3} menuselect.makedeps
+cp %{S:4} menuselect.makeopts
 
 # Fixup makefile so sound archives aren't downloaded/installed
 %{__perl} -pi -e 's/^all:.*$/all:/' sounds/Makefile
@@ -485,7 +548,7 @@ ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVA
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
 install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
-install -D -p -m 0644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
+install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
 install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 
@@ -581,6 +644,7 @@ fi
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_authenticate.so
 %{_libdir}/asterisk/modules/app_cdr.so
+%{_libdir}/asterisk/modules/app_celgenuserevent.so
 %{_libdir}/asterisk/modules/app_chanisavail.so
 %{_libdir}/asterisk/modules/app_channelredirect.so
 %{_libdir}/asterisk/modules/app_chanspy.so
@@ -614,6 +678,8 @@ fi
 %{_libdir}/asterisk/modules/app_readfile.so
 %{_libdir}/asterisk/modules/app_read.so
 %{_libdir}/asterisk/modules/app_record.so
+%{_libdir}/asterisk/modules/app_saycounted.so
+%{_libdir}/asterisk/modules/app_saycountpl.so
 %{_libdir}/asterisk/modules/app_sayunixtime.so
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
@@ -641,11 +707,15 @@ fi
 %{_libdir}/asterisk/modules/cdr_csv.so
 %{_libdir}/asterisk/modules/cdr_custom.so
 %{_libdir}/asterisk/modules/cdr_manager.so
+%{_libdir}/asterisk/modules/cdr_syslog.so
+%{_libdir}/asterisk/modules/cel_custom.so
+%{_libdir}/asterisk/modules/cel_manager.so
 %{_libdir}/asterisk/modules/chan_agent.so
 %{_libdir}/asterisk/modules/chan_bridge.so
 %{_libdir}/asterisk/modules/chan_iax2.so
 %{_libdir}/asterisk/modules/chan_local.so
 %{_libdir}/asterisk/modules/chan_mgcp.so
+%{_libdir}/asterisk/modules/chan_multicast_rtp.so
 %{_libdir}/asterisk/modules/chan_phone.so
 %{_libdir}/asterisk/modules/chan_sip.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
@@ -658,6 +728,7 @@ fi
 %{_libdir}/asterisk/modules/codec_resample.so
 %{_libdir}/asterisk/modules/codec_speex.so
 %{_libdir}/asterisk/modules/codec_ulaw.so
+%{_libdir}/asterisk/modules/format_g719.so
 %{_libdir}/asterisk/modules/format_g723.so
 %{_libdir}/asterisk/modules/format_g726.so
 %{_libdir}/asterisk/modules/format_g729.so
@@ -678,6 +749,7 @@ fi
 %{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
+%{_libdir}/asterisk/modules/func_callcompletion.so
 %{_libdir}/asterisk/modules/func_callerid.so
 %{_libdir}/asterisk/modules/func_cdr.so
 %{_libdir}/asterisk/modules/func_channel.so
@@ -698,12 +770,14 @@ fi
 %{_libdir}/asterisk/modules/func_math.so
 %{_libdir}/asterisk/modules/func_md5.so
 %{_libdir}/asterisk/modules/func_module.so
+%{_libdir}/asterisk/modules/func_pitchshift.so
 %{_libdir}/asterisk/modules/func_rand.so
 %{_libdir}/asterisk/modules/func_realtime.so
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
 %{_libdir}/asterisk/modules/func_speex.so
 %{_libdir}/asterisk/modules/func_sprintf.so
+%{_libdir}/asterisk/modules/func_srv.so
 %{_libdir}/asterisk/modules/func_strings.so
 %{_libdir}/asterisk/modules/func_sysinfo.so
 %{_libdir}/asterisk/modules/func_timeout.so
@@ -727,8 +801,13 @@ fi
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
+%{_libdir}/asterisk/modules/res_mutestream.so
 %{_libdir}/asterisk/modules/res_phoneprov.so
+%{_libdir}/asterisk/modules/res_pktccops.so
 %{_libdir}/asterisk/modules/res_realtime.so
+%{_libdir}/asterisk/modules/res_rtp_asterisk.so
+%{_libdir}/asterisk/modules/res_rtp_multicast.so
+%{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
@@ -736,20 +815,20 @@ fi
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
 %endif
 
-%{_sbindir}/aelparse
-%{_sbindir}/astcanary
+#%{_sbindir}/aelparse
+#%{_sbindir}/astcanary
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
-%{_sbindir}/astman
+#%{_sbindir}/astman
 %{_sbindir}/autosupport
-%{_sbindir}/conf2ael
-%{_sbindir}/muted
+#%{_sbindir}/conf2ael
+#%{_sbindir}/muted
 %{_sbindir}/rasterisk
-%{_sbindir}/refcounter
+#%{_sbindir}/refcounter
 %{_sbindir}/safe_asterisk
-%{_sbindir}/smsq
-%{_sbindir}/stereorize
-%{_sbindir}/streamplayer
+#%{_sbindir}/smsq
+#%{_sbindir}/stereorize
+#%{_sbindir}/streamplayer
 
 %{_mandir}/man8/asterisk.8*
 %{_mandir}/man8/astgenkey.8*
@@ -758,15 +837,19 @@ fi
 
 %attr(0750,asterisk,asterisk) %dir %{_sysconfdir}/asterisk
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
+#%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/agents.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/amd.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.adsi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ccss.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_syslog.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
@@ -796,6 +879,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phoneprov.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rpt.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
@@ -851,6 +935,15 @@ fi
 %defattr(-,root,root,-)
 %doc doc/api/html/*
 
+%files calendar
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/calendar.conf
+%{_libdir}/asterisk/modules/res_calendar.so
+%{_libdir}/asterisk/modules/res_calendar_caldav.so
+%{_libdir}/asterisk/modules/res_calendar_ews.so
+%{_libdir}/asterisk/modules/res_calendar_exchange.so
+%{_libdir}/asterisk/modules/res_calendar_icalendar.so
+
 %files curl
 %defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
@@ -868,7 +961,7 @@ fi
 %{_libdir}/asterisk/modules/app_page.so
 %{_libdir}/asterisk/modules/app_dahdibarge.so
 %{_libdir}/asterisk/modules/app_dahdiras.so
-%{_libdir}/asterisk/modules/app_dahdiscan.so
+#%{_libdir}/asterisk/modules/app_dahdiscan.so
 %{_libdir}/asterisk/modules/chan_dahdi.so
 %{_libdir}/asterisk/modules/codec_dahdi.so
 %{_libdir}/asterisk/modules/res_timing_dahdi.so
@@ -881,12 +974,16 @@ fi
 %doc doc/valgrind.txt
 
 %dir %{_includedir}/asterisk
+%dir %{_includedir}/asterisk/doxygen
 %{_includedir}/asterisk.h
 %{_includedir}/asterisk/*.h
+%{_includedir}/asterisk/doxygen/*.h
 
 %files fax
 %defattr(-,root,root,-)
-%{_libdir}/asterisk/modules/app_fax.so
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_fax.conf
+%{_libdir}/asterisk/modules/res_fax.so
+%{_libdir}/asterisk/modules/res_fax_spandsp.so
 
 %files festival
 %defattr(-,root,root,-)
@@ -938,19 +1035,41 @@ fi
 %files misdn
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
-%{_libdir}/asterisk/modules/chan_misdn.so
+#%{_libdir}/asterisk/modules/chan_misdn.so
+
+%files mobile
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_mobile.conf
+%{_libdir}/asterisk/modules/chan_mobile.so
+
+%files mysql
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/app_mysql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_mysql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_mysql.conf
+%doc contrib/realtime/mysql/*.sql
+%{_libdir}/asterisk/modules/app_mysql.so
+%{_libdir}/asterisk/modules/cdr_mysql.so
+%{_libdir}/asterisk/modules/res_config_mysql.so
 
 %files odbc
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_adaptive_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/func_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_odbc.conf
 %{_libdir}/asterisk/modules/cdr_adaptive_odbc.so
 %{_libdir}/asterisk/modules/cdr_odbc.so
+%{_libdir}/asterisk/modules/cel_adaptive_odbc.so
 %{_libdir}/asterisk/modules/func_odbc.so
 %{_libdir}/asterisk/modules/res_config_odbc.so
 %{_libdir}/asterisk/modules/res_odbc.so
+
+%files ooh323
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_ooh323.conf
+%{_libdir}/asterisk/modules/chan_ooh323.so
 
 %files oss
 %defattr(-,root,root,-)
@@ -965,14 +1084,17 @@ fi
 %files postgresql
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_pgsql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
-%doc contrib/scripts/realtime_pgsql.sql
+%doc contrib/realtime/postgresql/*.sql
 %{_libdir}/asterisk/modules/cdr_pgsql.so
+%{_libdir}/asterisk/modules/cel_pgsql.so
 %{_libdir}/asterisk/modules/res_config_pgsql.so
 
 %files radius
 %defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/cdr_radius.so
+%{_libdir}/asterisk/modules/cel_radius.so
 
 %files skinny
 %defattr(-,root,root,-)
@@ -992,13 +1114,17 @@ fi
 %files sqlite
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_sqlite3_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
+%{_libdir}/asterisk/modules/cel_sqlite3_custom.so
 
 %files tds
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_tds.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_tds.conf
 %{_libdir}/asterisk/modules/cdr_tds.so
+%{_libdir}/asterisk/modules/cel_tds.so
 
 %files unistim
 %defattr(-,root,root,-)
@@ -1035,6 +1161,11 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.1.beta2
+- Update to 1.8.0-beta2
+- Disable building chan_misdn until compilation errors are figured out (https://issues.asterisk.org/view.php?id=14333)
+- Start stripping tarballs again because Digium added MP3 code :(
+
 * Sat Jul 31 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1
 - Update to 1.6.2.10
 

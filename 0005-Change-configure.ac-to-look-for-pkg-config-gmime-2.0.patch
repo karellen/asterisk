@@ -1,4 +1,4 @@
-From e9e1c379941a4de1e0c1e63df81f44d9c0562ad9 Mon Sep 17 00:00:00 2001
+From 5985aeec2d8a09bf453a58befabbb7b5d245c65c Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:26:02 -0500
 Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
@@ -8,14 +8,14 @@ Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
  1 files changed, 11 insertions(+), 1 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 1b3f9c7..ce02844 100644
+index 44ed33f..6e1b035 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1631,7 +1631,17 @@ then
-     AST_CHECK_OSPTK([3], [5], [0])
- fi
+@@ -1797,7 +1797,17 @@ fi
  
--AST_EXT_TOOL_CHECK([GMIME], [gmime], [], [], [#include <gmime/gmime.h>], [gboolean q = g_mime_check_version(0,0,0);])
+ AST_EXT_LIB_CHECK([SRTP], [srtp], [srtp_init], [srtp/srtp.h])
+ 
+-AST_EXT_TOOL_CHECK([GMIME], [gmime-config], [], [], [#include <gmime/gmime.h>], [gboolean q = g_mime_check_version(0,0,0);])
 +PBX_GMIME=0
 +AC_CHECK_TOOL(PKGCONFIG, pkg-config, No)
 +if test ! "x${PKGCONFIG}" = xNo; then
