@@ -1,4 +1,4 @@
-From 48bcab5e25117894619e063c3a881fa9cca4b8c8 Mon Sep 17 00:00:00 2001
+From 6456a0f5337096f4d774b789e5e6817967403c44 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:23:49 -0500
 Subject: [PATCH 2/8] Modify modules.conf so that different voicemail modules don't load at the same time.
@@ -42,5 +42,5 @@ index 38e33e1..9a1c1c3 100644
 +;noload => app_directory_plain.so
 +;noload => app_voicemail_plain.so
 -- 
-1.7.2
+1.7.2.1
 

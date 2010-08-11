@@ -1,39 +1,18 @@
 #global _rc 1
-%global _beta 2
+%global _beta 3
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 0.1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
 
-#Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
-#Source1: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
-
-# The Asterisk tarball contains some items that we don't want in there,
-# so start with the original tarball from here:
-#
-# http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
-# http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
-#
-# Then run the included script file to build the stripped tarball:
-#
-# sh asterisk-strip.sh %{version}
-
-#
-# SHA256 Sums
-# =========
-# 4ece4a654e36513b195c518e217ec3dfba206ee7492332dd2e5ec54c9339a2a0 *asterisk-1.8.0-beta2.tar.gz
-# b4de3f943128bef4760c1b8c925dbf3724e2a3478ec3e0fbb9e5c3e99ff9fb80 *asterisk-1.8.0-beta2-stripped.tar.gz
-# 8b5d12291972eaa59737e3399fb437dd3a995c2a7c966c2f4da563f2dfa4de7b *asterisk-1.8.0-beta2.tar.gz.asc
-
-Source0: asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}-stripped.tar.gz
-Source1: asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
+Source1: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
 Source2: asterisk-logrotate
 Source3: menuselect.makedeps
 Source4: menuselect.makeopts
-Source5: asterisk-strip.sh
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibilty.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
@@ -162,7 +141,7 @@ Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
 BuildRequires: dahdi-tools-devel >= 2.0.0
 BuildRequires: dahdi-tools-libs >= 2.0.0
-BuildRequires: libpri-devel >= 1.4.6
+BuildRequires: libpri-devel >= 1.4.12
 BuildRequires: libss7-devel >= 1.0.1
 Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
 Provides: asterisk-zaptel = %{version}-%{release}
@@ -1161,6 +1140,63 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Aug 11 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.3.beta3
+-
+- This release contains fixes since the last beta release as reported by the
+- community. A sampling of the changes in this release include:
+-
+-  * Fix a regression where HTTP would always be enabled regardless of setting.
+-    (Closes issue #17708. Reported, patched by pabelanger)
+-
+-  * ACL errors displayed on screen when using dynamic_exclude_static in sip.conf
+-    (Closes issue #17717. Reported by Dennis DeDonatis. Patched by mmichelson)
+-
+-  * Support "channels" in addition to "channel" in chan_dahdi.conf.
+-    (https://reviewboard.asterisk.org/r/804)
+-
+-  * Fix parsing error in sip_sipredirect(). The code was written in a way that
+-    did a bad job of parsing the port out of a URI. Specifically, it would do
+-    badly when dealing with an IPv6 address.
+-    (Closes issue #17661. Reported by oej. Patched by mmichelson)
+-
+-  * Fix inband DTMF detection on outgoing ISDN calls.
+-    (Patched by russellb and rmudgett)
+-
+-  * Fixes issue with translator frame not getting freed. This issue prevented
+-    g729 licenses from being freed up.
+-    (Closes issue #17630. Reported by manvirr. Patched by dvossel)
+-
+-  * Fixed IPv6-related SIP parsing bugs and updated documention.
+-    (Reported by oej. Patched by sperreault)
+-
+-  * Add new, self-contained feature FIELDNUM(). Returns a 1-based index into a
+-    list of a specified item. Matches up with FIELDQTY() and CUT().
+-    (Closes #17713. Reported, patched by gareth. Tested by tilghman)
+-
+- Asterisk 1.8 contains many new features over previous releases of Asterisk.
+- A short list of included features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-beta3
+
+* Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.2.beta2
+- Rebuild against libpri 1.4.12
+
 * Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.1.beta2
 - Update to 1.8.0-beta2
 - Disable building chan_misdn until compilation errors are figured out (https://issues.asterisk.org/view.php?id=14333)
