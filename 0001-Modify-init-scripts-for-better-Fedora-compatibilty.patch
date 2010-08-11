@@ -1,4 +1,4 @@
-From ed8a94405e46074833a9fc0e7b09db428d3afecd Mon Sep 17 00:00:00 2001
+From ddbed41005f04d07e5c0d4050fcad9e11eddb7c3 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:22:21 -0500
 Subject: [PATCH 1/8] Modify init scripts for better Fedora compatibilty.
@@ -168,5 +168,5 @@ index 0000000..dab2e33
 +# A place to specify extra arguments for the Asterisk command line
 +AST_EXTRA_ARGS=""
 -- 
-1.7.2
+1.7.2.1
 

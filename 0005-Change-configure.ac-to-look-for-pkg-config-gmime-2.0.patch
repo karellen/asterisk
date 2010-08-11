@@ -1,4 +1,4 @@
-From e9e1c379941a4de1e0c1e63df81f44d9c0562ad9 Mon Sep 17 00:00:00 2001
+From a4d4328141d83ff43082cd1ac9c050b31f6db819 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:26:02 -0500
 Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
@@ -31,5 +31,5 @@ index 1b3f9c7..ce02844 100644
  AST_EXT_LIB_CHECK([HOARD], [hoard], [malloc], [])
  
 -- 
-1.7.2
+1.7.2.1
 

@@ -1,7 +1,7 @@
 #global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.10
+Version: 1.6.2.11
 Release: 1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -966,7 +966,7 @@ fi
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
-%doc contrib/scripts/realtime_pgsql.sql
+%doc contrib/realtime/postgresql/realtime.sql
 %{_libdir}/asterisk/modules/cdr_pgsql.so
 %{_libdir}/asterisk/modules/res_config_pgsql.so
 
@@ -1035,8 +1035,82 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Aug 11 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.11-1
+-
+- The following are a few of the issues resolved by community developers:
+-
+-  * Send DialPlanComplete as a response, not as a separate event. Otherwise, it
+-    goes to all manager sessions and may exclude the current session, if the
+-    Events mask excludes it.
+-    (Closes issue #17504. Reported, patched by rrb3942)
+-
+-  * Allow the "useragent" value to be restored into memory from the realtime
+-    backend. This value is purely informational. It does not alter configuration
+-    at all.
+-    (Closes issue #16029. Reported, patched by Guggemand)
+-
+-  * Fix rt(c)p set debug ip taking wrong argument Also clean up some coding
+-    errors.
+-    (Closes issue #17469. Reported, patched by wdoekes)
+-
+-  * Ensure channel placed in meetme in ringing state is properly hung up. An
+-    outgoing channel placed in meetme while still ringing which was then hung up
+-    would not exit meetme and the channel was not properly destroyed.
+-    (Closes issue #15871. Reported, patched by Ivan)
+-
+-  * Correct how 100, 200, 300, etc. is said. Also add the crazy British numbers.
+-    (Closes issue #16102. Reported, patched by Delvar)
+-
+-  * cdr_pgsql does not detect when a table is found. This change adds an ERROR
+-    message to let you know when a failure exists to get the columns from the
+-    pgsql database, which typically means that the table does not exist.
+-    (Closes issue #17478. Reported, patched by kobaz)
+-
+-  * Avoid crashing when installing a duplicate translation path with a lower
+-    cost.
+-    (Closes issue #17092. Reported, patched by moy)
+-
+-  * Add missing handling for ringing state for use with queue empty options.
+-    (Closes issue #17471. Reported, patched by jazzy)
+-
+-  * Fix reporting estimated queue hold time. Just say the number of seconds
+-    (after minutes) rather than doing some incorrect calculation with respect to
+-    minutes.
+-    (Closes issue #17498. Reported, patched by corruptor)
+-
+- For a full list of changes in the current release, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.11
+
 * Sat Jul 31 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1
-- Update to 1.6.2.10
+-
+- The following are a few of the issues resolved by community developers:
+-
+-  * Allow users to specify a port for DUNDI peers.
+-    (Closes issue #17056. Reported, patched by klaus3000)
+-
+-  * Decrease the module ref count in sip_hangup when SIP_DEFER_BYE_ON_TRANSFER is
+-    set.
+-    (Closes issue #16815. Reported, patched by rain)
+-
+-  * If there is realtime configuration, it does not get re-read on reload unless
+-    the config file also changes.
+-    (Closes issue #16982. Reported, patched by dmitri)
+-
+-  * Send AgentComplete manager event for attended transfers.
+-    (Closes issue #16819. Reported, patched by elbriga)
+-
+-  * Correct manager variable 'EventList' case.
+-    (Closes issue #17520. Reported, patched by kobaz)
+-
+- In addition, changes to res_timing_pthread that should make it more stable have
+- also been implemented.
+-
+- For a full list of changes in the current release, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.10
 
 * Wed Jul 14 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.8-0.3.rc1
 - Add patch to remove requirement on latex2html
