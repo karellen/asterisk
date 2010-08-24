@@ -1,8 +1,8 @@
-#global _rc 1
+%global _rc 1
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.6.2.11
-Release: 1%{?_rc:.rc%{_rc}}%{?dist}
+Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1035,6 +1035,49 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Aug 24 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.12-0.1.rc1
+- The release of Asterisk 1.6.2.12-RC1 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release candidate:
+-
+-  * Fix issue where DNID does not get cleared on a new call when using
+-    immediate=yes with ISDN signaling.
+-    (Closes issue #17568. Reported by wuwu. Patched by rmudgett)
+-
+-  * Several updates to res_config_ldap.
+-    (Closes issue #13573. Reported by navkumar. Patched by navkumar, bencer.
+-     Tested by suretec)
+-
+-  * Prevent loss of Caller ID information set on local channel after masquerade.
+-    (Closes issue #17138. Reported by kobaz, patched by jpeeler)
+-
+-  * Fix SIP peers memory leak.
+-    (Closes issue #17774. Reported, patched by kkm)
+-
+-  * Add Danish support to say.conf.sample
+-    (Closes issue #17836. Reported, patched by RoadKill)
+-
+-  * Ensure SSRC is changed when media source is changed to resolve audio delay.
+-    (Closes issue #17404. Reported, tested by sdolloff. Patched by jpeeler)
+-
+-  * Only do magic pickup when notifycid is enabled.
+-    A new way of doing BLF pickup was introduced into 1.6.2. This feature adds a
+-    call-id value into the XML of a SIP_NOTIFY message sent to alert a subscriber
+-    that a device is ringing. This option should only be enabled when the new
+-    'notifycid' option is set, but this was not the case. Instead the call-id
+-    value was included for every RINGING Notify message, which caused a
+-    regression for people who used other methods for call pickup.
+-    (Closes issue #17633. Reported, patched by urosh. Patched by dvossel.
+-     Tested by: dvossel, urosh, okrief, alecdavis)
+-
+- For a full list of changes in the current release, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.12-rc1
+
+
 * Wed Aug 11 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.11-1
 -
 - The following are a few of the issues resolved by community developers:
