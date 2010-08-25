@@ -1,4 +1,4 @@
-From eae426c0f00ac1889de8ce0a539f73b6008b3d59 Mon Sep 17 00:00:00 2001
+From 275998f4bb5eaa72b8f33ab196fd414f013054cf Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:26:02 -0500
 Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
@@ -8,12 +8,12 @@ Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
  1 files changed, 11 insertions(+), 1 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 584ec4c..2730ab2 100644
+index a38c39e..65ee2e8 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1808,7 +1808,17 @@ fi
- 
- AST_EXT_LIB_CHECK([SRTP], [srtp], [srtp_init], [srtp/srtp.h])
+@@ -1840,7 +1840,17 @@ then
+     LDFLAGS="${saved_ldflags}"
+ fi
  
 -AST_EXT_TOOL_CHECK([GMIME], [gmime-config], [], [], [#include <gmime/gmime.h>], [gboolean q = g_mime_check_version(0,0,0);])
 +PBX_GMIME=0
@@ -31,5 +31,5 @@ index 584ec4c..2730ab2 100644
  AST_EXT_LIB_CHECK([HOARD], [hoard], [malloc], [])
  
 -- 
-1.7.2.1
+1.7.2.2
 

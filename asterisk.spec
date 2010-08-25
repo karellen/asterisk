@@ -1,9 +1,9 @@
 #global _rc 1
-%global _beta 3
+%global _beta 4
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 0.3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -789,6 +789,7 @@ fi
 %{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
+%{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %if 0%{?fedora} > 0
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
@@ -859,6 +860,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_stun_monitor.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rpt.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
@@ -1140,6 +1142,58 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Aug 24 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.4.beta4
+- This release contains fixes since the last beta release as reported by the
+- community. A sampling of the changes in this release include:
+-
+-  * Fix parsing of IPv6 address literals in outboundproxy
+-    (Closes issue #17757. Reported by oej. Patched by sperreault)
+-
+-  * Change the default value for alwaysauthreject in sip.conf to "yes".
+-    (Closes issue #17756. Reported by oej)
+-
+-  * Remove current STUN support from chan_sip.c. This change removes the current
+-    broken/useless STUN support from chan_sip.
+-    (Closes issue #17622. Reported by philipp2.
+-     Review: https://reviewboard.asterisk.org/r/855/)
+-
+-  * PRI CCSS may use a stale dial string for the recall dial string. If an
+-    outgoing call negotiates a different B channel than initially requested, the
+-    saved original dial string was not transferred to the new B channel. CCSS
+-    uses that dial string to generate the recall dial string.
+-    (Patched by rmudgett)
+-
+-  * Split _all_ arguments before parsing them. This fixes multicast RTP paging
+-    using linksys mode.
+-    (Patched by russellb)
+-
+-  * Expand cel_custom.conf.sample. Include the usage of CSV_QUOTE() to ensure
+-    data has valid CSV formatting. Also list the special CEL variables that are
+-    available for use in the mapping. There are also several other CEL fixes in
+-    this release.
+-    (Patched by russellb)
+-
+- Asterisk 1.8 contains many new features over previous releases of Asterisk.
+- A short list of included features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support in the SIP Channel
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-beta4
+
 * Wed Aug 11 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.3.beta3
 -
 - This release contains fixes since the last beta release as reported by the

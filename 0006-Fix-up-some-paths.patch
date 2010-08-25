@@ -1,4 +1,4 @@
-From 7cca32739981a2d7f2682b02138d205f670359c0 Mon Sep 17 00:00:00 2001
+From 7ebcc9649cc7905c55b6ca7699e6388ddbd24bd6 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:27:48 -0500
 Subject: [PATCH 6/8] Fix up some paths
@@ -71,10 +71,10 @@ index 6f10de7..e956a8f 100644
 +;uploads = /var/spool/asterisk/uploads/
  ;
 diff --git a/configs/iax.conf.sample b/configs/iax.conf.sample
-index b516d4b..27a1b1b 100644
+index 73ae78a..3a40896 100644
 --- a/configs/iax.conf.sample
 +++ b/configs/iax.conf.sample
-@@ -447,8 +447,8 @@ inkeys=freeworlddialup
+@@ -456,8 +456,8 @@ inkeys=freeworlddialup
  ; authentication is used, "inkeys" is a list of acceptable public keys on the
  ; local system that can be used to authenticate the remote peer, separated by
  ; the ":" character.  "outkey" is a single, private key to use to authenticate
@@ -607,5 +607,5 @@ index 07ae29e..70956d4 100644
  exten => 762,1,agi(tts-riddle.agi)
  exten => 762,2,Background(gsm/what-time-it-is2)
 -- 
-1.7.2.1
+1.7.2.2
 

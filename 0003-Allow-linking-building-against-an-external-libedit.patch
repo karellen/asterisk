@@ -1,4 +1,4 @@
-From 90eee4a29a60c6a81b5dd294f2f7d0919f5c4261 Mon Sep 17 00:00:00 2001
+From f04bf2ec1a6b561f6aba8b0b674d166be761b89c Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 5 Mar 2010 14:10:52 -0600
 Subject: [PATCH 3/8] Allow linking/building against an external libedit.
@@ -31,7 +31,7 @@ index 2a5bcd7..a0f4e16 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index dfc45a5..584ec4c 100644
+index 62e7895..a38c39e 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -336,6 +336,7 @@ AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
@@ -42,7 +42,7 @@ index dfc45a5..584ec4c 100644
  AST_EXT_LIB_SETUP([LIBXML2], [LibXML2], [libxml2])
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
-@@ -1959,6 +1960,27 @@ AC_SUBST(PBX_GTK2)
+@@ -1991,6 +1992,27 @@ AC_SUBST(PBX_GTK2)
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -102,7 +102,7 @@ index af294dd..03700ee 100644
  
  ifeq ($(GNU_LD),1)
 diff --git a/main/cli.c b/main/cli.c
-index ebb7deb..d3c05a6 100644
+index 77e52b8..3408b5c 100644
 --- a/main/cli.c
 +++ b/main/cli.c
 @@ -36,6 +36,8 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")
@@ -120,8 +120,8 @@ index ebb7deb..d3c05a6 100644
  #include "asterisk/lock.h"
 -#include "editline/readline/readline.h"
  #include "asterisk/threadstorage.h"
+ #include "asterisk/translate.h"
  
- /*!
 diff --git a/makeopts.in b/makeopts.in
 index 750a41d..18ad3cd 100644
 --- a/makeopts.in
@@ -135,5 +135,5 @@ index 750a41d..18ad3cd 100644
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
 -- 
-1.7.2.1
+1.7.2.2
 
