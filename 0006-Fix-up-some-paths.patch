@@ -1,4 +1,4 @@
-From 7ebcc9649cc7905c55b6ca7699e6388ddbd24bd6 Mon Sep 17 00:00:00 2001
+From af9315c7c526d112f03561c42236981e3e6ce57d Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:27:48 -0500
 Subject: [PATCH 6/8] Fix up some paths
@@ -607,5 +607,5 @@ index 07ae29e..70956d4 100644
  exten => 762,1,agi(tts-riddle.agi)
  exten => 762,2,Background(gsm/what-time-it-is2)
 -- 
-1.7.2.2
+1.7.3.1
 

@@ -1,4 +1,4 @@
-From 71b4288813a4b51c7c7acfc1407c607a7c62980c Mon Sep 17 00:00:00 2001
+From 2ba95628e1eb8ba87adcf133b8ae6c6f5a4f82cd Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Mon, 8 Mar 2010 12:38:56 -0600
 Subject: [PATCH 4/8] Use the library function for loading command history rather than implementing our own.
@@ -8,10 +8,10 @@ Subject: [PATCH 4/8] Use the library function for loading command history rather
  1 files changed, 2 insertions(+), 19 deletions(-)
 
 diff --git a/main/asterisk.c b/main/asterisk.c
-index d8d3aeb..041ae8c 100644
+index 364bdf7..87f1f18 100644
 --- a/main/asterisk.c
 +++ b/main/asterisk.c
-@@ -2612,29 +2612,12 @@ static int ast_el_write_history(char *filename)
+@@ -2614,29 +2614,12 @@ static int ast_el_write_history(char *filename)
  
  static int ast_el_read_history(char *filename)
  {
@@ -44,5 +44,5 @@ index d8d3aeb..041ae8c 100644
  
  static void ast_remotecontrol(char *data)
 -- 
-1.7.2.2
+1.7.3.1
 

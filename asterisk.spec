@@ -1,9 +1,9 @@
-#global _rc 1
-%global _beta 4
+%global _rc 3
+#global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 0.4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.7%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -477,7 +477,7 @@ popd
 
 pushd menuselect
 %configure
-popd 
+popd
 
 %if 0%{?fedora} > 0
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes
@@ -741,6 +741,7 @@ fi
 %{_libdir}/asterisk/modules/func_enum.so
 %{_libdir}/asterisk/modules/func_env.so
 %{_libdir}/asterisk/modules/func_extstate.so
+%{_libdir}/asterisk/modules/func_frame_trace.so
 %{_libdir}/asterisk/modules/func_global.so
 %{_libdir}/asterisk/modules/func_groupcount.so
 %{_libdir}/asterisk/modules/func_iconv.so
@@ -929,6 +930,7 @@ fi
 %defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_curl.conf
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/res_config_curl.so
 %{_libdir}/asterisk/modules/res_curl.so
@@ -1037,12 +1039,12 @@ fi
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_adaptive_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/func_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_odbc.conf
 %{_libdir}/asterisk/modules/cdr_adaptive_odbc.so
 %{_libdir}/asterisk/modules/cdr_odbc.so
-%{_libdir}/asterisk/modules/cel_adaptive_odbc.so
+%{_libdir}/asterisk/modules/cel_odbc.so
 %{_libdir}/asterisk/modules/func_odbc.so
 %{_libdir}/asterisk/modules/res_config_odbc.so
 %{_libdir}/asterisk/modules/res_odbc.so
@@ -1142,6 +1144,164 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Oct  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.7.rc3
+- This release candidate contains fixes since the release candidate as reported by
+- the community. A sampling of the changes in this release candidate include:
+-
+-  * Still build chan_sip even if res_crypto cannot be built (use, but not depend)
+-    (Reported by a user on the mailing list. Patched by tilghman)
+-
+-  * Get notifications for call files only when a file is closed, not when created
+-    (Closes issue #17924. Reported by mkeuter. Patched by abeldeck)
+-
+-  * Fixes to chan_gtalk to allow outbound DTMF support to work correctly. Gtalk
+-    expects the DTMF to arrive on the RTP stream and not via jingle DTMF
+-    signalling.
+-    (Patched by dvossel. Tested by malcolmd)
+-
+-  * Fixes to allow chan_gtalk to communicate with the Gmail web client.
+-    (Patched by phsultan and dvossel)
+-
+-  * Fix to GET DATA to allow audio to be streamed via an AGI.
+-    (Closes issue #18001. Reported by jamicque. Patched by tilghman)
+-
+-  * Resolve dnsmgr memory corruption in chan_iax2.
+-    (Closes issue #17902. Reported by afried. Patched by russell, dvossel)
+-
+- A short list of available features includes:
+-
+-  * Secure RTP
+-  * IPv6 Support in the SIP channel driver
+-  * Connected Party Identification Support
+-  * Calendaring Integration
+-  * A new call logging system, Channel Event Logging (CEL)
+-  * Distributed Device State using Jabber/XMPP PubSub
+-  * Call Completion Supplementary Services support
+-  * Advice of Charge support
+-  * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc3
+
+* Wed Oct  6 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.6.rc2
+- This release candidate contains fixes since the last beta release as reported by
+- the community. A sampling of the changes in this release candidate include:
+-
+-  * Add slin16 support for format_wav (new wav16 file extension)
+-    (Closes issue #15029. Reported, patched by andrew. Tested by Qwell)
+-
+-  * Fixes a bug in manager.c where the default configuration values weren't reset
+-    when the manager configuration was reloaded.
+-    (Closes issue #17917. Reported by lmadsen. Patched by bbryant)
+-
+-  * Various fixes for the calendar modules.
+-    (Patched by Jan Kalab.
+-     Reviewboard: https://reviewboard.asterisk.org/r/880/
+-     Closes issue #17877. Review: https://reviewboard.asterisk.org/r/916/
+-     Closes issue #17776. Review: https://reviewboard.asterisk.org/r/921/)
+-
+-  * Add CHANNEL(checkhangup) to check whether a channel is in the process of
+-    being hung up.
+-    (Closes issue #17652. Reported, patched by kobaz)
+-
+-  * Fix a bug with MeetMe where after announcing the amount of time left in a
+-    conference, if music on hold was playing, it doesn't restart.
+-    (Closes issue #17408, Reported, patched by sysreq)
+-
+-  * Fix interoperability problems with session timer behavior in Asterisk.
+-    (Closes issue #17005. Reported by alexcarey. Patched by dvossel)
+-
+-  * Rate limit calls to fsync() to 1 per second after astdb updates. Astdb was
+-    determined to be one of the most significant bottlenecks in SIP registration
+-    processing. This patch improved the speed of an astdb load test by 50000%
+-    (yes, Fifty-Thousand Percent). On this particular load test setup, this
+-    doubled the number of SIP registrations the server could handle.
+-    (Review: https://reviewboard.asterisk.org/r/825/)
+-
+-  * Don't clear the username from a realtime database when a registration
+-    expires. Non-realtime chan_sip does not clear the username from memory when a
+-    registration expiries so realtime probably shouldn't either.
+-    (Closes issue #17551. Reported, patched by: ricardolandim. Patched by
+-     mnicholson)
+-
+-  * Don't hang up a call on an SRTP unprotect failure. Also make it more obvious
+-    when there is an issue en/decrypting.
+-    (Closes issue #17563. Reported by Alexcr. Patched by sfritsch. Tested by
+-     twilson)
+-
+-  * Many more issues. This is a significant upgrade over Asterisk 1.8.0 beta 5!
+-
+- A short list of available features includes:
+-
+-  * Secure RTP
+-  * IPv6 Support in the SIP channel driver
+-  * Connected Party Identification Support
+-  * Calendaring Integration
+-  * A new call logging system, Channel Event Logging (CEL)
+-  * Distributed Device State using Jabber/XMPP PubSub
+-  * Call Completion Supplementary Services support
+-  * Advice of Charge support
+-  * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc2
+
+* Thu Sep  9 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.5.beta5
+- This release contains fixes since the last beta release as reported by the
+- community. A sampling of the changes in this release include:
+-
+-  * Fix issue where TOS is no longer set on RTP packets.
+-    (Closes issue #17890. Reported, patched by elguero)
+-
+-  * Change pedantic default value in chan_sip from 'no' to 'yes'
+-
+-  * Asterisk now dynamically builds the "Supported" header depending on what is
+-    enabled/disabled in sip.conf. Session timers used to always be advertised as
+-    being supported even when they were disabled in the configuration.
+-    (Related to issue #17005. Patched by dvossel)
+-
+-  * Convert MOH to use generic timers.
+-    (Closes issue #17726. Reported by lmadsen. Patched by tilghman)
+-
+-  * Fix SRTP for changing SSRC and multiple a=crypto SDP lines. Adding code to
+-    Asterisk that changed the SSRC during bridges and masquerades broke SRTP
+-    functionality. Also broken was handling the situation where an incoming
+-    INVITE had more than one crypto offer.
+-    (Closes issue #17563. Reported by Alexcr. Patched by twilson)
+-
+- Asterisk 1.8 contains many new features over previous releases of Asterisk.
+- A short list of included features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support in the SIP Channel
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-beta5
+
 * Tue Aug 24 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.4.beta4
 - This release contains fixes since the last beta release as reported by the
 - community. A sampling of the changes in this release include:
@@ -1268,20 +1428,20 @@ fi
 * Tue May  4 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-1
 -  * Fix building CDR and CEL SQLite3 modules.
 -    (Closes issue #17017. Reported by alephlg. Patched by seanbright)
-- 
+-
 -  * Resolve crash in SLAtrunk when the specified trunk doesn't exist.
 -    (Reported in #asterisk-dev by philipp64. Patched by seanbright)
-- 
+-
 -  * Include an extra newline after "Aliased CLI command" to get back the prompt.
 -    (Issue #16978. Reported by jw-asterisk. Tested, patched by seanbright)
-- 
+-
 -  * Prevent segfault if bad magic number is encountered.
 -    (Issue #17037. Reported, patched by alecdavis)
-- 
+-
 -  * Update code to reflect that handle_speechset has 4 arguments.
 -    (Closes issue #17093. Reported, patched by gpatri. Tested by pabelanger,
 -     mmichelson)
-- 
+-
 -  * Resolve a deadlock in chan_local.
 -    (Closes issue #16840. Reported, patched by bzing2, russell. Tested by bzing2)
 
@@ -1293,28 +1453,28 @@ fi
 
 * Fri Mar 12 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-1
 - Update to final 1.6.2.6
-- 
+-
 - The following are a few of the issues resolved by community developers:
-- 
+-
 -  * Make sure to clear red alarm after polarity reversal.
 -    (Closes issue #14163. Reported, patched by jedi98. Tested by mattbrown,
 -     Chainsaw, mikeeccleston)
-- 
+-
 -  * Fix problem with duplicate TXREQ packets in chan_iax2
 -    (Closes issue #16904. Reported, patched by rain. Tested by rain, dvossel)
-- 
+-
 -  * Fix crash in app_voicemail related to message counting.
 -    (Closes issue #16921. Reported, tested by whardier. Patched by seanbright)
-- 
+-
 -  * Overlap receiving: Automatically send CALL PROCEEDING when dialplan starts
 -    (Reported, Patched, and Tested by alecdavis)
-- 
+-
 -  * For T.38 reINVITEs treat a 606 the same as a 488.
 -    (Closes issue #16792. Reported, patched by vrban)
-- 
+-
 -  * Fix ConfBridge crash when no timing module is loaded.
 -    (Closes issue #16471. Reported, tested by kjotte. Patched, tested by junky)
-- 
+-
 - For a full list of changes in this releases, please see the ChangeLog:
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.6
 
@@ -1326,42 +1486,42 @@ fi
 
 * Thu Feb 25 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-1
 - Update to 1.6.2.5
-- 
+-
 -         * AST-2010-002: Invalid parsing of ACL rules can compromise security
 
 * Thu Feb 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.4-1
 - Update to 1.6.2.4
 -
--        * AST-2010-002: This security release is intended to raise awareness 
--          of how it is possible to insert malicious strings into dialplans, 
--          and to advise developers to read the best practices documents so 
+-        * AST-2010-002: This security release is intended to raise awareness
+-          of how it is possible to insert malicious strings into dialplans,
+-          and to advise developers to read the best practices documents so
 -          that they may easily avoid these dangers.
 
 * Wed Feb  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.2-1
 - Update to 1.6.2.2
 -
--	* AST-2010-001: An attacker attempting to negotiate T.38 over SIP can 
--	  remotely crash Asterisk by modifying the FaxMaxDatagram field of 
+-	* AST-2010-001: An attacker attempting to negotiate T.38 over SIP can
+-	  remotely crash Asterisk by modifying the FaxMaxDatagram field of
 -	  the SDP to contain either a negative or exceptionally large value.
--	  The same crash occurs when the FaxMaxDatagram field is omitted from 
+-	  The same crash occurs when the FaxMaxDatagram field is omitted from
 -	  the SDP as well.
 
 * Fri Jan 15 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-1
 - Update to 1.6.2.1 final:
-- 
+-
 - * CLI 'queue show' formatting fix.
 -   (Closes issue #16078. Reported by RoadKill. Tested by dvossel. Patched by
 -    ppyy.)
-- 
+-
 - * Fix misreverting from 177158.
 -   (Closes issue #15725. Reported, Tested by shanermn. Patched by dimas.)
-- 
+-
 - * Fixes subscriptions being lost after 'module reload'.
 -   (Closes issue #16093. Reported by jlaroff. Patched by dvossel.)
-- 
+-
 - * app_queue segfaults if realtime field uniqueid is NULL
 -  (Closes issue #16385. Reported, Tested, Patched by haakon.)
-- 
+-
 - * Fix to Monitor which previously assumed the file to write to did not contain
 -   pathing.
 -   (Closes issue #16377, #16376. Reported by bcnit. Patched by dant.
