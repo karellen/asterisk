@@ -1,4 +1,4 @@
-From ad148a5446a0c1fdb2f189bca2a1a5501ed9fc5e Mon Sep 17 00:00:00 2001
+From a9ab6278a7bae71dd51bd32a67e7691db1a6fbb8 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 5 Mar 2010 14:10:52 -0600
 Subject: [PATCH 3/8] Allow linking/building against an external libedit.
@@ -31,10 +31,10 @@ index 2a5bcd7..a0f4e16 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index 75a5ed0..e8a6013 100644
+index bacef33..dc73ca4 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -337,6 +337,7 @@ AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
+@@ -387,6 +387,7 @@ AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
  AST_EXT_LIB_SETUP([KQUEUE], [kqueue support], [kqueue])
  AST_EXT_LIB_SETUP([LDAP], [OpenLDAP], [ldap])
  AST_LIBCURL_CHECK_CONFIG([], [7.10.1])
@@ -42,7 +42,7 @@ index 75a5ed0..e8a6013 100644
  AST_EXT_LIB_SETUP([LIBXML2], [LibXML2], [libxml2])
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
-@@ -2056,6 +2057,27 @@ AC_SUBST(PBX_GTK2)
+@@ -2119,6 +2120,27 @@ AC_SUBST(PBX_GTK2)
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -123,10 +123,10 @@ index 77e52b8..3408b5c 100644
  #include "asterisk/translate.h"
  
 diff --git a/makeopts.in b/makeopts.in
-index 2680968..b8db6a3 100644
+index 5e9ef8c..02b3b51 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -291,3 +291,7 @@ TINFO_DIR=@TINFO_DIR@
+@@ -305,3 +305,7 @@ TINFO_DIR=@TINFO_DIR@
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@
  TIMERFD_INCLUDE=@TIMERFD_INCLUDE@

@@ -1,4 +1,4 @@
-From 228b8bb72289b5c9c51bc8ef208d01c8ee3cb12a Mon Sep 17 00:00:00 2001
+From 096ef48c19272cab10e036ec2c417b8be23e4378 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:32:19 -0500
 Subject: [PATCH 8/8] Tell laxtex2html to copy icons when building documentation so that we don't have run-time dependencies on latex2html.

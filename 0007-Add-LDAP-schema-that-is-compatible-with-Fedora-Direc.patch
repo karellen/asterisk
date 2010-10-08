@@ -1,4 +1,4 @@
-From 0a424bebe5d788c9367f356dcd567d5ae51e34a7 Mon Sep 17 00:00:00 2001
+From 6b0bece73fea9b71b815a641d3d6af96715b115e Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Sun, 4 Jan 2009 19:22:39 -0600
 Subject: [PATCH 7/8] Add LDAP schema that is compatible with Fedora Directory Server.

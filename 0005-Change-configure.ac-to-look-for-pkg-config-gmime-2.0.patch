@@ -1,4 +1,4 @@
-From db9b59864172ebcfc25d51bfe0d7f949265bf2bb Mon Sep 17 00:00:00 2001
+From c886d6aa47a2a8fa6edfe448a842a16453fe84ed Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:26:02 -0500
 Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
@@ -8,10 +8,10 @@ Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
  1 files changed, 11 insertions(+), 1 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index e8a6013..d1ddb3a 100644
+index dc73ca4..027e22b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1905,7 +1905,17 @@ then
+@@ -1968,7 +1968,17 @@ then
      CFLAGS="${saved_cflags}"
  fi
  
