@@ -1,4 +1,4 @@
-From a9ab6278a7bae71dd51bd32a67e7691db1a6fbb8 Mon Sep 17 00:00:00 2001
+From 848a3f604b1c1db5bda30d688c00e09b2cf36d83 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 5 Mar 2010 14:10:52 -0600
 Subject: [PATCH 3/8] Allow linking/building against an external libedit.
@@ -102,7 +102,7 @@ index af294dd..03700ee 100644
  
  ifeq ($(GNU_LD),1)
 diff --git a/main/cli.c b/main/cli.c
-index 77e52b8..3408b5c 100644
+index 7f4c179..b85c219 100644
 --- a/main/cli.c
 +++ b/main/cli.c
 @@ -36,6 +36,8 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision$")

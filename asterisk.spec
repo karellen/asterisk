@@ -1,9 +1,9 @@
-%global _rc 3
+%global _rc 5
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 0.7%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.8%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1144,6 +1144,75 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Oct 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.8.rc5:
+-
+- The release of Asterisk 1.8.0-rc5 was triggered by some last minute platform
+- compatibility IPv6 changes. In addition, the availability of the English sound
+- prompts with Australian accents has been added.
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=markup
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc5
+-
+- This release candidate contains fixes since the last release candidate as
+- reported by the community. A sampling of the changes in this release candidate
+- include:
+-
+-  * Additional fixups in chan_gtalk that allow outbound calls to both Google
+-    Talk and Google Voice recipients. Adds new chan_gtalk enhancements externip
+-    and stunaddr.
+-    (Closes issue #13971. Patched by dvossel)
+-
+-  * Resolve manager crash issue.
+-    (Closes issue #17994. Reported by vrban. Patchd by dvossel)
+-
+-  * Documentation updates for sample configuration files.
+-    (Closes issues #18107, #18101. Reported, patched by lathama, lmadsen)
+-
+-  * Resolve issue where faxdetect would only detect the first fax call in
+-    chan_dahdi.
+-    (Closes issue #18116. Reported by seandarcy. Patched by rmudgett)
+-
+-  * Resolve issue where a channel that is setup and torn down *very* quickly may
+-    not have the right call disposition or ${DIALSTATUS}.
+-    (Closes issue #16946. Reported by davidw. Review
+-     https://reviewboard.asterisk.org/r/740/)
+-
+-  * Set TCLASS field of IPv6 header when SIP QoS options are set.
+-    (Closes issue #18099. Reported by jamesnet. Patched by dvossel)
+-
+-  * Resolve issue where Asterisk could crash on shutdown when using SRTP.
+-    (Closes issue #18085. Reported by st. Patched by twilson)
+-
+-  * Fix issue where peers host port would be lost on a SIP reload.
+-    (Closes issue #18135. Reported, tested by lmadsen. Patched by dvossel)
+-
+- A short list of available features includes:
+-
+-   * Secure RTP
+-   * IPv6 Support in the SIP channel driver
+-   * Connected Party Identification Support
+-   * Calendaring Integration
+-   * A new call logging system, Channel Event Logging (CEL)
+-   * Distributed Device State using Jabber/XMPP PubSub
+-   * Call Completion Supplementary Services support
+-   * Advice of Charge support
+-   * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=markup
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc4
+
 * Fri Oct  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.7.rc3
 - This release candidate contains fixes since the release candidate as reported by
 - the community. A sampling of the changes in this release candidate include:

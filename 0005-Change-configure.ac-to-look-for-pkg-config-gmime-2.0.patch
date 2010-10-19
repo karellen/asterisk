@@ -1,4 +1,4 @@
-From c886d6aa47a2a8fa6edfe448a842a16453fe84ed Mon Sep 17 00:00:00 2001
+From 111490f6a1830634ea27c050daaf0daa4233b92e Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:26:02 -0500
 Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0

@@ -1,4 +1,4 @@
-From c80e9b4ee3c6334eb63e3e238612c2acce50dcef Mon Sep 17 00:00:00 2001
+From 5049460a98be96ff417427f5f7bc1855a7ee0bce Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:27:48 -0500
 Subject: [PATCH 6/8] Fix up some paths
@@ -8,7 +8,7 @@ Subject: [PATCH 6/8] Fix up some paths
  configs/festival.conf.sample                |    2 +-
  configs/http.conf.sample                    |    6 ++--
  configs/iax.conf.sample                     |    4 +-
- configs/musiconhold.conf.sample             |    6 ++--
+ configs/musiconhold.conf.sample             |    8 +++---
  configs/osp.conf.sample                     |    4 +-
  configs/phoneprov.conf.sample               |    2 +-
  contrib/scripts/astgenkey                   |    2 +-
@@ -20,7 +20,7 @@ Subject: [PATCH 6/8] Fix up some paths
  pbx/ael/ael-test/ael-test3/extensions.ael   |   28 +++++++++++++-------------
  pbx/ael/ael-test/ael-vtest13/extensions.ael |   28 +++++++++++++-------------
  pbx/ael/ael-test/ref.ael-vtest13            |   26 ++++++++++++------------
- 16 files changed, 68 insertions(+), 68 deletions(-)
+ 16 files changed, 69 insertions(+), 69 deletions(-)
 
 diff --git a/UPGRADE-1.4.txt b/UPGRADE-1.4.txt
 index f99f937..981bca7 100644
@@ -86,14 +86,16 @@ index 73ae78a..3a40896 100644
  ;
  ;
 diff --git a/configs/musiconhold.conf.sample b/configs/musiconhold.conf.sample
-index 714e264..2354379 100644
+index 9147588..8cd83e5 100644
 --- a/configs/musiconhold.conf.sample
 +++ b/configs/musiconhold.conf.sample
-@@ -32,7 +32,7 @@
+@@ -31,8 +31,8 @@
+ ;
  ; The path specified can be either an absolute path (starts with '/'),
  ; or a relative path; relative paths are interpreted as being relative
- ; to the 'astvarlibdir' in asterisk.conf, which defaults to
+-; to the 'astdatalibdir' in asterisk.conf, which defaults to
 -; /var/lib/asterisk.
++; to the 'astdatadir' in asterisk.conf, which defaults to
 +; /usr/share/asterisk.
  ;
  ; NOTE:
@@ -130,10 +132,10 @@ index e72aa32..f7ee625 100644
  ; Specify the private key file name.
  ; If this parameter is unspecified or not present, the default name will be the
 diff --git a/configs/phoneprov.conf.sample b/configs/phoneprov.conf.sample
-index c819d6d..4ee5684 100644
+index ffec829..24fba88 100644
 --- a/configs/phoneprov.conf.sample
 +++ b/configs/phoneprov.conf.sample
-@@ -114,4 +114,4 @@ ${MAC}.cfg => 000000000000.cfg               ; Dynamically generated files.
+@@ -128,4 +128,4 @@ ${MAC}.cfg => 000000000000.cfg               ; Dynamically generated files.
  ${MAC}-phone.cfg => 000000000000-phone.cfg   ; (relative to AST_DATA_DIR/phoneprov)
  config/${MAC} => polycom.xml                 ; Dynamic Filename => template file
  ${MAC}-directory.xml => 000000000000-directory.xml
