@@ -1,4 +1,4 @@
-From c585c45d9e9d2ef30bd1db15454ef707fc22559b Mon Sep 17 00:00:00 2001
+From 6c599696aae0968c658ba9a6a88ed4ab3371cbef Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:23:49 -0500
 Subject: [PATCH 2/8] Modify modules.conf so that different voicemail modules don't load at the same time.
@@ -8,10 +8,10 @@ Subject: [PATCH 2/8] Modify modules.conf so that different voicemail modules don
  1 files changed, 26 insertions(+), 0 deletions(-)
 
 diff --git a/configs/modules.conf.sample b/configs/modules.conf.sample
-index 5b553a4..39645c3 100644
+index 38e33e1..9a1c1c3 100644
 --- a/configs/modules.conf.sample
 +++ b/configs/modules.conf.sample
-@@ -35,3 +35,29 @@ noload => chan_alsa.so
+@@ -43,3 +43,29 @@ noload => chan_alsa.so
  ;noload => chan_oss.so
  noload => chan_console.so
  ;
@@ -42,5 +42,5 @@ index 5b553a4..39645c3 100644
 +;noload => app_directory_plain.so
 +;noload => app_voicemail_plain.so
 -- 
-1.7.2.1
+1.7.3.1
 

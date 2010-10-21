@@ -1,4 +1,4 @@
-From a4d4328141d83ff43082cd1ac9c050b31f6db819 Mon Sep 17 00:00:00 2001
+From 111490f6a1830634ea27c050daaf0daa4233b92e Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:26:02 -0500
 Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
@@ -8,14 +8,14 @@ Subject: [PATCH 5/8] Change configure.ac to look for pkg-config gmime-2.0
  1 files changed, 11 insertions(+), 1 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 1b3f9c7..ce02844 100644
+index dc73ca4..027e22b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1631,7 +1631,17 @@ then
-     AST_CHECK_OSPTK([3], [5], [0])
+@@ -1968,7 +1968,17 @@ then
+     CFLAGS="${saved_cflags}"
  fi
  
--AST_EXT_TOOL_CHECK([GMIME], [gmime], [], [], [#include <gmime/gmime.h>], [gboolean q = g_mime_check_version(0,0,0);])
+-AST_EXT_TOOL_CHECK([GMIME], [gmime-config], [], [], [#include <gmime/gmime.h>], [gboolean q = g_mime_check_version(0,0,0);])
 +PBX_GMIME=0
 +AC_CHECK_TOOL(PKGCONFIG, pkg-config, No)
 +if test ! "x${PKGCONFIG}" = xNo; then
@@ -31,5 +31,5 @@ index 1b3f9c7..ce02844 100644
  AST_EXT_LIB_CHECK([HOARD], [hoard], [malloc], [])
  
 -- 
-1.7.2.1
+1.7.3.1
 

@@ -1,17 +1,18 @@
-%global _rc 1
+#global _rc 5
+#global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.6.2.12
-Release: 0.1%{?_rc:.rc%{_rc}}%{?dist}
+Version: 1.8.0
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
 
-Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz
-Source1: asterisk-logrotate
-Source2: menuselect.makedeps
-Source3: menuselect.makeopts
-Source5: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}.tar.gz.asc
+Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
+Source1: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+Source2: asterisk-logrotate
+Source3: menuselect.makedeps
+Source4: menuselect.makeopts
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibilty.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
@@ -50,6 +51,10 @@ BuildRequires: graphviz
 BuildRequires: graphviz-gd
 BuildRequires: libxml2-devel
 BuildRequires: latex2html
+
+# for building res_calendar_caldav
+BuildRequires: neon-devel
+BuildRequires: libical-devel
 
 # for codec_speex
 BuildRequires: speex-devel >= 1.2
@@ -110,6 +115,14 @@ Requires: asterisk = %{version}-%{release}
 %description apidoc
 API documentation for Asterisk.
 
+%package calendar
+Summary: Calendar applications for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description calendar
+Calendar applications for Asterisk.
+
 %package curl
 Summary: Modules for Asterisk that use cURL
 Group: Applications/Internet
@@ -127,7 +140,7 @@ Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
 BuildRequires: dahdi-tools-devel >= 2.0.0
 BuildRequires: dahdi-tools-libs >= 2.0.0
-BuildRequires: libpri-devel >= 1.4.6
+BuildRequires: libpri-devel >= 1.4.12
 BuildRequires: libss7-devel >= 1.0.1
 Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
 Provides: asterisk-zaptel = %{version}-%{release}
@@ -229,6 +242,16 @@ BuildRequires: mISDN-devel
 %description misdn
 mISDN channel for Asterisk.
 
+%package mobile
+Summary: Mobile (BlueTooth) channel for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Requires(pre): %{_sbindir}/usermod
+BuildRequires: bluez-libs-devel
+
+%description mobile
+Mobile (BlueTooth) channel for Asterisk.
+
 %package minivm
 Summary: MiniVM applicaton for Asterisk
 Group: Applications/Internet
@@ -236,6 +259,15 @@ Requires: asterisk = %{version}-%{release}
 
 %description minivm
 MiniVM application for Asterisk.
+
+%package mysql
+Summary: Applications for Asterisk that use MySQL
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+BuildRequires: mysql-devel
+
+%description mysql
+Applications for Asterisk that use MySQL.
 
 %package odbc
 Summary: Applications for Asterisk that use ODBC (except voicemail)
@@ -246,6 +278,16 @@ BuildRequires: unixODBC-devel
 
 %description odbc
 Applications for Asterisk that use ODBC (except voicemail)
+
+%package ooh323
+Summary: H.323 channel for Asterisk using the Objective Systems Open H.323 for C library
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+BuildRequires: libtool-ltdl-devel
+BuildRequires: unixODBC-devel
+
+%description ooh323
+H.323 channel for Asterisk using the Objective Systems Open H.323 for C library.
 
 %package oss
 Summary: Modules for Asterisk that use OSS sound drivers
@@ -386,7 +428,7 @@ Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
 %prep
-%setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}
+%setup0 -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -396,8 +438,8 @@ local filesystem.
 %patch7 -p1
 %patch8 -p1
 
-cp %{SOURCE2} menuselect.makedeps
-cp %{SOURCE3} menuselect.makeopts
+cp %{S:3} menuselect.makedeps
+cp %{S:4} menuselect.makeopts
 
 # Fixup makefile so sound archives aren't downloaded/installed
 %{__perl} -pi -e 's/^all:.*$/all:/' sounds/Makefile
@@ -434,7 +476,7 @@ popd
 
 pushd menuselect
 %configure
-popd 
+popd
 
 %if 0%{?fedora} > 0
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes
@@ -484,7 +526,7 @@ ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVA
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
 install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
-install -D -p -m 0644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
+install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
 install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 
@@ -584,6 +626,7 @@ fi
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_authenticate.so
 %{_libdir}/asterisk/modules/app_cdr.so
+%{_libdir}/asterisk/modules/app_celgenuserevent.so
 %{_libdir}/asterisk/modules/app_chanisavail.so
 %{_libdir}/asterisk/modules/app_channelredirect.so
 %{_libdir}/asterisk/modules/app_chanspy.so
@@ -617,6 +660,8 @@ fi
 %{_libdir}/asterisk/modules/app_readfile.so
 %{_libdir}/asterisk/modules/app_read.so
 %{_libdir}/asterisk/modules/app_record.so
+%{_libdir}/asterisk/modules/app_saycounted.so
+%{_libdir}/asterisk/modules/app_saycountpl.so
 %{_libdir}/asterisk/modules/app_sayunixtime.so
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
@@ -644,11 +689,15 @@ fi
 %{_libdir}/asterisk/modules/cdr_csv.so
 %{_libdir}/asterisk/modules/cdr_custom.so
 %{_libdir}/asterisk/modules/cdr_manager.so
+%{_libdir}/asterisk/modules/cdr_syslog.so
+%{_libdir}/asterisk/modules/cel_custom.so
+%{_libdir}/asterisk/modules/cel_manager.so
 %{_libdir}/asterisk/modules/chan_agent.so
 %{_libdir}/asterisk/modules/chan_bridge.so
 %{_libdir}/asterisk/modules/chan_iax2.so
 %{_libdir}/asterisk/modules/chan_local.so
 %{_libdir}/asterisk/modules/chan_mgcp.so
+%{_libdir}/asterisk/modules/chan_multicast_rtp.so
 %{_libdir}/asterisk/modules/chan_phone.so
 %{_libdir}/asterisk/modules/chan_sip.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
@@ -661,6 +710,7 @@ fi
 %{_libdir}/asterisk/modules/codec_resample.so
 %{_libdir}/asterisk/modules/codec_speex.so
 %{_libdir}/asterisk/modules/codec_ulaw.so
+%{_libdir}/asterisk/modules/format_g719.so
 %{_libdir}/asterisk/modules/format_g723.so
 %{_libdir}/asterisk/modules/format_g726.so
 %{_libdir}/asterisk/modules/format_g729.so
@@ -681,6 +731,7 @@ fi
 %{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
+%{_libdir}/asterisk/modules/func_callcompletion.so
 %{_libdir}/asterisk/modules/func_callerid.so
 %{_libdir}/asterisk/modules/func_cdr.so
 %{_libdir}/asterisk/modules/func_channel.so
@@ -693,6 +744,7 @@ fi
 %{_libdir}/asterisk/modules/func_enum.so
 %{_libdir}/asterisk/modules/func_env.so
 %{_libdir}/asterisk/modules/func_extstate.so
+%{_libdir}/asterisk/modules/func_frame_trace.so
 %{_libdir}/asterisk/modules/func_global.so
 %{_libdir}/asterisk/modules/func_groupcount.so
 %{_libdir}/asterisk/modules/func_iconv.so
@@ -701,12 +753,14 @@ fi
 %{_libdir}/asterisk/modules/func_math.so
 %{_libdir}/asterisk/modules/func_md5.so
 %{_libdir}/asterisk/modules/func_module.so
+%{_libdir}/asterisk/modules/func_pitchshift.so
 %{_libdir}/asterisk/modules/func_rand.so
 %{_libdir}/asterisk/modules/func_realtime.so
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
 %{_libdir}/asterisk/modules/func_speex.so
 %{_libdir}/asterisk/modules/func_sprintf.so
+%{_libdir}/asterisk/modules/func_srv.so
 %{_libdir}/asterisk/modules/func_strings.so
 %{_libdir}/asterisk/modules/func_sysinfo.so
 %{_libdir}/asterisk/modules/func_timeout.so
@@ -732,29 +786,35 @@ fi
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
+%{_libdir}/asterisk/modules/res_mutestream.so
 %{_libdir}/asterisk/modules/res_phoneprov.so
+%{_libdir}/asterisk/modules/res_pktccops.so
 %{_libdir}/asterisk/modules/res_realtime.so
+%{_libdir}/asterisk/modules/res_rtp_asterisk.so
+%{_libdir}/asterisk/modules/res_rtp_multicast.so
+%{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
+%{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %if 0%{?fedora} > 0
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
 %endif
 
-%{_sbindir}/aelparse
-%{_sbindir}/astcanary
+#%{_sbindir}/aelparse
+#%{_sbindir}/astcanary
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
-%{_sbindir}/astman
+#%{_sbindir}/astman
 %{_sbindir}/autosupport
-%{_sbindir}/conf2ael
-%{_sbindir}/muted
+#%{_sbindir}/conf2ael
+#%{_sbindir}/muted
 %{_sbindir}/rasterisk
-%{_sbindir}/refcounter
+#%{_sbindir}/refcounter
 %{_sbindir}/safe_asterisk
-%{_sbindir}/smsq
-%{_sbindir}/stereorize
-%{_sbindir}/streamplayer
+#%{_sbindir}/smsq
+#%{_sbindir}/stereorize
+#%{_sbindir}/streamplayer
 
 %{_mandir}/man8/asterisk.8*
 %{_mandir}/man8/astgenkey.8*
@@ -763,15 +823,19 @@ fi
 
 %attr(0750,asterisk,asterisk) %dir %{_sysconfdir}/asterisk
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
+#%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/agents.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/amd.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.adsi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ccss.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_syslog.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
@@ -801,6 +865,8 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phoneprov.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_stun_monitor.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rpt.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
@@ -858,10 +924,20 @@ fi
 %defattr(-,root,root,-)
 %doc doc/api/html/*
 
+%files calendar
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/calendar.conf
+%{_libdir}/asterisk/modules/res_calendar.so
+%{_libdir}/asterisk/modules/res_calendar_caldav.so
+%{_libdir}/asterisk/modules/res_calendar_ews.so
+%{_libdir}/asterisk/modules/res_calendar_exchange.so
+%{_libdir}/asterisk/modules/res_calendar_icalendar.so
+
 %files curl
 %defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_curl.conf
 %{_libdir}/asterisk/modules/func_curl.so
 %{_libdir}/asterisk/modules/res_config_curl.so
 %{_libdir}/asterisk/modules/res_curl.so
@@ -875,7 +951,7 @@ fi
 %{_libdir}/asterisk/modules/app_page.so
 %{_libdir}/asterisk/modules/app_dahdibarge.so
 %{_libdir}/asterisk/modules/app_dahdiras.so
-%{_libdir}/asterisk/modules/app_dahdiscan.so
+#%{_libdir}/asterisk/modules/app_dahdiscan.so
 %{_libdir}/asterisk/modules/chan_dahdi.so
 %{_libdir}/asterisk/modules/codec_dahdi.so
 %{_libdir}/asterisk/modules/res_timing_dahdi.so
@@ -888,12 +964,16 @@ fi
 %doc doc/valgrind.txt
 
 %dir %{_includedir}/asterisk
+%dir %{_includedir}/asterisk/doxygen
 %{_includedir}/asterisk.h
 %{_includedir}/asterisk/*.h
+%{_includedir}/asterisk/doxygen/*.h
 
 %files fax
 %defattr(-,root,root,-)
-%{_libdir}/asterisk/modules/app_fax.so
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_fax.conf
+%{_libdir}/asterisk/modules/res_fax.so
+%{_libdir}/asterisk/modules/res_fax_spandsp.so
 
 %files festival
 %defattr(-,root,root,-)
@@ -945,19 +1025,41 @@ fi
 %files misdn
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
-%{_libdir}/asterisk/modules/chan_misdn.so
+#%{_libdir}/asterisk/modules/chan_misdn.so
+
+%files mobile
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_mobile.conf
+%{_libdir}/asterisk/modules/chan_mobile.so
+
+%files mysql
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/app_mysql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_mysql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_mysql.conf
+%doc contrib/realtime/mysql/*.sql
+%{_libdir}/asterisk/modules/app_mysql.so
+%{_libdir}/asterisk/modules/cdr_mysql.so
+%{_libdir}/asterisk/modules/res_config_mysql.so
 
 %files odbc
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/func_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_odbc.conf
 %{_libdir}/asterisk/modules/cdr_adaptive_odbc.so
 %{_libdir}/asterisk/modules/cdr_odbc.so
+%{_libdir}/asterisk/modules/cel_odbc.so
 %{_libdir}/asterisk/modules/func_odbc.so
 %{_libdir}/asterisk/modules/res_config_odbc.so
 %{_libdir}/asterisk/modules/res_odbc.so
+
+%files ooh323
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_ooh323.conf
+%{_libdir}/asterisk/modules/chan_ooh323.so
 
 %files oss
 %defattr(-,root,root,-)
@@ -972,14 +1074,17 @@ fi
 %files postgresql
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_pgsql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
-%doc contrib/realtime/postgresql/realtime.sql
+%doc contrib/realtime/postgresql/*.sql
 %{_libdir}/asterisk/modules/cdr_pgsql.so
+%{_libdir}/asterisk/modules/cel_pgsql.so
 %{_libdir}/asterisk/modules/res_config_pgsql.so
 
 %files radius
 %defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/cdr_radius.so
+%{_libdir}/asterisk/modules/cel_radius.so
 
 %files skinny
 %defattr(-,root,root,-)
@@ -999,13 +1104,17 @@ fi
 %files sqlite
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_sqlite3_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
+%{_libdir}/asterisk/modules/cel_sqlite3_custom.so
 
 %files tds
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_tds.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_tds.conf
 %{_libdir}/asterisk/modules/cdr_tds.so
+%{_libdir}/asterisk/modules/cel_tds.so
 
 %files unistim
 %defattr(-,root,root,-)
@@ -1042,100 +1151,390 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
-* Tue Aug 24 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.12-0.1.rc1
-- The release of Asterisk 1.6.2.12-RC1 resolves several issues reported by the
-- community and would have not been possible without your participation.
-- Thank you!
+* Thu Oct 21 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-1
+- The Asterisk Development Team is proud to announce the release of Asterisk
+- 1.8.0. This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
 -
-- The following is a sample of the issues resolved in this release candidate:
+- Asterisk 1.8 is the next major release series of Asterisk. It will be a Long
+- Term Support (LTS) release, similar to Asterisk 1.4. For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page.
 -
--  * Fix issue where DNID does not get cleared on a new call when using
--    immediate=yes with ISDN signaling.
--    (Closes issue #17568. Reported by wuwu. Patched by rmudgett)
+- http://www.asterisk.org/asterisk-versions
 -
--  * Several updates to res_config_ldap.
--    (Closes issue #13573. Reported by navkumar. Patched by navkumar, bencer.
--     Tested by suretec)
+- The release of Asterisk 1.8.0 would not have been possible without the support
+- and contributions of the community. Since Asterisk 1.6.2, we've had over 500
+- reporters, more than 300 testers and greater than 200 developers contributed to
+- this release.
 -
--  * Prevent loss of Caller ID information set on local channel after masquerade.
--    (Closes issue #17138. Reported by kobaz, patched by jpeeler)
+- You can find a summary of the work involved with the 1.8.0 release in the
+- sumary:
 -
--  * Fix SIP peers memory leak.
--    (Closes issue #17774. Reported, patched by kkm)
+- http://svn.asterisk.org/svn/asterisk/tags/1.8.0/asterisk-1.8.0-summary.txt
 -
--  * Add Danish support to say.conf.sample
--    (Closes issue #17836. Reported, patched by RoadKill)
+- A short list of available features includes:
 -
--  * Ensure SSRC is changed when media source is changed to resolve audio delay.
--    (Closes issue #17404. Reported, tested by sdolloff. Patched by jpeeler)
+-     * Secure RTP
+-     * IPv6 Support in the SIP channel driver
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
 -
--  * Only do magic pickup when notifycid is enabled.
--    A new way of doing BLF pickup was introduced into 1.6.2. This feature adds a
--    call-id value into the XML of a SIP_NOTIFY message sent to alert a subscriber
--    that a device is ringing. This option should only be enabled when the new
--    'notifycid' option is set, but this was not the case. Instead the call-id
--    value was included for every RINGING Notify message, which caused a
--    regression for people who used other methods for call pickup.
--    (Closes issue #17633. Reported, patched by urosh. Patched by dvossel.
--     Tested by: dvossel, urosh, okrief, alecdavis)
+- A full list of new features can be found in the CHANGES file.
 -
-- For a full list of changes in the current release, please see the
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=markup
+-
+- For a full list of changes in the current release candidate, please see the
 - ChangeLog:
 -
-- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.12-rc1
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0
+-
+- Thank you for your continued support of Asterisk!
 
-
-* Wed Aug 11 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.11-1
+* Mon Oct 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.8.rc5:
 -
-- The following are a few of the issues resolved by community developers:
+- The release of Asterisk 1.8.0-rc5 was triggered by some last minute platform
+- compatibility IPv6 changes. In addition, the availability of the English sound
+- prompts with Australian accents has been added.
 -
--  * Send DialPlanComplete as a response, not as a separate event. Otherwise, it
--    goes to all manager sessions and may exclude the current session, if the
--    Events mask excludes it.
--    (Closes issue #17504. Reported, patched by rrb3942)
+- A full list of new features can be found in the CHANGES file.
 -
--  * Allow the "useragent" value to be restored into memory from the realtime
--    backend. This value is purely informational. It does not alter configuration
--    at all.
--    (Closes issue #16029. Reported, patched by Guggemand)
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=markup
 -
--  * Fix rt(c)p set debug ip taking wrong argument Also clean up some coding
--    errors.
--    (Closes issue #17469. Reported, patched by wdoekes)
--
--  * Ensure channel placed in meetme in ringing state is properly hung up. An
--    outgoing channel placed in meetme while still ringing which was then hung up
--    would not exit meetme and the channel was not properly destroyed.
--    (Closes issue #15871. Reported, patched by Ivan)
--
--  * Correct how 100, 200, 300, etc. is said. Also add the crazy British numbers.
--    (Closes issue #16102. Reported, patched by Delvar)
--
--  * cdr_pgsql does not detect when a table is found. This change adds an ERROR
--    message to let you know when a failure exists to get the columns from the
--    pgsql database, which typically means that the table does not exist.
--    (Closes issue #17478. Reported, patched by kobaz)
--
--  * Avoid crashing when installing a duplicate translation path with a lower
--    cost.
--    (Closes issue #17092. Reported, patched by moy)
--
--  * Add missing handling for ringing state for use with queue empty options.
--    (Closes issue #17471. Reported, patched by jazzy)
--
--  * Fix reporting estimated queue hold time. Just say the number of seconds
--    (after minutes) rather than doing some incorrect calculation with respect to
--    minutes.
--    (Closes issue #17498. Reported, patched by corruptor)
--
-- For a full list of changes in the current release, please see the
+- For a full list of changes in the current release candidate, please see the
 - ChangeLog:
 -
-- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.11
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc5
+-
+- This release candidate contains fixes since the last release candidate as
+- reported by the community. A sampling of the changes in this release candidate
+- include:
+-
+-  * Additional fixups in chan_gtalk that allow outbound calls to both Google
+-    Talk and Google Voice recipients. Adds new chan_gtalk enhancements externip
+-    and stunaddr.
+-    (Closes issue #13971. Patched by dvossel)
+-
+-  * Resolve manager crash issue.
+-    (Closes issue #17994. Reported by vrban. Patchd by dvossel)
+-
+-  * Documentation updates for sample configuration files.
+-    (Closes issues #18107, #18101. Reported, patched by lathama, lmadsen)
+-
+-  * Resolve issue where faxdetect would only detect the first fax call in
+-    chan_dahdi.
+-    (Closes issue #18116. Reported by seandarcy. Patched by rmudgett)
+-
+-  * Resolve issue where a channel that is setup and torn down *very* quickly may
+-    not have the right call disposition or ${DIALSTATUS}.
+-    (Closes issue #16946. Reported by davidw. Review
+-     https://reviewboard.asterisk.org/r/740/)
+-
+-  * Set TCLASS field of IPv6 header when SIP QoS options are set.
+-    (Closes issue #18099. Reported by jamesnet. Patched by dvossel)
+-
+-  * Resolve issue where Asterisk could crash on shutdown when using SRTP.
+-    (Closes issue #18085. Reported by st. Patched by twilson)
+-
+-  * Fix issue where peers host port would be lost on a SIP reload.
+-    (Closes issue #18135. Reported, tested by lmadsen. Patched by dvossel)
+-
+- A short list of available features includes:
+-
+-   * Secure RTP
+-   * IPv6 Support in the SIP channel driver
+-   * Connected Party Identification Support
+-   * Calendaring Integration
+-   * A new call logging system, Channel Event Logging (CEL)
+-   * Distributed Device State using Jabber/XMPP PubSub
+-   * Call Completion Supplementary Services support
+-   * Advice of Charge support
+-   * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=markup
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc4
 
-* Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1.1
-- Disable res_http_post on EPEL until gmime22-devel is available
-- Disable res_ais on EPEL until openais brokenness can be investigated
+* Fri Oct  8 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.7.rc3
+- This release candidate contains fixes since the release candidate as reported by
+- the community. A sampling of the changes in this release candidate include:
+-
+-  * Still build chan_sip even if res_crypto cannot be built (use, but not depend)
+-    (Reported by a user on the mailing list. Patched by tilghman)
+-
+-  * Get notifications for call files only when a file is closed, not when created
+-    (Closes issue #17924. Reported by mkeuter. Patched by abeldeck)
+-
+-  * Fixes to chan_gtalk to allow outbound DTMF support to work correctly. Gtalk
+-    expects the DTMF to arrive on the RTP stream and not via jingle DTMF
+-    signalling.
+-    (Patched by dvossel. Tested by malcolmd)
+-
+-  * Fixes to allow chan_gtalk to communicate with the Gmail web client.
+-    (Patched by phsultan and dvossel)
+-
+-  * Fix to GET DATA to allow audio to be streamed via an AGI.
+-    (Closes issue #18001. Reported by jamicque. Patched by tilghman)
+-
+-  * Resolve dnsmgr memory corruption in chan_iax2.
+-    (Closes issue #17902. Reported by afried. Patched by russell, dvossel)
+-
+- A short list of available features includes:
+-
+-  * Secure RTP
+-  * IPv6 Support in the SIP channel driver
+-  * Connected Party Identification Support
+-  * Calendaring Integration
+-  * A new call logging system, Channel Event Logging (CEL)
+-  * Distributed Device State using Jabber/XMPP PubSub
+-  * Call Completion Supplementary Services support
+-  * Advice of Charge support
+-  * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc3
+
+* Wed Oct  6 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.6.rc2
+- This release candidate contains fixes since the last beta release as reported by
+- the community. A sampling of the changes in this release candidate include:
+-
+-  * Add slin16 support for format_wav (new wav16 file extension)
+-    (Closes issue #15029. Reported, patched by andrew. Tested by Qwell)
+-
+-  * Fixes a bug in manager.c where the default configuration values weren't reset
+-    when the manager configuration was reloaded.
+-    (Closes issue #17917. Reported by lmadsen. Patched by bbryant)
+-
+-  * Various fixes for the calendar modules.
+-    (Patched by Jan Kalab.
+-     Reviewboard: https://reviewboard.asterisk.org/r/880/
+-     Closes issue #17877. Review: https://reviewboard.asterisk.org/r/916/
+-     Closes issue #17776. Review: https://reviewboard.asterisk.org/r/921/)
+-
+-  * Add CHANNEL(checkhangup) to check whether a channel is in the process of
+-    being hung up.
+-    (Closes issue #17652. Reported, patched by kobaz)
+-
+-  * Fix a bug with MeetMe where after announcing the amount of time left in a
+-    conference, if music on hold was playing, it doesn't restart.
+-    (Closes issue #17408, Reported, patched by sysreq)
+-
+-  * Fix interoperability problems with session timer behavior in Asterisk.
+-    (Closes issue #17005. Reported by alexcarey. Patched by dvossel)
+-
+-  * Rate limit calls to fsync() to 1 per second after astdb updates. Astdb was
+-    determined to be one of the most significant bottlenecks in SIP registration
+-    processing. This patch improved the speed of an astdb load test by 50000%
+-    (yes, Fifty-Thousand Percent). On this particular load test setup, this
+-    doubled the number of SIP registrations the server could handle.
+-    (Review: https://reviewboard.asterisk.org/r/825/)
+-
+-  * Don't clear the username from a realtime database when a registration
+-    expires. Non-realtime chan_sip does not clear the username from memory when a
+-    registration expiries so realtime probably shouldn't either.
+-    (Closes issue #17551. Reported, patched by: ricardolandim. Patched by
+-     mnicholson)
+-
+-  * Don't hang up a call on an SRTP unprotect failure. Also make it more obvious
+-    when there is an issue en/decrypting.
+-    (Closes issue #17563. Reported by Alexcr. Patched by sfritsch. Tested by
+-     twilson)
+-
+-  * Many more issues. This is a significant upgrade over Asterisk 1.8.0 beta 5!
+-
+- A short list of available features includes:
+-
+-  * Secure RTP
+-  * IPv6 Support in the SIP channel driver
+-  * Connected Party Identification Support
+-  * Calendaring Integration
+-  * A new call logging system, Channel Event Logging (CEL)
+-  * Distributed Device State using Jabber/XMPP PubSub
+-  * Call Completion Supplementary Services support
+-  * Advice of Charge support
+-  * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-rc2
+
+* Thu Sep  9 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.5.beta5
+- This release contains fixes since the last beta release as reported by the
+- community. A sampling of the changes in this release include:
+-
+-  * Fix issue where TOS is no longer set on RTP packets.
+-    (Closes issue #17890. Reported, patched by elguero)
+-
+-  * Change pedantic default value in chan_sip from 'no' to 'yes'
+-
+-  * Asterisk now dynamically builds the "Supported" header depending on what is
+-    enabled/disabled in sip.conf. Session timers used to always be advertised as
+-    being supported even when they were disabled in the configuration.
+-    (Related to issue #17005. Patched by dvossel)
+-
+-  * Convert MOH to use generic timers.
+-    (Closes issue #17726. Reported by lmadsen. Patched by tilghman)
+-
+-  * Fix SRTP for changing SSRC and multiple a=crypto SDP lines. Adding code to
+-    Asterisk that changed the SSRC during bridges and masquerades broke SRTP
+-    functionality. Also broken was handling the situation where an incoming
+-    INVITE had more than one crypto offer.
+-    (Closes issue #17563. Reported by Alexcr. Patched by twilson)
+-
+- Asterisk 1.8 contains many new features over previous releases of Asterisk.
+- A short list of included features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support in the SIP Channel
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-beta5
+
+* Tue Aug 24 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.4.beta4
+- This release contains fixes since the last beta release as reported by the
+- community. A sampling of the changes in this release include:
+-
+-  * Fix parsing of IPv6 address literals in outboundproxy
+-    (Closes issue #17757. Reported by oej. Patched by sperreault)
+-
+-  * Change the default value for alwaysauthreject in sip.conf to "yes".
+-    (Closes issue #17756. Reported by oej)
+-
+-  * Remove current STUN support from chan_sip.c. This change removes the current
+-    broken/useless STUN support from chan_sip.
+-    (Closes issue #17622. Reported by philipp2.
+-     Review: https://reviewboard.asterisk.org/r/855/)
+-
+-  * PRI CCSS may use a stale dial string for the recall dial string. If an
+-    outgoing call negotiates a different B channel than initially requested, the
+-    saved original dial string was not transferred to the new B channel. CCSS
+-    uses that dial string to generate the recall dial string.
+-    (Patched by rmudgett)
+-
+-  * Split _all_ arguments before parsing them. This fixes multicast RTP paging
+-    using linksys mode.
+-    (Patched by russellb)
+-
+-  * Expand cel_custom.conf.sample. Include the usage of CSV_QUOTE() to ensure
+-    data has valid CSV formatting. Also list the special CEL variables that are
+-    available for use in the mapping. There are also several other CEL fixes in
+-    this release.
+-    (Patched by russellb)
+-
+- Asterisk 1.8 contains many new features over previous releases of Asterisk.
+- A short list of included features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support in the SIP Channel
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-beta4
+
+* Wed Aug 11 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.3.beta3
+-
+- This release contains fixes since the last beta release as reported by the
+- community. A sampling of the changes in this release include:
+-
+-  * Fix a regression where HTTP would always be enabled regardless of setting.
+-    (Closes issue #17708. Reported, patched by pabelanger)
+-
+-  * ACL errors displayed on screen when using dynamic_exclude_static in sip.conf
+-    (Closes issue #17717. Reported by Dennis DeDonatis. Patched by mmichelson)
+-
+-  * Support "channels" in addition to "channel" in chan_dahdi.conf.
+-    (https://reviewboard.asterisk.org/r/804)
+-
+-  * Fix parsing error in sip_sipredirect(). The code was written in a way that
+-    did a bad job of parsing the port out of a URI. Specifically, it would do
+-    badly when dealing with an IPv6 address.
+-    (Closes issue #17661. Reported by oej. Patched by mmichelson)
+-
+-  * Fix inband DTMF detection on outgoing ISDN calls.
+-    (Patched by russellb and rmudgett)
+-
+-  * Fixes issue with translator frame not getting freed. This issue prevented
+-    g729 licenses from being freed up.
+-    (Closes issue #17630. Reported by manvirr. Patched by dvossel)
+-
+-  * Fixed IPv6-related SIP parsing bugs and updated documention.
+-    (Reported by oej. Patched by sperreault)
+-
+-  * Add new, self-contained feature FIELDNUM(). Returns a 1-based index into a
+-    list of a specified item. Matches up with FIELDQTY() and CUT().
+-    (Closes #17713. Reported, patched by gareth. Tested by tilghman)
+-
+- Asterisk 1.8 contains many new features over previous releases of Asterisk.
+- A short list of included features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0-beta3
+
+* Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.2.beta2
+- Rebuild against libpri 1.4.12
+
+* Mon Aug  2 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.1.beta2
+- Update to 1.8.0-beta2
+- Disable building chan_misdn until compilation errors are figured out (https://issues.asterisk.org/view.php?id=14333)
+- Start stripping tarballs again because Digium added MP3 code :(
 
 * Sat Jul 31 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.10-1
 -
@@ -1175,20 +1574,20 @@ fi
 * Tue May  4 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.7-1
 -  * Fix building CDR and CEL SQLite3 modules.
 -    (Closes issue #17017. Reported by alephlg. Patched by seanbright)
-- 
+-
 -  * Resolve crash in SLAtrunk when the specified trunk doesn't exist.
 -    (Reported in #asterisk-dev by philipp64. Patched by seanbright)
-- 
+-
 -  * Include an extra newline after "Aliased CLI command" to get back the prompt.
 -    (Issue #16978. Reported by jw-asterisk. Tested, patched by seanbright)
-- 
+-
 -  * Prevent segfault if bad magic number is encountered.
 -    (Issue #17037. Reported, patched by alecdavis)
-- 
+-
 -  * Update code to reflect that handle_speechset has 4 arguments.
 -    (Closes issue #17093. Reported, patched by gpatri. Tested by pabelanger,
 -     mmichelson)
-- 
+-
 -  * Resolve a deadlock in chan_local.
 -    (Closes issue #16840. Reported, patched by bzing2, russell. Tested by bzing2)
 
@@ -1200,28 +1599,28 @@ fi
 
 * Fri Mar 12 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.6-1
 - Update to final 1.6.2.6
-- 
+-
 - The following are a few of the issues resolved by community developers:
-- 
+-
 -  * Make sure to clear red alarm after polarity reversal.
 -    (Closes issue #14163. Reported, patched by jedi98. Tested by mattbrown,
 -     Chainsaw, mikeeccleston)
-- 
+-
 -  * Fix problem with duplicate TXREQ packets in chan_iax2
 -    (Closes issue #16904. Reported, patched by rain. Tested by rain, dvossel)
-- 
+-
 -  * Fix crash in app_voicemail related to message counting.
 -    (Closes issue #16921. Reported, tested by whardier. Patched by seanbright)
-- 
+-
 -  * Overlap receiving: Automatically send CALL PROCEEDING when dialplan starts
 -    (Reported, Patched, and Tested by alecdavis)
-- 
+-
 -  * For T.38 reINVITEs treat a 606 the same as a 488.
 -    (Closes issue #16792. Reported, patched by vrban)
-- 
+-
 -  * Fix ConfBridge crash when no timing module is loaded.
 -    (Closes issue #16471. Reported, tested by kjotte. Patched, tested by junky)
-- 
+-
 - For a full list of changes in this releases, please see the ChangeLog:
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.6.2.6
 
@@ -1233,42 +1632,42 @@ fi
 
 * Thu Feb 25 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.5-1
 - Update to 1.6.2.5
-- 
+-
 -         * AST-2010-002: Invalid parsing of ACL rules can compromise security
 
 * Thu Feb 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.4-1
 - Update to 1.6.2.4
 -
--        * AST-2010-002: This security release is intended to raise awareness 
--          of how it is possible to insert malicious strings into dialplans, 
--          and to advise developers to read the best practices documents so 
+-        * AST-2010-002: This security release is intended to raise awareness
+-          of how it is possible to insert malicious strings into dialplans,
+-          and to advise developers to read the best practices documents so
 -          that they may easily avoid these dangers.
 
 * Wed Feb  3 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.2-1
 - Update to 1.6.2.2
 -
--	* AST-2010-001: An attacker attempting to negotiate T.38 over SIP can 
--	  remotely crash Asterisk by modifying the FaxMaxDatagram field of 
+-	* AST-2010-001: An attacker attempting to negotiate T.38 over SIP can
+-	  remotely crash Asterisk by modifying the FaxMaxDatagram field of
 -	  the SDP to contain either a negative or exceptionally large value.
--	  The same crash occurs when the FaxMaxDatagram field is omitted from 
+-	  The same crash occurs when the FaxMaxDatagram field is omitted from
 -	  the SDP as well.
 
 * Fri Jan 15 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.2.1-1
 - Update to 1.6.2.1 final:
-- 
+-
 - * CLI 'queue show' formatting fix.
 -   (Closes issue #16078. Reported by RoadKill. Tested by dvossel. Patched by
 -    ppyy.)
-- 
+-
 - * Fix misreverting from 177158.
 -   (Closes issue #15725. Reported, Tested by shanermn. Patched by dimas.)
-- 
+-
 - * Fixes subscriptions being lost after 'module reload'.
 -   (Closes issue #16093. Reported by jlaroff. Patched by dvossel.)
-- 
+-
 - * app_queue segfaults if realtime field uniqueid is NULL
 -  (Closes issue #16385. Reported, Tested, Patched by haakon.)
-- 
+-
 - * Fix to Monitor which previously assumed the file to write to did not contain
 -   pathing.
 -   (Closes issue #16377, #16376. Reported by bcnit. Patched by dant.

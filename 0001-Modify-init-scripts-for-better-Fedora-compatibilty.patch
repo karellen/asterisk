@@ -1,16 +1,16 @@
-From ddbed41005f04d07e5c0d4050fcad9e11eddb7c3 Mon Sep 17 00:00:00 2001
+From 4b279cdc1a6100021ad8be3325b4e453a257a491 Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:22:21 -0500
 Subject: [PATCH 1/8] Modify init scripts for better Fedora compatibilty.
 
 ---
- contrib/init.d/rc.redhat.asterisk |   75 +++++++++++++++++--------------------
- contrib/sysconfig/asterisk        |   19 +++++++++
- 2 files changed, 53 insertions(+), 41 deletions(-)
+ contrib/init.d/rc.redhat.asterisk |   70 ++++++++++++++++++++-----------------
+ contrib/sysconfig/asterisk        |   19 ++++++++++
+ 2 files changed, 57 insertions(+), 32 deletions(-)
  create mode 100644 contrib/sysconfig/asterisk
 
 diff --git a/contrib/init.d/rc.redhat.asterisk b/contrib/init.d/rc.redhat.asterisk
-index 3841afe..a72ea2a 100755
+index abf3951..0d53a57 100755
 --- a/contrib/init.d/rc.redhat.asterisk
 +++ b/contrib/init.d/rc.redhat.asterisk
 @@ -3,7 +3,7 @@
@@ -22,9 +22,9 @@ index 3841afe..a72ea2a 100755
  # description: Asterisk PBX and telephony daemon.
  # processname: asterisk
  # pidfile: __ASTERISK_VARRUN_DIR__/asterisk.pid
-@@ -20,51 +20,51 @@
- # - Added support for -U and -G command line options
- # - Modified "reload" to call asterisk -rx 'reload' 
+@@ -32,8 +32,11 @@
+ # Description:		the Asterisk Open Source PBX
+ ### END INIT INFO
  
 +# Do not modify this script to change any of the settings, instead
 +# edit /etc/sysconfig/asterisk
@@ -35,13 +35,10 @@ index 3841afe..a72ea2a 100755
  
  # Installation directory
  AST_SBIN=__ASTERISK_SBIN_DIR__
+@@ -41,31 +44,39 @@ AST_SBIN=__ASTERISK_SBIN_DIR__
+ # Source function library.
+ . /etc/rc.d/init.d/functions
  
--# Uncomment the following and set them to the user/groups that you
--# want to run Asterisk as. NOTE: this requires substantial work to
--# be sure that Asterisk's environment has permission to write the
--# files required  for  its  operation, including logs, its comm
--# socket, the asterisk database, etc.
--#AST_USER="asterisk"
 +# The user that Asterisk will run as.
 +AST_USER="asterisk"
 +
@@ -51,10 +48,8 @@ index 3841afe..a72ea2a 100755
 +# group, set AST_GROUP to the group that Asterisk should run as.  Note
 +# that this may break DAHDI devices as supplementary groups will not
 +# be initialized.
- #AST_GROUP="asterisk"
- 
--# Source function library.
--. /etc/rc.d/init.d/functions
++#AST_GROUP="asterisk"
++
 +# Allow configuration overrides in /etc/sysconfig/asterisk
 +CONFIG0=`readlink $0`
 +if [ "$CONFIG0" = "" ]; then
@@ -63,7 +58,7 @@ index 3841afe..a72ea2a 100755
 +	CONFIGFILE=/etc/sysconfig/`basename $CONFIG0`
 +fi
 +[ -f $CONFIGFILE ] && . $CONFIGFILE
- 
++
  if ! [ -x $AST_SBIN/asterisk ] ; then
  	echo "ERROR: $AST_SBIN/asterisk not found"
  	exit 0
@@ -75,11 +70,6 @@ index 3841afe..a72ea2a 100755
 +	echo "ERROR: $AST_CONFIG not found"
  	exit 0
  fi
- 
--# Uncomment this ONLY if you know what you are doing.
--# export LD_ASSUME_KERNEL=2.4.1
-+# Source function library.
-+. /etc/rc.d/init.d/functions
  
  # Full path to asterisk binary
  DAEMON=$AST_SBIN/asterisk
@@ -94,21 +84,25 @@ index 3841afe..a72ea2a 100755
 -else
 -	CONFIGFILE=/etc/sysconfig/`basename $CONFIG0`
 -fi
--[ -x $CONFIGFILE ] && . $CONFIGFILE
+-[ -r $CONFIGFILE ] && . $CONFIGFILE
 -
  RETVAL=0
  
  start() {
-@@ -78,19 +78,18 @@ start() {
+@@ -79,17 +90,18 @@ start() {
  
  	# Start daemons.
  	echo -n $"Starting asterisk: "
 -        if [ -f $SAFE_ASTERISK ] ; then
 -		DAEMON=$SAFE_ASTERISK
 -	fi
++
++	export HOME=~asterisk
++	cd $HOME
++
  	if [ $AST_USER ] ; then
 -		ASTARGS="-U $AST_USER"
-+		AST_ARGS="-U $AST_USER"
++		AST_ARGS="$AST_ARGS -U $AST_USER"
  	fi
  	if [ $AST_GROUP ] ; then
 -		ASTARGS="$ASTARGS -G $AST_GROUP"
@@ -116,16 +110,23 @@ index 3841afe..a72ea2a 100755
  	fi
  	if [ $AST_CONFIG ]; then
 -		ASTARGS="$ASTARGS -C $AST_CONFIG/asterisk.conf"
-+		AST_ARGS="$AST_ARGS -C $AST_CONFIG"
++		ASTARGS="$ASTARGS -C $AST_CONFIG"
+ 	elif [ $ALTCONF ]; then
+ 		ASTARGS="$ASTARGS -C $ALTCONF"
  	fi
--	daemon $DAEMON $ASTARGS
-+	export HOME=~asterisk
-+	cd $HOME
-+	daemon $DAEMON $AST_ARGS $AST_EXTRA_ARGS
+@@ -115,9 +127,9 @@ start() {
+ 	fi
+ 	if [ "x$COLOR" = "xyes" ]; then
+ 		export TERM=linux
+-		daemon sh -c "$DAEMON $ASTARGS -c" >/dev/null </dev/null 2>&1 &
++		daemon sh -c "$DAEMON $ASTARGS $AST_EXTRA_ARGS -c" >/dev/null </dev/null 2>&1 &
+ 	else
+-		daemon $DAEMON $ASTARGS
++		daemon $DAEMON $ASTARGS $AST_EXTRA_ARGS
+ 	fi
  	RETVAL=$?
  	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/asterisk
- 	echo
-@@ -98,14 +97,8 @@ start() {
+@@ -126,14 +138,8 @@ start() {
  }
  
  stop() {
@@ -168,5 +169,5 @@ index 0000000..dab2e33
 +# A place to specify extra arguments for the Asterisk command line
 +AST_EXTRA_ARGS=""
 -- 
-1.7.2.1
+1.7.3.1
 
