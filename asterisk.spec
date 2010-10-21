@@ -1,9 +1,9 @@
-%global _rc 5
+#global _rc 5
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 0.8%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1144,6 +1144,50 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Oct 21 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-1
+- The Asterisk Development Team is proud to announce the release of Asterisk
+- 1.8.0. This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- Asterisk 1.8 is the next major release series of Asterisk. It will be a Long
+- Term Support (LTS) release, similar to Asterisk 1.4. For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page.
+-
+- http://www.asterisk.org/asterisk-versions
+-
+- The release of Asterisk 1.8.0 would not have been possible without the support
+- and contributions of the community. Since Asterisk 1.6.2, we've had over 500
+- reporters, more than 300 testers and greater than 200 developers contributed to
+- this release.
+-
+- You can find a summary of the work involved with the 1.8.0 release in the
+- sumary:
+-
+- http://svn.asterisk.org/svn/asterisk/tags/1.8.0/asterisk-1.8.0-summary.txt
+-
+- A short list of available features includes:
+-
+-     * Secure RTP
+-     * IPv6 Support in the SIP channel driver
+-     * Connected Party Identification Support
+-     * Calendaring Integration
+-     * A new call logging system, Channel Event Logging (CEL)
+-     * Distributed Device State using Jabber/XMPP PubSub
+-     * Call Completion Supplementary Services support
+-     * Advice of Charge support
+-     * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/1.8/CHANGES?view=markup
+-
+- For a full list of changes in the current release candidate, please see the
+- ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.0
+-
+- Thank you for your continued support of Asterisk!
+
 * Mon Oct 18 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-0.8.rc5:
 -
 - The release of Asterisk 1.8.0-rc5 was triggered by some last minute platform
