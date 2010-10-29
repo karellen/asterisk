@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1143,6 +1143,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Oct 29 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-3
+- Rebuild for new net-snmp.
+
 * Tue Oct 26 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-2
 - Always build AIS modules
 
