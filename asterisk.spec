@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -87,7 +87,6 @@ does voice over IP in three protocols, and can interoperate with
 almost all standards-based telephony equipment using relatively
 inexpensive hardware.
 
-%if 0%{?fedora} > 0
 %package ais
 Summary: Modules for Asterisk that use OpenAIS
 Group: Applications/Internet
@@ -96,7 +95,6 @@ BuildRequires: openais-devel
 
 %description ais
 Modules for Asterisk that use OpenAIS.
-%endif
 
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
@@ -566,10 +564,6 @@ rm -rf %{buildroot}%{_sbindir}/hashtest2
 
 find doc/api/html -name \*.map -size 0 -delete
 
-%if 0%{?fedora} == 0
-rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
-%endif
-
 %clean
 rm -rf %{buildroot}
 
@@ -908,12 +902,10 @@ fi
 
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
 
-%if 0%{?fedora} > 0
 %files ais
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ais.conf
 %{_libdir}/asterisk/modules/res_ais.so
-%endif
 
 %files alsa
 %defattr(-,root,root,-)
@@ -1151,6 +1143,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Oct 26 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-2
+- Always build AIS modules
+
 * Thu Oct 21 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-1
 - The Asterisk Development Team is proud to announce the release of Asterisk
 - 1.8.0. This release is available for immediate download at
