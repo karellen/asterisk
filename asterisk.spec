@@ -1151,7 +1151,7 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
-* Fri Dec 10 20101 Dennis Gilmore <dennis@ausil.us> - 1.8.0-4
+* Fri Dec 10 2010 Dennis Gilmore <dennis@ausil.us> - 1.8.0-4
 - dont always build AIS modules we dont have the BuildRequires on epel
 
 * Fri Oct 29 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-3
