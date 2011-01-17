@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 5%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -222,6 +222,7 @@ BuildRequires: openldap-devel
 %description ldap
 LDAP resources for Asterisk.
 
+%if 0%{?rhel} <= 5 || 0%{?fedora}
 %package ldap-fds
 Summary: LDAP resources for Asterisk and the Fedora Directory Server
 Group: Applications/Internet
@@ -231,6 +232,7 @@ Requires: fedora-ds-base
 
 %description ldap-fds
 LDAP resources for Asterisk and the Fedora Directory Server.
+%endif
 
 %package misdn
 Summary: mISDN channel for Asterisk
@@ -568,6 +570,11 @@ find doc/api/html -name \*.map -size 0 -delete
 
 %if 0%{?fedora} == 0
 rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
+%endif
+
+#rhel6 doesnt have 389 available
+%if 0%{?rhel} = 6
+rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 %endif
 
 %clean
@@ -1012,9 +1019,11 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
 
+%if 0%{?rhel} <= 5 || 0%{?fedora}
 %files ldap-fds
 %defattr(-,root,root,-)
 %{_sysconfdir}/dirsrv/schema/99asterisk.ldif
+%endif
 
 %files minivm
 %defattr(-,root,root,-)
@@ -1151,6 +1160,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Jan 18 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.0-5
+- dont build the 389 directory server package its not available on rhel6
+
 * Fri Dec 10 2010 Dennis Gilmore <dennis@ausil.us> - 1.8.0-4
 - dont always build AIS modules we dont have the BuildRequires on epel
 
