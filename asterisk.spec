@@ -455,7 +455,12 @@ rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
 
-%if 0%{?rhel} > 0
+# no openais-devel available for el6
+%if 0%{?rhel} == 6
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_ais/g' menuselect.makeopts
+%endif
+
+%if 0%{?rhel} == 5
 # Get the autoconf scripts working with 2.59
 %{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
 %{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
