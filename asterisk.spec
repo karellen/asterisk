@@ -573,7 +573,7 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
 %endif
 
 #rhel6 doesnt have 389 available
-%if 0%{?rhel} = 6
+%if 0%{?rhel} == 6
 rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 %endif
 
