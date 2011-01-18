@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.0
-Release: 5%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -174,6 +174,7 @@ Requires: festival
 %description festival
 Application for the Asterisk PBX that uses Festival to convert text to speech.
 
+%if 0%{?fedora}
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
@@ -184,6 +185,7 @@ Conflicts: asterisk < 1.4.18-1
 
 %description ices
 Stream audio from Asterisk to an IceCast server.
+%endif
 
 %package jabber
 Summary: Jabber/XMPP resources for Asterisk
@@ -580,9 +582,10 @@ find doc/api/html -name \*.map -size 0 -delete
 rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
 %endif
 
-#rhel6 doesnt have 389 available
+#rhel6 doesnt have 389 available, nor ices
 %if 0%{?rhel} == 6
 rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
+rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
 %endif
 
 %clean
@@ -996,10 +999,12 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival
 %{_libdir}/asterisk/modules/app_festival.so
 
+%if 0%{?fedora}
 %files ices
 %defattr(-,root,root,-)
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
+%endif
 
 %files jabber
 %defattr(-,root,root,-)
@@ -1168,6 +1173,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Jan 18 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.0-6
+- dont package up the ices bits on el the client doesnt exist for us
+
 * Tue Jan 18 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.0-5
 - dont build the 389 directory server package its not available on rhel6
 
