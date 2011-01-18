@@ -435,7 +435,10 @@ local filesystem.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%if 0%{?fedora}
+# patch breaks disabling --with-gmime=no
 %patch5 -p1
+%endif
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
@@ -457,7 +460,7 @@ chmod -x contrib/scripts/dbsep.cgi
 
 # no openais-devel available for el6
 %if 0%{?rhel} == 6
-%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_ais/g' menuselect.makeopts
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_ais res_http_post/g' menuselect.makeopts
 %endif
 
 %if 0%{?rhel} == 5
@@ -488,7 +491,7 @@ popd
 %if 0%{?fedora} > 0
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes
 %else
-%configure --with-gsm=/usr --with-libedit=yes
+%configure --with-gsm=/usr --with-libedit=yes --with-gmime=no
 %endif
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
@@ -809,7 +812,7 @@ fi
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 6
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
 %endif
 
