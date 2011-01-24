@@ -85,6 +85,7 @@ does voice over IP in three protocols, and can interoperate with
 almost all standards-based telephony equipment using relatively
 inexpensive hardware.
 
+%if 0%{?fedora} > 0
 %package ais
 Summary: Modules for Asterisk that use OpenAIS
 Group: Applications/Internet
@@ -93,6 +94,7 @@ BuildRequires: openais-devel
 
 %description ais
 Modules for Asterisk that use OpenAIS.
+%endif
 
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
@@ -170,6 +172,7 @@ Requires: festival
 %description festival
 Application for the Asterisk PBX that uses Festival to convert text to speech.
 
+%if 0%{?fedora}
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
@@ -180,6 +183,7 @@ Conflicts: asterisk < 1.4.18-1
 
 %description ices
 Stream audio from Asterisk to an IceCast server.
+%endif
 
 %package jabber
 Summary: Jabber/XMPP resources for Asterisk
@@ -218,6 +222,7 @@ BuildRequires: openldap-devel
 %description ldap
 LDAP resources for Asterisk.
 
+%if 0%{?rhel} <= 5 || 0%{?fedora}
 %package ldap-fds
 Summary: LDAP resources for Asterisk and the Fedora Directory Server
 Group: Applications/Internet
@@ -227,6 +232,7 @@ Requires: fedora-ds-base
 
 %description ldap-fds
 LDAP resources for Asterisk and the Fedora Directory Server.
+%endif
 
 %package misdn
 Summary: mISDN channel for Asterisk
@@ -447,7 +453,12 @@ rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
 
-%if 0%{?rhel} > 0
+# no openais-devel available for el6
+%if 0%{?rhel} == 6
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_ais res_http_post/g' menuselect.makeopts
+%endif
+
+%if 0%{?rhel} == 5
 # Get the autoconf scripts working with 2.59
 %{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
 %{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
@@ -475,7 +486,7 @@ popd
 %if 0%{?fedora} > 0
 %configure --with-imap=system --with-gsm=/usr --with-libedit=yes --with-srtp
 %else
-%configure --with-gsm=/usr --with-libedit=yes --with-srtp
+%configure --with-gsm=/usr --with-libedit=yes --with-gmime=no --with-srtp
 %endif
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
@@ -559,6 +570,16 @@ rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
 
 find doc/api/html -name \*.map -size 0 -delete
+
+%if 0%{?fedora} == 0
+rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
+%endif
+
+#rhel6 doesnt have 389 available, nor ices
+%if 0%{?rhel} == 6
+rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
+rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
+%endif
 
 %clean
 rm -rf %{buildroot}
@@ -788,7 +809,7 @@ fi
 %{_libdir}/asterisk/modules/res_srtp.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 6
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
 %endif
 
@@ -899,10 +920,12 @@ fi
 
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
 
+%if 0%{?fedora} > 0
 %files ais
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ais.conf
 %{_libdir}/asterisk/modules/res_ais.so
+%endif
 
 %files alsa
 %defattr(-,root,root,-)
@@ -970,10 +993,12 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival
 %{_libdir}/asterisk/modules/app_festival.so
 
+%if 0%{?fedora}
 %files ices
 %defattr(-,root,root,-)
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
+%endif
 
 %files jabber
 %defattr(-,root,root,-)
@@ -1001,9 +1026,11 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
 
+%if 0%{?rhel} <= 5 || 0%{?fedora}
 %files ldap-fds
 %defattr(-,root,root,-)
 %{_sysconfdir}/dirsrv/schema/99asterisk.ldif
+%endif
 
 %files minivm
 %defattr(-,root,root,-)
@@ -1324,6 +1351,15 @@ fi
 - For a full list of changes in this release, please see the ChangeLog:
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.1
+
+* Tue Jan 18 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.0-6
+- dont package up the ices bits on el the client doesnt exist for us
+
+* Tue Jan 18 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.0-5
+- dont build the 389 directory server package its not available on rhel6
+
+* Fri Dec 10 2010 Dennis Gilmore <dennis@ausil.us> - 1.8.0-4
+- dont always build AIS modules we dont have the BuildRequires on epel
 
 * Fri Oct 29 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-3
 - Rebuild for new net-snmp.
