@@ -1,9 +1,9 @@
-#global _rc 5
+#global _rc 1
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.0
-Release: 3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 1.8.2.2
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -19,11 +19,8 @@ Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 # Submitted upstream: https://issues.asterisk.org/view.php?id=16858
 Patch3:  0003-Allow-linking-building-against-an-external-libedit.patch
 Patch4:  0004-Use-the-library-function-for-loading-command-history.patch
-# Submitted upstream: https://issues.asterisk.org/view.php?id=16155
-Patch5:  0005-Change-configure.ac-to-look-for-pkg-config-gmime-2.0.patch
 Patch6:  0006-Fix-up-some-paths.patch
 Patch7:  0007-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
-Patch8:  0008-Tell-laxtex2html-to-copy-icons-when-building-documen.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -39,6 +36,7 @@ BuildRequires: libtermcap-devel
 BuildRequires: ncurses-devel
 BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
+BuildRequires: libsrtp-devel
 
 # for res_http_post
 %if 0%{?fedora} > 0
@@ -431,10 +429,8 @@ local filesystem.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -477,9 +473,9 @@ pushd menuselect
 popd
 
 %if 0%{?fedora} > 0
-%configure --with-imap=system --with-gsm=/usr --with-libedit=yes
+%configure --with-imap=system --with-gsm=/usr --with-libedit=yes --with-srtp
 %else
-%configure --with-gsm=/usr --with-libedit=yes
+%configure --with-gsm=/usr --with-libedit=yes --with-srtp
 %endif
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
@@ -525,8 +521,8 @@ install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
 install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
-install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
-install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
+#install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
+#install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
@@ -593,21 +589,21 @@ fi
 %doc README* *.txt ChangeLog BUGS CREDITS configs
 
 %doc doc/asterisk.sgml
-%doc doc/backtrace.txt
-%doc doc/callfiles.txt
-%doc doc/externalivr.txt
-%doc doc/macroexclusive.txt
-%doc doc/manager_1_1.txt
-%doc doc/modules.txt
-%doc doc/PEERING
-%doc doc/queue.txt
-%doc doc/rtp-packetization.txt
-%doc doc/siptls.txt
-%doc doc/smdi.txt
-%doc doc/sms.txt
-%doc doc/speechrec.txt
-%doc doc/ss7.txt
-%doc doc/video.txt
+#doc doc/backtrace.txt
+#doc doc/callfiles.txt
+#doc doc/externalivr.txt
+#doc doc/macroexclusive.txt
+#doc doc/manager_1_1.txt
+#doc doc/modules.txt
+#doc doc/PEERING
+#doc doc/queue.txt
+#doc doc/rtp-packetization.txt
+#doc doc/siptls.txt
+#doc doc/smdi.txt
+#doc doc/sms.txt
+#doc doc/speechrec.txt
+#doc doc/ss7.txt
+#doc doc/video.txt
 
 %{_initrddir}/asterisk
 %config(noreplace) %{_sysconfdir}/sysconfig/asterisk
@@ -789,6 +785,7 @@ fi
 %{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_speech.so
+%{_libdir}/asterisk/modules/res_srtp.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %if 0%{?fedora} > 0
@@ -950,10 +947,10 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%doc doc/CODING-GUIDELINES
-%doc doc/datastores.txt
-%doc doc/modules.txt
-%doc doc/valgrind.txt
+#doc doc/CODING-GUIDELINES
+#doc doc/datastores.txt
+#doc doc/modules.txt
+#doc doc/valgrind.txt
 
 %dir %{_includedir}/asterisk
 %dir %{_includedir}/asterisk/doxygen
@@ -980,8 +977,8 @@ fi
 
 %files jabber
 %defattr(-,root,root,-)
-%doc doc/jabber.txt
-%doc doc/jingle.txt
+#doc doc/jabber.txt
+#doc doc/jingle.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/gtalk.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jabber.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jingle.conf
@@ -1000,7 +997,7 @@ fi
 
 %files ldap
 %defattr(-,root,root,-)
-%doc doc/ldap.txt
+#doc doc/ldap.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
 
@@ -1085,12 +1082,12 @@ fi
 
 %files snmp
 %defattr(-,root,root,-)
-%doc doc/asterisk-mib.txt
-%doc doc/digium-mib.txt
-%doc doc/snmp.txt
+#doc doc/asterisk-mib.txt
+#doc doc/digium-mib.txt
+#doc doc/snmp.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_snmp.conf
-%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
-%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
+#%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
+#%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 %{_libdir}/asterisk/modules/res_snmp.so
 
 %files sqlite
@@ -1110,7 +1107,7 @@ fi
 
 %files unistim
 %defattr(-,root,root,-)
-%doc doc/unistim.txt
+#doc doc/unistim.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/unistim.conf
 %{_libdir}/asterisk/modules/chan_unistim.so
 
@@ -1133,7 +1130,7 @@ fi
 
 %files voicemail-odbc
 %defattr(-,root,root,-)
-%doc doc/voicemail_odbc_postgresql.txt
+#doc doc/voicemail_odbc_postgresql.txt
 %{_libdir}/asterisk/modules/app_directory_odbc.so
 %{_libdir}/asterisk/modules/app_voicemail_odbc.so
 
@@ -1143,6 +1140,191 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2.2-2
+- Build with SRTP support
+
+* Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2.2-1
+-
+- The Asterisk Development Team has announced a release for the security issue
+- described in AST-2011-001.
+-
+- Due to a failed merge, Asterisk 1.8.2.1 which should have included the security
+- fix did not. Asterisk 1.8.2.2 contains the the changes which should have been
+- included in Asterisk 1.8.2.1.
+-
+- This releases is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The releases of Asterisk 1.4.38.1, 1.4.39.1, 1.6.1.21, 1.6.2.15.1, 1.6.2.16.2,
+- 1.8.1.2, and 1.8.2.2 resolve an issue when forming an outgoing SIP request while
+- in pedantic mode, which can cause a stack buffer to be made to overflow if
+- supplied with carefully crafted caller ID information. The issue and resolution
+- are described in the AST-2011-001 security advisory.
+-
+- For more information about the details of this vulnerability, please read the
+- security advisory AST-2011-001, which was released at the same time as this
+- announcement.
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.2.2
+-
+- Security advisory AST-2011-001 is available at:
+-
+- http://downloads.asterisk.org/pub/security/AST-2011-001.pdf
+
+* Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2.1-1
+-
+- The Asterisk Development Team has announced security releases for the following
+- versions of Asterisk:
+-
+- * 1.4.38.1
+- * 1.4.39.1
+- * 1.6.1.21
+- * 1.6.2.15.1
+- * 1.6.2.16.1
+- * 1.8.1.2
+- * 1.8.2.1
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The releases of Asterisk 1.4.38.1, 1.4.39.1, 1.6.1.21, 1.6.2.15.1, 1.6.2.16.2,
+- 1.8.1.2, and 1.8.2.1 resolve an issue when forming an outgoing SIP request while
+- in pedantic mode, which can cause a stack buffer to be made to overflow if
+- supplied with carefully crafted caller ID information. The issue and resolution
+- are described in the AST-2011-001 security advisory.
+-
+- For more information about the details of this vulnerability, please read the
+- security advisory AST-2011-001, which was released at the same time as this
+- announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.4.38.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.4.39.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.6.1.21
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.6.2.15.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.6.2.16.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.1.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.2.1
+-
+- Security advisory AST-2011-001 is available at:
+-
+- http://downloads.asterisk.org/pub/security/AST-2011-001.pdf
+
+* Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2-1
+-
+- The Asterisk Development Team has announced the release of Asterisk 1.8.2. This
+- release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.2 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * 'sip notify clear-mwi' needs terminating CRLF.
+-  (Closes issue #18275. Reported, patched by klaus3000)
+-
+- * Patch for deadlock from ordering issue between channel/queue locks in
+-  app_queue (set_queue_variables).
+-  (Closes issue #18031. Reported by rain. Patched by bbryant)
+-
+- * Fix cache of device state changes for multiple servers.
+-  (Closes issue #18284, #18280. Reported, tested by klaus3000. Patched, tested
+-  by russellb)
+-
+- * Resolve issue where channel redirect function (CLI or AMI) hangs up the call
+-  instead of redirecting the call.
+-  (Closes issue #18171. Reported by: SantaFox)
+-  (Closes issue #18185. Reported by: kwemheuer)
+-  (Closes issue #18211. Reported by: zahir_koradia)
+-  (Closes issue #18230. Reported by: vmarrone)
+-  (Closes issue #18299. Reported by: mbrevda)
+-  (Closes issue #18322. Reported by: nerbos)
+-
+- * Fix reloading of peer when a user is requested. Prevent peer reloading from
+-  causing multiple MWI subscriptions to be created when using realtime.
+-  (Closes issue #18342. Reported, patched by nivek.)
+-
+- * Fix XMPP PubSub-based distributed device state. Initialize pubsubflags to 0
+-  so res_jabber doesn't think there is already an XMPP connection sending
+-  device state. Also clean up CLI commands a bit.
+-  (Closes issue #18272. Reported by klaus3000. Patched by Marquis42)
+-
+- * Don't crash after Set(CDR(userfield)=...) in ast_bridge_call. Instead of
+-  setting peer->cdr = NULL, set it to not post.
+-  (Closes issue #18415. Reported by macbrody. Patched, tested by jsolares)
+-
+- * Fixes issue with outbound google voice calls not working. Thanks to az1234
+-  and nevermind_quack for their input in helping debug the issue.
+-  (Closes issue #18412. Reported by nevermind_quack. Patched by dvossel)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.2
+
+* Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.1.1-1
+-
+- The Asterisk Development Team has announced the release of Asterisk 1.8.1.1.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.1.1 resolves two issues reported by the community
+- since the release of Asterisk 1.8.1.
+-
+-  * Don't crash after Set(CDR(userfield)=...) in ast_bridge_call. Instead of
+-   setting peer->cdr = NULL, set it to not post.
+-   (Closes issue #18415. Reported by macbrody. Patched, tested by jsolares)
+-
+-  * Fixes issue with outbound google voice calls not working. Thanks to az1234
+-   and nevermind_quack for their input in helping debug the issue.
+-   (Closes issue #18412. Reported by nevermind_quack. Patched by dvossel)
+-
+- For a full list of changes in this release candidate, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.1.1
+
+* Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.1-1
+-
+- The Asterisk Development Team has announced the release of Asterisk 1.8.1. This
+- release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.1 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * Fix issue when using directmedia. Asterisk needs to limit the codecs offered
+-   to just the ones that both sides recognize, otherwise they may end up sending
+-   audio that the other side doesn't understand.
+-   (Closes issue #17403. Reported, patched by one47. Tested by one47, falves11)
+-
+- * Resolve issue where Party A in an analog 3-way call would continue to hear
+-   ringback after party C answers.
+-   (Patched by rmudgett)
+-
+- * Fix playback failure when using IAX with the timerfd module.
+-   (Closes issue #18110. Reported, tested by tpanton. Patched by jpeeler)
+-
+- * Fix problem with qualify option packets for realtime peers never stopping.
+-   The option packets not only never stopped, but if a realtime peer was not in
+-   the peer list multiple options dialogs could accumulate over time.
+-   (Closes issue #16382. Reported by lftsy. Tested by zerohalo. Patched by
+-   jpeeler)
+-
+- * Fix issue where it is possible to crash Asterisk by feeding the curl engine
+-   invalid data.
+-   (Closes issue #18161. Reported by wdoekes. Patched by tilghman)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.1
+
 * Fri Oct 29 2010 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.0-3
 - Rebuild for new net-snmp.
 
