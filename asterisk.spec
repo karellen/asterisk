@@ -1,9 +1,9 @@
-%global _rc 1
+%global _rc 2
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.3
-Release: 0.1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1167,6 +1167,65 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Jan 26 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3-0.2.rc2
+The Asterisk Development Team has announced the second release candidate of
+Asterisk 1.8.3. This release candidate is available for immediate download at
+http://downloads.asterisk.org/pub/telephony/asterisk/
+
+The release of Asterisk 1.8.3-rc2 resolves the following issues in addition to
+those included in 1.8.3-rc1:
+
+ * Resolve issue where no Music On Hold may be triggered when using
+  res_timing_dahdi.
+  (Closes issues #18262. Reported by francesco_r. Patched by cjacobson. Tested
+   by francesco_r, rfrantik, one47)
+
+ * Resolve a memory leak when the Asterisk Manager Interface is disabled.
+  (Reported internally by kmorgan. Patched by russellb)
+
+ * Reimplemented fax session reservation to reverse the ABI breakage introduced
+  in r297486.
+  (Reported internally. Patched by mnicholson)
+
+For a full list of changes in this release candidate, please see the ChangeLog:
+
+http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.3-rc2
+
+* Wed Jan 26 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3-0.1.rc1
+-
+- The Asterisk Development Team has announced the first release candidate of
+- Asterisk 1.8.3. This release candidate is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.3-rc1 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release candidate:
+-
+-  * Resolve duplicated data in the AstDB when using DIALGROUP()
+-   (Closes issue #18091. Reported by bunny. Patched by tilghman)
+-
+-  * Ensure the ipaddr field in realtime is large enough to handle IPv6 addresses.
+-   (Closes issue #18464. Reported, patched by IgorG)
+-
+-  * Reworking parsing of mwi => lines to resolve a segfault. Also add a set of
+-   unit tests for the function that does the parsing.
+-   (Closes issue #18350. Reported by gbour. Patched by Marquis)
+-
+-  * When using cdr_pgsql the billsec field was not populated correctly on
+-   unanswered calls.
+-   (Closes issue #18406. Reported by joscas. Patched by tilghman)
+-
+-  * Resolve memory leak in iCalendar and Exchange calendaring modules.
+-   (Closes issue #18521. Reported, patched by pitel. Tested by cervajs)
+-
+-  * This version of Asterisk includes the new Compiler Flags option
+-   BETTER_BACKTRACES which uses libbfd to search for better symbol information
+-   within both the Asterisk binary, as well as loaded modules, to assist when
+-   using inline backtraces to track down problems.
+-   (Patched by tilghman)
+
 * Wed Jan 26 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2.3-1
 -
 - The Asterisk Development Team has announced the release of Asterisk 1.8.2.3.
