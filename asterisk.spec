@@ -1,9 +1,9 @@
-#global _rc 1
+%global _rc 1
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.2.2
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 1.8.3
+Release: 0.1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -19,8 +19,8 @@ Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
 # Submitted upstream: https://issues.asterisk.org/view.php?id=16858
 Patch3:  0003-Allow-linking-building-against-an-external-libedit.patch
 Patch4:  0004-Use-the-library-function-for-loading-command-history.patch
-Patch6:  0006-Fix-up-some-paths.patch
-Patch7:  0007-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch5:  0005-Fix-up-some-paths.patch
+Patch6:  0006-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -435,8 +435,8 @@ local filesystem.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 %patch6 -p1
-%patch7 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts

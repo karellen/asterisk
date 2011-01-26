@@ -1,7 +1,7 @@
-From 848a3f604b1c1db5bda30d688c00e09b2cf36d83 Mon Sep 17 00:00:00 2001
+From 64c4f685e3168e11fdbde3b9583d078dd63874bb Mon Sep 17 00:00:00 2001
 From: Jeffrey C. Ollie <jeff@ocjtech.us>
 Date: Fri, 5 Mar 2010 14:10:52 -0600
-Subject: [PATCH 3/8] Allow linking/building against an external libedit.
+Subject: [PATCH 3/6] Allow linking/building against an external libedit.
 
 The Asterisk tarball includes a very old copy of the editline library
 that manages command line history and editing.  Fedora (and several
@@ -19,10 +19,10 @@ the libedit library.
  5 files changed, 35 insertions(+), 5 deletions(-)
 
 diff --git a/build_tools/menuselect-deps.in b/build_tools/menuselect-deps.in
-index 2a5bcd7..a0f4e16 100644
+index 35573c3..4425204 100644
 --- a/build_tools/menuselect-deps.in
 +++ b/build_tools/menuselect-deps.in
-@@ -24,6 +24,7 @@ JACK=@PBX_JACK@
+@@ -26,6 +26,7 @@ JACK=@PBX_JACK@
  KQUEUE=@PBX_KQUEUE@
  LDAP=@PBX_LDAP@
  LIBXML2=@PBX_LIBXML2@
@@ -31,10 +31,10 @@ index 2a5bcd7..a0f4e16 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index bacef33..dc73ca4 100644
+index a17c7b7..549c8c5 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -387,6 +387,7 @@ AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
+@@ -388,6 +388,7 @@ AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
  AST_EXT_LIB_SETUP([KQUEUE], [kqueue support], [kqueue])
  AST_EXT_LIB_SETUP([LDAP], [OpenLDAP], [ldap])
  AST_LIBCURL_CHECK_CONFIG([], [7.10.1])
@@ -42,7 +42,7 @@ index bacef33..dc73ca4 100644
  AST_EXT_LIB_SETUP([LIBXML2], [LibXML2], [libxml2])
  AST_EXT_LIB_SETUP([LTDL], [libtool], [ltdl])
  AST_EXT_LIB_SETUP([LUA], [Lua], [lua])
-@@ -2119,6 +2120,27 @@ AC_SUBST(PBX_GTK2)
+@@ -2158,6 +2159,27 @@ AC_SUBST(PBX_GTK2)
  AC_SUBST(GTK2_INCLUDE)
  AC_SUBST(GTK2_LIB)
  
@@ -71,10 +71,10 @@ index bacef33..dc73ca4 100644
  # or iODBC
  
 diff --git a/main/Makefile b/main/Makefile
-index af294dd..03700ee 100644
+index 64ad43f..27ef6c8 100644
 --- a/main/Makefile
 +++ b/main/Makefile
-@@ -139,6 +139,8 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
+@@ -143,6 +143,8 @@ testexpr2: ast_expr2f.c ast_expr2.c ast_expr2.h
  	$(CC) -g -o testexpr2 ast_expr2f.o ast_expr2.o -lm
  	rm ast_expr2.o ast_expr2f.o 
  
@@ -83,7 +83,7 @@ index af294dd..03700ee 100644
  ifneq ($(findstring ENABLE_UPLOADS,$(MENUSELECT_CFLAGS)),)
  http.o: _ASTCFLAGS+=$(GMIME_INCLUDE)
  endif
-@@ -173,13 +175,13 @@ endif
+@@ -177,13 +179,13 @@ endif
  
  $(OBJS): _ASTCFLAGS+=-DAST_MODULE=\"core\"
  
@@ -123,10 +123,10 @@ index 7f4c179..b85c219 100644
  #include "asterisk/translate.h"
  
 diff --git a/makeopts.in b/makeopts.in
-index 5e9ef8c..02b3b51 100644
+index 3cde814..f86b166 100644
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -305,3 +305,7 @@ TINFO_DIR=@TINFO_DIR@
+@@ -308,3 +308,7 @@ TINFO_DIR=@TINFO_DIR@
  # if poll is not present, let the makefile know.
  POLL_AVAILABLE=@HAS_POLL@
  TIMERFD_INCLUDE=@TIMERFD_INCLUDE@
@@ -135,5 +135,5 @@ index 5e9ef8c..02b3b51 100644
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
 -- 
-1.7.3.1
+1.7.3.5
 
