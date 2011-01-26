@@ -2,8 +2,8 @@
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.2.2
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 1.8.2.3
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1167,6 +1167,23 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Jan 26 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2.3-1
+-
+- The Asterisk Development Team has announced the release of Asterisk 1.8.2.3.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.2.3 resolves the following issue:
+-
+-  * Reimplemented fax session reservation to reverse the ABI breakage introduced
+-   in r297486.
+-   (Reported by Jeremy Kister on the asterisk-users mailing list. Patched by
+-   mnicholson)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.2.3
+
 * Mon Jan 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.2.2-2
 - Build with SRTP support
 
