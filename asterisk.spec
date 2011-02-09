@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.3
-Release: 0.3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -28,44 +28,44 @@ BuildRequires: autoconf
 BuildRequires: automake
 
 # core build requirements
-BuildRequires: openssl-devel
-BuildRequires: newt-devel
+BuildRequires: openssl-devel%{_isa}
+BuildRequires: newt-devel%{_isa}
 %if 0%{?fedora} <= 8
-BuildRequires: libtermcap-devel
+BuildRequires: libtermcap-devel%{_isa}
 %endif
-BuildRequires: ncurses-devel
-BuildRequires: libcap-devel
-BuildRequires: gtk2-devel
-BuildRequires: libsrtp-devel
+BuildRequires: ncurses-devel%{_isa}
+BuildRequires: libcap-devel%{_isa}
+BuildRequires: gtk2-devel%{_isa}
+BuildRequires: libsrtp-devel%{_isa}
 
 # for res_http_post
 %if 0%{?fedora} > 0
-BuildRequires: gmime22-devel
+BuildRequires: gmime22-devel%{_isa}
 %endif
 
 # for building docs
 BuildRequires: doxygen
 BuildRequires: graphviz
 BuildRequires: graphviz-gd
-BuildRequires: libxml2-devel
+BuildRequires: libxml2-devel%{_isa}
 BuildRequires: latex2html
 
 # for building res_calendar_caldav
-BuildRequires: neon-devel
-BuildRequires: libical-devel
+BuildRequires: neon-devel%{_isa}
+BuildRequires: libical-devel%{_isa}
 
 # for codec_speex
-BuildRequires: speex-devel >= 1.2
+BuildRequires: speex-devel%{_isa} >= 1.2
 
 # for format_ogg_vorbis
-BuildRequires: libogg-devel
-BuildRequires: libvorbis-devel
+BuildRequires: libogg-devel%{_isa}
+BuildRequires: libvorbis-devel%{_isa}
 
 # codec_gsm
-BuildRequires: gsm-devel
+BuildRequires: gsm-devel%{_isa}
 
 # cli
-BuildRequires: libedit-devel
+BuildRequires: libedit-devel%{_isa}
 
 Requires(pre): %{_sbindir}/useradd
 Requires(pre): %{_sbindir}/groupadd
@@ -89,8 +89,8 @@ inexpensive hardware.
 %package ais
 Summary: Modules for Asterisk that use OpenAIS
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: openais-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: openais-devel%{_isa}
 
 %description ais
 Modules for Asterisk that use OpenAIS.
@@ -99,8 +99,8 @@ Modules for Asterisk that use OpenAIS.
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: alsa-lib-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: alsa-lib-devel%{_isa}
 
 %description alsa
 Modules for Asterisk that use Alsa sound drivers.
@@ -108,7 +108,7 @@ Modules for Asterisk that use Alsa sound drivers.
 %package apidoc
 Summary: API documentation for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description apidoc
 API documentation for Asterisk.
@@ -116,7 +116,7 @@ API documentation for Asterisk.
 %package calendar
 Summary: Calendar applications for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description calendar
 Calendar applications for Asterisk.
@@ -124,8 +124,8 @@ Calendar applications for Asterisk.
 %package curl
 Summary: Modules for Asterisk that use cURL
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: curl-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: curl-devel%{_isa}
 
 %description curl
 Modules for Asterisk that use cURL.
@@ -133,15 +133,15 @@ Modules for Asterisk that use cURL.
 %package dahdi
 Summary: Modules for Asterisk that use DAHDI
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
-BuildRequires: dahdi-tools-devel >= 2.0.0
-BuildRequires: dahdi-tools-libs >= 2.0.0
-BuildRequires: libpri-devel >= 1.4.12
-BuildRequires: libss7-devel >= 1.0.1
+BuildRequires: dahdi-tools-devel%{_isa} >= 2.0.0
+BuildRequires: dahdi-tools-libs%{_isa} >= 2.0.0
+BuildRequires: libpri-devel%{_isa} >= 1.4.12
+BuildRequires: libss7-devel%{_isa} >= 1.0.1
 Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
-Provides: asterisk-zaptel = %{version}-%{release}
+Provides: asterisk-zaptel%{_isa} = %{version}-%{release}
 
 %description dahdi
 Modules for Asterisk that use DAHDI.
@@ -149,7 +149,7 @@ Modules for Asterisk that use DAHDI.
 %package devel
 Summary: Development files for Asterisk
 Group: Development/Libraries
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description devel
 Development files for Asterisk.
@@ -157,7 +157,7 @@ Development files for Asterisk.
 %package fax
 Summary: FAX applications for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 BuildRequires: spandsp-devel >= 0.0.5-0.1.pre4
 
 %description fax
@@ -166,7 +166,7 @@ FAX applications for Asterisk
 %package festival
 Summary: Festival application for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 Requires: festival
 
 %description festival
@@ -176,7 +176,7 @@ Application for the Asterisk PBX that uses Festival to convert text to speech.
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 Requires: ices
 Obsoletes: asterisk < 1.4.18-1
 Conflicts: asterisk < 1.4.18-1
@@ -188,8 +188,8 @@ Stream audio from Asterisk to an IceCast server.
 %package jabber
 Summary: Jabber/XMPP resources for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: iksemel-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: iksemel-devel%{_isa}
 
 %description jabber
 Jabber/XMPP resources for Asterisk.
@@ -197,9 +197,9 @@ Jabber/XMPP resources for Asterisk.
 %package jack
 Summary: JACK resources for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: jack-audio-connection-kit-devel
-BuildRequires: libresample-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: jack-audio-connection-kit-devel%{_isa}
+BuildRequires: libresample-devel%{_isa}
 
 %description jack
 JACK resources for Asterisk.
@@ -207,8 +207,8 @@ JACK resources for Asterisk.
 %package lua
 Summary: Lua resources for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: lua-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: lua-devel%{_isa}
 
 %description lua
 Lua resources for Asterisk.
@@ -216,8 +216,8 @@ Lua resources for Asterisk.
 %package ldap
 Summary: LDAP resources for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: openldap-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: openldap-devel%{_isa}
 
 %description ldap
 LDAP resources for Asterisk.
@@ -226,9 +226,9 @@ LDAP resources for Asterisk.
 %package ldap-fds
 Summary: LDAP resources for Asterisk and the Fedora Directory Server
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-ldap = %{version}-%{release}
-Requires: fedora-ds-base
+Requires: asterisk%{_isa} = %{version}-%{release}
+Requires: asterisk-ldap%{_isa} = %{version}-%{release}
+Requires: fedora-ds-base%{_isa}
 
 %description ldap-fds
 LDAP resources for Asterisk and the Fedora Directory Server.
@@ -237,9 +237,9 @@ LDAP resources for Asterisk and the Fedora Directory Server.
 %package misdn
 Summary: mISDN channel for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 Requires(pre): %{_sbindir}/usermod
-BuildRequires: mISDN-devel
+BuildRequires: mISDN-devel%{_isa}
 
 %description misdn
 mISDN channel for Asterisk.
@@ -247,9 +247,9 @@ mISDN channel for Asterisk.
 %package mobile
 Summary: Mobile (BlueTooth) channel for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 Requires(pre): %{_sbindir}/usermod
-BuildRequires: bluez-libs-devel
+BuildRequires: bluez-libs-devel%{_isa}
 
 %description mobile
 Mobile (BlueTooth) channel for Asterisk.
@@ -257,7 +257,7 @@ Mobile (BlueTooth) channel for Asterisk.
 %package minivm
 Summary: MiniVM applicaton for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description minivm
 MiniVM application for Asterisk.
@@ -265,8 +265,8 @@ MiniVM application for Asterisk.
 %package mysql
 Summary: Applications for Asterisk that use MySQL
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: mysql-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: mysql-devel%{_isa}
 
 %description mysql
 Applications for Asterisk that use MySQL.
@@ -274,9 +274,9 @@ Applications for Asterisk that use MySQL.
 %package odbc
 Summary: Applications for Asterisk that use ODBC (except voicemail)
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: libtool-ltdl-devel
-BuildRequires: unixODBC-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: libtool-ltdl-devel%{_isa}
+BuildRequires: unixODBC-devel%{_isa}
 
 %description odbc
 Applications for Asterisk that use ODBC (except voicemail)
@@ -284,9 +284,9 @@ Applications for Asterisk that use ODBC (except voicemail)
 %package ooh323
 Summary: H.323 channel for Asterisk using the Objective Systems Open H.323 for C library
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: libtool-ltdl-devel
-BuildRequires: unixODBC-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: libtool-ltdl-devel%{_isa}
+BuildRequires: unixODBC-devel%{_isa}
 
 %description ooh323
 H.323 channel for Asterisk using the Objective Systems Open H.323 for C library.
@@ -294,7 +294,7 @@ H.323 channel for Asterisk using the Objective Systems Open H.323 for C library.
 %package oss
 Summary: Modules for Asterisk that use OSS sound drivers
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description oss
 Modules for Asterisk that use OSS sound drivers.
@@ -302,8 +302,8 @@ Modules for Asterisk that use OSS sound drivers.
 %package portaudio
 Summary: Modules for Asterisk that use the portaudio library
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: portaudio-devel >= 19
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: portaudio-devel%{_isa} >= 19
 
 %description portaudio
 Modules for Asterisk that use the portaudio library.
@@ -311,8 +311,8 @@ Modules for Asterisk that use the portaudio library.
 %package postgresql
 Summary: Applications for Asterisk that use PostgreSQL
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: postgresql-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: postgresql-devel%{_isa}
 
 %description postgresql
 Applications for Asterisk that use PostgreSQL.
@@ -320,8 +320,8 @@ Applications for Asterisk that use PostgreSQL.
 %package radius
 Summary: Applications for Asterisk that use RADIUS
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: radiusclient-ng-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: radiusclient-ng-devel%{_isa}
 
 %description radius
 Applications for Asterisk that use RADIUS.
@@ -329,7 +329,7 @@ Applications for Asterisk that use RADIUS.
 %package skinny
 Summary: Modules for Asterisk that support the SCCP/Skinny protocol
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description skinny
 Modules for Asterisk that support the SCCP/Skinny protocol.
@@ -337,9 +337,9 @@ Modules for Asterisk that support the SCCP/Skinny protocol.
 %package snmp
 Summary: Module that enables SNMP monitoring of Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: net-snmp-devel
-BuildRequires: lm_sensors-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: net-snmp-devel%{_isa}
+BuildRequires: lm_sensors-devel%{_isa}
 # This subpackage depends on perl-libs, this Requires tracks versioning.
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
@@ -349,8 +349,8 @@ Module that enables SNMP monitoring of Asterisk.
 %package sqlite
 Summary: Sqlite modules for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: sqlite-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: sqlite-devel%{_isa}
 
 %description sqlite
 Sqlite modules for Asterisk.
@@ -358,8 +358,8 @@ Sqlite modules for Asterisk.
 %package tds
 Summary: Modules for Asterisk that use FreeTDS
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: freetds-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: freetds-devel%{_isa}
 
 %description tds
 Modules for Asterisk that use FreeTDS.
@@ -367,7 +367,7 @@ Modules for Asterisk that use FreeTDS.
 %package unistim
 Summary: Unistim channel for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
 
 %description unistim
 Unistim channel for Asterisk
@@ -375,9 +375,9 @@ Unistim channel for Asterisk
 %package usbradio
 Summary: USB radio channel for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: libusb-devel
-BuildRequires: alsa-lib-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+BuildRequires: libusb-devel%{_isa}
+BuildRequires: alsa-lib-devel%{_isa}
 
 %description usbradio
 Unistim channel for Asterisk
@@ -385,8 +385,8 @@ Unistim channel for Asterisk
 %package voicemail
 Summary: Common Voicemail Modules for Asterisk
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-voicemail-implementation = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
+Requires: asterisk-voicemail-implementation%{_isa} = %{version}-%{release}
 Requires: /usr/bin/sox
 Requires: /usr/sbin/sendmail
 
@@ -397,10 +397,10 @@ Common Voicemail Modules for Asterisk.
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-voicemail = %{version}-%{release}
-Provides: asterisk-voicemail-implementation = %{version}-%{release}
-BuildRequires: uw-imap-devel
+Requires: asterisk%{_isa} = %{version}-%{release}
+Requires: asterisk-voicemail%{_isa} = %{version}-%{release}
+Provides: asterisk-voicemail-implementation%{_isa} = %{version}-%{release}
+BuildRequires: uw-imap-devel%{_isa}
 
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
@@ -410,9 +410,9 @@ server.
 %package voicemail-odbc
 Summary: Store voicemail in a database using ODBC
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-voicemail = %{version}-%{release}
-Provides: asterisk-voicemail-implementation = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
+Requires: asterisk-voicemail%{_isa} = %{version}-%{release}
+Provides: asterisk-voicemail-implementation%{_isa} = %{version}-%{release}
 
 %description voicemail-odbc
 Voicemail implementation for Asterisk that uses ODBC to store
@@ -421,9 +421,9 @@ voicemail in a database.
 %package voicemail-plain
 Summary: Store voicemail on the local filesystem
 Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-voicemail = %{version}-%{release}
-Provides: asterisk-voicemail-implementation = %{version}-%{release}
+Requires: asterisk%{_isa} = %{version}-%{release}
+Requires: asterisk-voicemail%{_isa} = %{version}-%{release}
+Provides: asterisk-voicemail-implementation%{_isa} = %{version}-%{release}
 
 %description voicemail-plain
 Voicemail implementation for Asterisk that stores voicemail on the
@@ -1167,6 +1167,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Feb  9 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.3-0.4.rc2
+- Make library dependencies architecture specific
+
 * Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.3-0.3.rc2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
