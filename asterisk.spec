@@ -489,6 +489,8 @@ popd
 %configure --with-gsm=/usr --with-libedit=yes --with-gmime=no --with-srtp
 %endif
 
+%{__perl} -n -i -e 'print unless /openr2/' menuselect-tree
+
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
