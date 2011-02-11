@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.3
-Release: 0.5%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1169,6 +1169,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Feb 11 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3-0.6.rc2
+- Bump release to build for F15
+
 * Wed Feb  9 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3-0.5.rc2
 - Remove isa macros
 
