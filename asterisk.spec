@@ -1,9 +1,9 @@
-%global _rc 2
+%global _rc 3
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.3
-Release: 0.6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.7%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1169,6 +1169,25 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Feb 16 2011  <jeff@ocjtech.us> - 1.8.3-0.7.rc3
+-
+- The Asterisk Development Team has announced the third release candidate of
+- Asterisk 1.8.3. This release candidate is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.3-rc3 resolves the following issues in addition to
+- those included in 1.8.3-rc1 and 1.8.3-rc2:
+-
+- *  Fix regression that changed behavior of queues when ringing a queue member.
+-   (Closes issue #18747, #18733. Reported by vrban. Patched by qwell.)
+-
+- * Resolve deadlock involving REFER.
+-  (Closes issue #18403. Reported, tested by jthurman. Patched by jpeeler.)
+-
+- For a full list of changes in this release candidate, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.3-rc3
+
 * Fri Feb 11 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3-0.6.rc2
 - Bump release to build for F15
 
