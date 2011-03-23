@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.3.2
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1169,6 +1169,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Mar 23 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3.2-2
+- Bump release and rebuild for mysql 5.5.10 soname change.
+
 * Thu Mar 17 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3.2-1
 - The Asterisk Development Team has announced security releases for Asterisk
 - branches 1.6.1, 1.6.2, and 1.8. The available security releases are
