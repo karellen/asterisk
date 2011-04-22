@@ -2,8 +2,8 @@
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.3.2
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 1.8.3.3
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1169,6 +1169,39 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Apr 21 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3.3-1
+- The Asterisk Development Team has announced security releases for Asterisk
+- branches 1.4, 1.6.1, 1.6.2, and 1.8. The available security releases are
+- released as versions 1.4.40.1, 1.6.1.25, 1.6.2.17.3, and 1.8.3.3.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The releases of Asterisk 1.4.40.1, 1.6.1.25, 1.6.2.17.3, and 1.8.3.3 resolve two
+- issues:
+-
+- * File Descriptor Resource Exhaustion (AST-2011-005)
+- * Asterisk Manager User Shell Access (AST-2011-006)
+-
+- The issues and resolutions are described in the AST-2011-005 and AST-2011-006
+- security advisories.
+-
+- For more information about the details of these vulnerabilities, please read the
+- security advisories AST-2011-005 and AST-2011-006, which were released at the
+- same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.4.40.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.6.1.25
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.6.2.17.3
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.3.3
+-
+- Security advisory AST-2011-005 and AST-2011-006 are available at:
+-
+- http://downloads.asterisk.org/pub/security/AST-2011-005.pdf
+- http://downloads.asterisk.org/pub/security/AST-2011-006.pdf
+
 * Wed Mar 23 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3.2-2
 - Bump release and rebuild for mysql 5.5.10 soname change.
 
