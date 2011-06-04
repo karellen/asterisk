@@ -1,5 +1,5 @@
-From ccbf147c96bb7fe40c485f2cf5067ad2a87c529a Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jeff@ocjtech.us>
+From 2f19333ec27465a585cced316b92493d65284b51 Mon Sep 17 00:00:00 2001
+From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:27:48 -0500
 Subject: [PATCH 5/6] Fix up some paths
 
@@ -67,7 +67,7 @@ index 6f10de7..e956a8f 100644
 +;uploads = /var/spool/asterisk/uploads/
  ;
 diff --git a/configs/iax.conf.sample b/configs/iax.conf.sample
-index 73ae78a..3a40896 100644
+index a3d0fea..de6e740 100644
 --- a/configs/iax.conf.sample
 +++ b/configs/iax.conf.sample
 @@ -456,8 +456,8 @@ inkeys=freeworlddialup
@@ -128,15 +128,18 @@ index e72aa32..f7ee625 100644
  ; Specify the private key file name.
  ; If this parameter is unspecified or not present, the default name will be the
 diff --git a/configs/phoneprov.conf.sample b/configs/phoneprov.conf.sample
-index a99b44a..528f7c6 100644
+index ed8c46f..1fe8e4b 100644
 --- a/configs/phoneprov.conf.sample
 +++ b/configs/phoneprov.conf.sample
-@@ -130,4 +130,4 @@ ${MAC}.cfg => 000000000000.cfg               ; Dynamically generated files.
+@@ -130,7 +130,7 @@ ${MAC}.cfg => 000000000000.cfg               ; Dynamically generated files.
  ${MAC}-phone.cfg => 000000000000-phone.cfg   ; (relative to AST_DATA_DIR/phoneprov)
  config/${MAC} => polycom.xml                 ; Dynamic Filename => template file
  ${MAC}-directory.xml => 000000000000-directory.xml
 -setvar => CUSTOM_CONFIG=/var/lib/asterisk/phoneprov/configs/custom.cfg  ; Custom variable
 +setvar => CUSTOM_CONFIG=/usr/share/asterisk/phoneprov/configs/custom.cfg  ; Custom variable
+ 
+ ;snom 300, 320, 360, 370, 820, 821, 870 support
+ snom-${MAC}.xml => snom-mac.xml
 diff --git a/contrib/scripts/astgenkey b/contrib/scripts/astgenkey
 index 6376048..e4a5a80 100644
 --- a/contrib/scripts/astgenkey
@@ -510,5 +513,5 @@ index 3c66be2..bedb8d8 100644
  exten => 762,1,agi(tts-riddle.agi)
  exten => 762,2,Background(gsm/what-time-it-is2)
 -- 
-1.7.3.5
+1.7.5.2
 

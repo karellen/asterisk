@@ -1,5 +1,5 @@
-From 64c4f685e3168e11fdbde3b9583d078dd63874bb Mon Sep 17 00:00:00 2001
-From: Jeffrey C. Ollie <jeff@ocjtech.us>
+From 931c4451f75158ec3ef1e1a5edea248e3d139961 Mon Sep 17 00:00:00 2001
+From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Fri, 5 Mar 2010 14:10:52 -0600
 Subject: [PATCH 3/6] Allow linking/building against an external libedit.
 
@@ -31,7 +31,7 @@ index 35573c3..4425204 100644
  LUA=@PBX_LUA@
  MISDN=@PBX_MISDN@
 diff --git a/configure.ac b/configure.ac
-index a17c7b7..549c8c5 100644
+index 889586a..f9bb9ac 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -388,6 +388,7 @@ AST_EXT_LIB_SETUP([JACK], [Jack Audio Connection Kit], [jack])
@@ -135,5 +135,5 @@ index 3cde814..f86b166 100644
 +LIBEDIT_LIB=@LIBEDIT_LIB@
 +LIBEDIT_OBJ=@LIBEDIT_OBJ@
 -- 
-1.7.3.5
+1.7.5.2
 

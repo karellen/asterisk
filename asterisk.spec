@@ -2,7 +2,7 @@
 #global _beta 5
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.3.3
+Version: 1.8.4.2
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1169,6 +1169,125 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jun  3 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.2-1:
+-
+- The Asterisk Development Team has announced the release of Asterisk
+- version 1.8.4.2, which is a security release for Asterisk 1.8.
+- 
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+- 
+- The release of Asterisk 1.8.4.2 resolves an issue with SIP URI
+- parsing which can lead to a remotely exploitable crash:
+- 
+-    Remote Crash Vulnerability in SIP channel driver (AST-2011-007)
+- 
+- The issue and resolution is described in the AST-2011-007 security
+- advisory.
+- 
+- For more information about the details of this vulnerability, please
+- read the security advisory AST-2011-007, which was released at the
+- same time as this announcement.
+- 
+- For a full list of changes in the current release, please see the ChangeLog:
+- 
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.4.2
+-
+- Security advisory AST-2011-007 is available at:
+-
+- http://downloads.asterisk.org/pub/security/AST-2011-007.pdf
+-
+- The Asterisk Development Team has announced the release of Asterisk 1.8.4.1.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+- 
+- The release of Asterisk 1.8.4.1 resolves several issues reported by the
+- community. Without your help this release would not have been possible.
+- Thank you!
+- 
+- Below is a list of issues resolved in this release:
+- 
+-  * Fix our compliance with RFC 3261 section 18.2.2. (aka Cisco phone fix)
+-   (Closes issue #18951. Reported by jmls. Patched by wdoekes)
+- 
+-  * Resolve a change in IPv6 header parsing due to the Cisco phone fix issue.
+-   This issue was found and reported by the Asterisk test suite.
+-   (Closes issue #18951. Patched by mnicholson)
+- 
+-  * Resolve potential crash when using SIP TLS support.
+-   (Closes issue #19192. Reported by stknob. Patched by Chainsaw. Tested by
+-    vois, Chainsaw)
+- 
+-  * Improve reliability when using SIP TLS.
+-   (Closes issue #19182. Reported by st. Patched by mnicholson)
+- 
+- 
+- For a full list of changes in this release candidate, please see the ChangeLog:
+- 
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.4.1
+
+- The Asterisk Development Team has announced the release of Asterisk 1.8.4. This
+- release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+- 
+- The release of Asterisk 1.8.4 resolves several issues reported by the community.
+- Without your help this release would not have been possible. Thank you!
+- 
+- Below is a sample of the issues resolved in this release:
+- 
+-  * Use SSLv23_client_method instead of old SSLv2 only.
+-   (Closes issue #19095, #19138. Reported, patched by tzafrir. Tested by russell
+-   and chazzam.
+- 
+-  * Resolve crash in ast_mutex_init()
+-   (Patched by twilson)
+- 
+-  * Resolution of several DTMF based attended transfer issues.
+-   (Closes issue #17999, #17096, #18395, #17273. Reported by iskatel, gelo,
+-   shihchuan, grecco. Patched by rmudgett)
+- 
+-   NOTE: Be sure to read the ChangeLog for more information about these changes.
+- 
+-  * Resolve deadlocks related to device states in chan_sip
+-   (Closes issue #18310. Reported, patched by one47. Patched by jpeeler)
+- 
+-  * Resolve an issue with the Asterisk manager interface leaking memory when
+-   disabled.
+-   (Reported internally by kmorgan. Patched by russellb)
+- 
+-  * Support greetingsfolder as documented in voicemail.conf.sample.
+-   (Closes issue #17870. Reported by edhorton. Patched by seanbright)
+- 
+-  * Fix channel redirect out of MeetMe() and other issues with channel softhangup
+-   (Closes issue #18585. Reported by oej. Tested by oej, wedhorn, russellb.
+-   Patched by russellb)
+- 
+-  * Fix voicemail sequencing for file based storage.
+-   (Closes issue #18498, #18486. Reported by JJCinAZ, bluefox. Patched by
+-   jpeeler)
+- 
+-  * Set hangup cause in local_hangup so the proper return code of 486 instead of
+-   503 when using Local channels when the far sides returns a busy. Also affects
+-   CCSS in Asterisk 1.8+.
+-   (Patched by twilson)
+- 
+-  * Fix issues with verbose messages not being output to the console.
+-   (Closes issue #18580. Reported by pabelanger. Patched by qwell)
+- 
+-  * Fix Deadlock with attended transfer of SIP call
+-   (Closes issue #18837. Reported, patched by alecdavis. Tested by
+-   alecdavid, Irontec, ZX81, cmaj)
+- 
+- Includes changes per AST-2011-005 and AST-2011-006
+- For a full list of changes in this release candidate, please see the ChangeLog:
+- 
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.4
+- 
+- Information about the security releases are available at:
+- 
+- http://downloads.asterisk.org/pub/security/AST-2011-005.pdf
+- http://downloads.asterisk.org/pub/security/AST-2011-006.pdf
+
 * Thu Apr 21 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.3.3-1
 - The Asterisk Development Team has announced security releases for Asterisk
 - branches 1.4, 1.6.1, 1.6.2, and 1.8. The available security releases are
