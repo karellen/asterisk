@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.4.2
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1169,6 +1169,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jun 17 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.8.4.2-1.2
+- Perl mass rebuild
+
 * Fri Jun 10 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.8.4.2-1.1
 - Perl 5.14 mass rebuild
 
