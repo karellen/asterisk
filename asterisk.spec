@@ -3,7 +3,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.4.2
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -13,6 +13,8 @@ Source1: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-
 Source2: asterisk-logrotate
 Source3: menuselect.makedeps
 Source4: menuselect.makeopts
+Source5: asterisk.service
+Source6: asterisk-tmpfiles
 
 Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibilty.patch
 Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
@@ -37,6 +39,9 @@ BuildRequires: ncurses-devel
 BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
 BuildRequires: libsrtp-devel
+%if 0%{?fedora} >= 16
+BuildRequires: systemd-units
+%endif
 
 # for res_http_post
 %if 0%{?fedora} > 0
@@ -67,11 +72,12 @@ BuildRequires: gsm-devel
 # cli
 BuildRequires: libedit-devel
 
-Requires(pre): %{_sbindir}/useradd
-Requires(pre): %{_sbindir}/groupadd
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-Requires(preun): /sbin/service
+Requires(pre):    %{_sbindir}/useradd
+Requires(pre):    %{_sbindir}/groupadd
+Requires(post):   systemd-units
+Requires(post):   systemd-sysv
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
 
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
@@ -530,8 +536,12 @@ rm -rf %{buildroot}
 ASTCFLAGS="%{optflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk
 ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk
 
+%if 0%{?fedora} >= 16
+install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
+%else
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
+%endif
 install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 #install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
@@ -540,13 +550,13 @@ install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
 %if 0%{?fedora} > 0
-install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules
-install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_imap.so
+install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_imap.so
 %endif
-install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules
-install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules
-install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules
-install -D -p -m 0755 apps/app_voicemail_plain.so %{buildroot}%{_libdir}/asterisk/modules
+install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_odbc.so
+install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_odbc.so
+install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_plain.so
+install -D -p -m 0755 apps/app_voicemail_plain.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 # create some directories that need to be packaged
 mkdir -p %{buildroot}%{_datadir}/asterisk/moh
@@ -583,6 +593,10 @@ rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
 %endif
 
+%if 0%{?fedora} >= 16
+install -D -p -m 0644 %{SOURCE6} %{buildroot}/usr/lib/tmpfiles.d/asterisk.conf
+%endif
+
 %clean
 rm -rf %{buildroot}
 
@@ -592,14 +606,33 @@ rm -rf %{buildroot}
                                -c 'Asterisk User' -g asterisk asterisk &>/dev/null || :
 
 %post
-# Register the asterisk service
-/sbin/chkconfig --add asterisk
+if [ $1 -eq 1 ] ; then 
+	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 
 %preun
 if [ "$1" -eq "0" ]; then
-        /sbin/service asterisk stop > /dev/null 2>&1 || :
-        /sbin/chkconfig --del asterisk
+	# Package removal, not upgrade
+	/bin/systemctl --no-reload disable asterisk.service > /dev/null 2>&1 || :
+	/bin/systemctl stop asterisk.service > /dev/null 2>&1 || :
 fi
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart asterisk.service >/dev/null 2>&1 || :
+fi
+
+%triggerun -- asterisk < 1.8.2.4-2
+# Save the current service runlevel info
+# User must manually run systemd-sysv-convert --apply asterisk
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save asterisk >/dev/null 2>&1 ||:
+
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del asterisk >/dev/null 2>&1 || :
+/bin/systemctl try-restart asterisk.service >/dev/null 2>&1 || :
 
 %pre dahdi
 %{_sbindir}/usermod -a -G dahdi asterisk
@@ -628,8 +661,12 @@ fi
 #doc doc/ss7.txt
 #doc doc/video.txt
 
+%if 0%{?fedora} >= 16
+%{_unitdir}/asterisk.service
+%else
 %{_initrddir}/asterisk
 %config(noreplace) %{_sysconfdir}/sysconfig/asterisk
+%endif
 
 %dir %{_libdir}/asterisk
 %dir %{_libdir}/asterisk/modules
@@ -826,7 +863,7 @@ fi
 %{_sbindir}/rasterisk
 #%{_sbindir}/refcounter
 %{_sbindir}/safe_asterisk
-#%{_sbindir}/smsq
+%{_sbindir}/smsq
 #%{_sbindir}/stereorize
 #%{_sbindir}/streamplayer
 
@@ -920,7 +957,11 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/uploads
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/voicemail
 
+%if 0%{?fedora} >= 16
+%attr(0644,root,root) /usr/lib/tmpfiles.d/asterisk.conf
+%else
 %attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
+%endif
 
 %if 0%{?fedora} > 0
 %files ais
@@ -1169,6 +1210,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Jun 21 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.2-2
+- Convert to systemd
+
 * Fri Jun 17 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.8.4.2-1.2
 - Perl mass rebuild
 
