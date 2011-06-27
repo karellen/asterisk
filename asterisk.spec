@@ -1,9 +1,16 @@
 #global _rc 3
 #global _beta 5
+
+%if 0%{?fedora} >= 15
+%global astvarrundir /run/asterisk
+%else
+%global astvartundir %{_localstatedir}/run/asterisk
+%endif
+
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.4.3
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -497,7 +504,7 @@ popd
 
 %{__perl} -n -i -e 'print unless /openr2/' menuselect-tree
 
-ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
@@ -505,7 +512,7 @@ mv apps/app_directory.so apps/app_directory_plain.so
 
 %if 0%{?fedora} > 0
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
-ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
@@ -513,7 +520,7 @@ mv apps/app_directory.so apps/app_directory_imap.so
 %endif
 
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
-ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_odbc.so
@@ -523,7 +530,7 @@ mv apps/app_directory.so apps/app_directory_odbc.so
 touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
 
-ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk  ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk  ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
@@ -533,11 +540,12 @@ cd doc/tex && ASTCFLAGS="%{optflags}" make html
 %install
 rm -rf %{buildroot}
 
-ASTCFLAGS="%{optflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk
-ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{_localstatedir}/run/asterisk ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk
+ASTCFLAGS="%{optflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 %if 0%{?fedora} >= 16
 install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
+rm -f %{buildroot}%{_sbindir}/safe_asterisk
 %else
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 install -D -p -m 0644 contrib/sysconfig/asterisk %{buildroot}%{_sysconfdir}/sysconfig/asterisk
@@ -593,7 +601,7 @@ rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
 %endif
 
-%if 0%{?fedora} >= 16
+%if 0%{?fedora} >= 15
 install -D -p -m 0644 %{SOURCE6} %{buildroot}/usr/lib/tmpfiles.d/asterisk.conf
 %endif
 
@@ -852,20 +860,21 @@ fi
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
 %endif
 
-#%{_sbindir}/aelparse
-#%{_sbindir}/astcanary
+%{_sbindir}/aelparse
+%{_sbindir}/astcanary
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
-#%{_sbindir}/astman
+%{_sbindir}/astman
 %{_sbindir}/autosupport
-#%{_sbindir}/conf2ael
-#%{_sbindir}/muted
+%{_sbindir}/conf2ael
+%{_sbindir}/muted
 %{_sbindir}/rasterisk
-#%{_sbindir}/refcounter
+%{_sbindir}/refcounter
+%if 0%{?fedora} < 16
 %{_sbindir}/safe_asterisk
+%endif
 %{_sbindir}/smsq
-#%{_sbindir}/stereorize
-#%{_sbindir}/streamplayer
+%{_sbindir}/streamplayer
 
 %{_mandir}/man8/asterisk.8*
 %{_mandir}/man8/astgenkey.8*
@@ -957,10 +966,11 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/uploads
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/voicemail
 
-%if 0%{?fedora} >= 16
+%if 0%{?fedora} >= 15
 %attr(0644,root,root) /usr/lib/tmpfiles.d/asterisk.conf
+%ghost %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 %else
-%attr(0755,asterisk,asterisk) %dir %{_localstatedir}/run/asterisk
+%attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 %endif
 
 %if 0%{?fedora} > 0
@@ -1210,6 +1220,12 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Jun 27 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.3-2
+- Move /var/run/asterisk to /run/asterisk
+- Add comments to systemd service file on how to mimic safe_asterisk functionality
+- Build more of the optional binaries
+- Install the tmpfiles.d configuration on Fedora 15
+
 * Fri Jun 24 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.3-1
 - The Asterisk Development Team has announced the release of Asterisk versions
 - 1.4.41.1, 1.6.2.18.1, and 1.8.4.3, which are security releases.
