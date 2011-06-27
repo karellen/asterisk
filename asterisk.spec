@@ -10,7 +10,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.4.3
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -874,6 +874,7 @@ fi
 %{_sbindir}/safe_asterisk
 %endif
 %{_sbindir}/smsq
+%{_sbindir}/stereorize
 %{_sbindir}/streamplayer
 
 %{_mandir}/man8/asterisk.8*
@@ -1220,6 +1221,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Jun 27 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.3-3
+- Don't forget stereorize
+
 * Mon Jun 27 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.3-2
 - Move /var/run/asterisk to /run/asterisk
 - Add comments to systemd service file on how to mimic safe_asterisk functionality
