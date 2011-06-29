@@ -4,7 +4,7 @@
 %if 0%{?fedora} >= 15
 %global astvarrundir /run/asterisk
 %else
-%global astvartundir %{_localstatedir}/run/asterisk
+%global astvarrundir %{_localstatedir}/run/asterisk
 %endif
 
 Summary: The Open Source PBX
