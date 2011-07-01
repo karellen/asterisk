@@ -1251,6 +1251,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jul  1 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5-0.1.rc1
+- Fix systemd dependencies in EL6 and F15
+
 * Thu Jun 30 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5-0.1.rc1
 - The Asterisk Development Team has announced the first release candidate of
 - Asterisk 1.8.5. This release candidate is available for immediate download at
@@ -1303,9 +1306,6 @@ fi
 - For a full list of changes in this release candidate, please see the ChangeLog:
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.5-rc1
-
-* Fri Jul  1 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-2
-- Fix systemd dependencies in EL6 and F15
 
 * Thu Jun 30 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-2
 - Fedora Directory Server -> 389 Directory Server
