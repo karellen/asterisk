@@ -518,7 +518,8 @@ popd
 %configure --with-gsm=/usr --with-libedit=yes --with-gmime=no --with-srtp
 %endif
 
-%{__perl} -n -i -e 'print unless /openr2/' menuselect-tree
+make menuselect-tree
+%{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
 
 ASTCFLAGS="%{optflags}" make DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
