@@ -250,15 +250,17 @@ BuildRequires: openldap-devel
 LDAP resources for Asterisk.
 
 %if 0%{?rhel} <= 5 || 0%{?fedora}
-%package ldap-fds
-Summary: LDAP resources for Asterisk and the Fedora Directory Server
+%package ldap-389
+Summary: LDAP resources for Asterisk and the 389 Directory Server
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: asterisk-ldap = %{version}-%{release}
-Requires: fedora-ds-base
+Requires: 389-ds-base
+Obsoletes: asterisk-ldap-fds < 1.8.4.4-2
+Conflicts: asterisk-ldap-fds < 1.8.4.4-2
 
-%description ldap-fds
-LDAP resources for Asterisk and the Fedora Directory Server.
+%description ldap-389
+LDAP resources for Asterisk and the 389 Directory Server.
 %endif
 
 %package misdn
@@ -1109,7 +1111,7 @@ fi
 %{_libdir}/asterisk/modules/res_config_ldap.so
 
 %if 0%{?rhel} <= 5 || 0%{?fedora}
-%files ldap-fds
+%files ldap-389
 %defattr(-,root,root,-)
 %{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 %endif
@@ -1251,6 +1253,9 @@ fi
 %changelog
 * Fri Jul  1 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-2
 - Fix systemd dependencies in EL6 and F15
+
+* Thu Jun 30 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-2
+- Fedora Directory Server -> 389 Directory Server
 
 * Wed Jun 29 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-1
 - The Asterisk Development Team has announced the release of Asterisk
