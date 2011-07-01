@@ -3,14 +3,22 @@
 
 %if 0%{?fedora} >= 15
 %global astvarrundir /run/asterisk
+%global tmpfilesd 1
 %else
 %global astvarrundir %{_localstatedir}/run/asterisk
+%global tmpfilesd 0
+%endif
+
+%if 0%{?fedora} >= 16
+%global systemd 1
+%else
+%global systemd 0
 %endif
 
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.4.4
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -46,7 +54,7 @@ BuildRequires: ncurses-devel
 BuildRequires: libcap-devel
 BuildRequires: gtk2-devel
 BuildRequires: libsrtp-devel
-%if 0%{?fedora} >= 16
+%if %{systemd}
 BuildRequires: systemd-units
 %endif
 
@@ -81,10 +89,16 @@ BuildRequires: libedit-devel
 
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
+%if %{systemd}
 Requires(post):   systemd-units
 Requires(post):   systemd-sysv
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
+%else
+Requires(post): /sbin/chkconfig
+Requires(preun): /sbin/chkconfig
+Requires(preun): /sbin/service
+%endif
 
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
@@ -543,7 +557,7 @@ rm -rf %{buildroot}
 ASTCFLAGS="%{optflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 ASTCFLAGS="%{optflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
-%if 0%{?fedora} >= 16
+%if %{systemd}
 install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
 rm -f %{buildroot}%{_sbindir}/safe_asterisk
 %else
@@ -601,7 +615,7 @@ rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
 %endif
 
-%if 0%{?fedora} >= 15
+%if %{tmpfilesd}
 install -D -p -m 0644 %{SOURCE6} %{buildroot}/usr/lib/tmpfiles.d/asterisk.conf
 %endif
 
@@ -614,17 +628,30 @@ rm -rf %{buildroot}
                                -c 'Asterisk User' -g asterisk asterisk &>/dev/null || :
 
 %post
+%if %{systemd}
 if [ $1 -eq 1 ] ; then
 	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
+%else
+/sbin/chkconfig --add asterisk
+%endif
 
 %preun
+%if %{systemd}
 if [ "$1" -eq "0" ]; then
 	# Package removal, not upgrade
 	/bin/systemctl --no-reload disable asterisk.service > /dev/null 2>&1 || :
 	/bin/systemctl stop asterisk.service > /dev/null 2>&1 || :
 fi
+%else
+if [ "$1" -eq "0" ]; then
+	# Package removal, not upgrade
+        /sbin/service asterisk stop > /dev/null 2>&1 || :
+        /sbin/chkconfig --del asterisk
+fi
+%endif
 
+%if %{systemd}
 %postun
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
@@ -641,6 +668,7 @@ fi
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del asterisk >/dev/null 2>&1 || :
 /bin/systemctl try-restart asterisk.service >/dev/null 2>&1 || :
+%endif
 
 %pre dahdi
 %{_sbindir}/usermod -a -G dahdi asterisk
@@ -669,7 +697,7 @@ fi
 #doc doc/ss7.txt
 #doc doc/video.txt
 
-%if 0%{?fedora} >= 16
+%if %{systemd}
 %{_unitdir}/asterisk.service
 %else
 %{_initrddir}/asterisk
@@ -870,7 +898,7 @@ fi
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
 %{_sbindir}/refcounter
-%if 0%{?fedora} < 16
+%if !%{systemd}
 %{_sbindir}/safe_asterisk
 %endif
 %{_sbindir}/smsq
@@ -967,7 +995,7 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/uploads
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/voicemail
 
-%if 0%{?fedora} >= 15
+%if %{tmpfilesd}
 %attr(0644,root,root) /usr/lib/tmpfiles.d/asterisk.conf
 %ghost %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 %else
@@ -1221,6 +1249,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jul  1 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-2
+- Fix systemd dependencies in EL6 and F15
+
 * Wed Jun 29 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.4.4-1
 - The Asterisk Development Team has announced the release of Asterisk
 - versions 1.4.41.2, 1.6.2.18.2, and 1.8.4.4, which are security
