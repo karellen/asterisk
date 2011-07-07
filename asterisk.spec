@@ -18,7 +18,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 1.8.5
-Release: 0.1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1252,6 +1252,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Jul  7 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5-0.2
+- Rebuild for net-snmp 5.7
+
 * Fri Jul  1 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5-0.1.rc1
 - Fix systemd dependencies in EL6 and F15
 
