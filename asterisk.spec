@@ -1,4 +1,4 @@
-%global _rc 1
+#global _rc 1
 #global _beta 5
 
 %if 0%{?fedora} >= 15
@@ -17,8 +17,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.5
-Release: 0.2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 1.8.5.0
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1252,6 +1252,56 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Jul 11 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5.0-1
+- The Asterisk Development Team announces the release of Asterisk 1.8.5.0. This
+- release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 1.8.5.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * Fix Deadlock with attended transfer of SIP call
+-  (Closes issue #18837. Reported, patched by alecdavis. Tested by Irontec, ZX81,
+-  cmaj)
+-
+- * Fixes thread blocking issue in the sip TCP/TLS implementation.
+-  (Closes issue #18497. Reported by vois. Patched by dvossel. Tested by vois,
+-  rossbeer, kowalma, Freddi_Fonet)
+-
+- * Be more tolerant of what URI we accept for call completion PUBLISH requests.
+-  (Closes issue #18946. Reported by GeorgeKonopacki. Patched by mmichelson)
+-
+- * Fix a nasty chanspy bug which was causing a channel leak every time a spied on
+-  channel made a call.
+-  (Closes issue #18742. Reported by jkister. Tested by jcovert, jrose)
+-
+- * This patch fixes a bug with MeetMe behavior where the 'P' option for always
+-  prompting for a pin is ignored for the first caller.
+-  (Closes issue #18070. Reported by mav3rick. Patched by bbryant)
+-
+- * Fix issue where Asterisk does not hangup a channel after endpoint hangs up. If
+-  the call that the dialplan started an AGI script for is hungup while the AGI
+-  script is in the middle of a command then the AGI script is not notified of
+-  the hangup.
+-  (Closes issue #17954, #18492. Reported by mn3250, devmod. Patched by rmudgett)
+-
+- * Resolve issue where leaving a voicemail, the MWI message is never sent. The
+-  same thing happens when checking a voicemail and marking it as read.
+-  (Closes issue ASTERISK-18002. Reported by Leif Madsen. Resolved by Richard
+-  Mudgett)
+-
+- * Resolve issue where wait for leader with Music On Hold allows crosstalk
+-  between participants. Parenthesis in the wrong position. Regression from issue
+-  #14365 when expanding conference flags to use 64 bits.
+-  (Closes issue #18418. Reported by MrHanMan. Patched by rmudgett)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.5.0
+
 * Thu Jul  7 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5-0.2
 - Rebuild for net-snmp 5.7
 
