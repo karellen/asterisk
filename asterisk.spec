@@ -1,5 +1,5 @@
 #global _rc 1
-#global _beta 5
+%global _beta 1
 
 %if 0%{?fedora} >= 15
 %global astvarrundir /run/asterisk
@@ -17,8 +17,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 1.8.5.0
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 10.0.0
+Release: 0.1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -749,6 +749,7 @@ fi
 %{_libdir}/asterisk/modules/app_readfile.so
 %{_libdir}/asterisk/modules/app_read.so
 %{_libdir}/asterisk/modules/app_record.so
+%{_libdir}/asterisk/modules/app_rpt.so
 %{_libdir}/asterisk/modules/app_saycounted.so
 %{_libdir}/asterisk/modules/app_saycountpl.so
 %{_libdir}/asterisk/modules/app_sayunixtime.so
@@ -812,7 +813,7 @@ fi
 %{_libdir}/asterisk/modules/format_siren14.so
 %{_libdir}/asterisk/modules/format_siren7.so
 %{_libdir}/asterisk/modules/format_sln.so
-%{_libdir}/asterisk/modules/format_sln16.so
+#%{_libdir}/asterisk/modules/format_sln16.so
 %{_libdir}/asterisk/modules/format_vox.so
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
@@ -837,6 +838,7 @@ fi
 %{_libdir}/asterisk/modules/func_global.so
 %{_libdir}/asterisk/modules/func_groupcount.so
 %{_libdir}/asterisk/modules/func_iconv.so
+%{_libdir}/asterisk/modules/func_jitterbuffer.so
 %{_libdir}/asterisk/modules/func_lock.so
 %{_libdir}/asterisk/modules/func_logic.so
 %{_libdir}/asterisk/modules/func_math.so
@@ -869,6 +871,8 @@ fi
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
+%{_libdir}/asterisk/modules/res_format_attr_celt.so
+%{_libdir}/asterisk/modules/res_format_attr_silk.so
 %if 0%{?fedora} > 0
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
@@ -893,10 +897,13 @@ fi
 
 %{_sbindir}/aelparse
 %{_sbindir}/astcanary
+%{_sbindir}/astdb2sqlite3
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
 %{_sbindir}/astman
 %{_sbindir}/autosupport
+%{_sbindir}/check_expr
+%{_sbindir}/check_expr2
 %{_sbindir}/conf2ael
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
@@ -932,6 +939,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_permissions.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/codecs.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/confbridge.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dnsmgr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dsp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
@@ -1126,7 +1134,7 @@ fi
 %files misdn
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
-#%{_libdir}/asterisk/modules/chan_misdn.so
+%{_libdir}/asterisk/modules/chan_misdn.so
 
 %files mobile
 %defattr(-,root,root,-)
@@ -1252,6 +1260,60 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Jul 25 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.1
+-
+- The Asterisk Development Team is pleased to announce the first beta release of
+- Asterisk 10.0.0-beta1. This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- With the release of the Asterisk 10 branch, the preceding '1.' has been removed
+- from the version number per the blog post available at
+- http://blogs.digium.com/2011/07/21/the-evolution-of-asterisk-or-how-we-arrived-at-asterisk-10/
+-
+- All interested users of Asterisk are encouraged to participate in the
+- Asterisk 10 testing process. Please report any issues found to the issue
+- tracker, https://issues.asterisk.org/jira. It is also very useful to see
+- successful test reports. Please post those to the asterisk-dev mailing list.
+-
+- All Asterisk users are invited to participate in the #asterisk-testing
+- channel on IRC to work together in testing the many parts of Asterisk.
+- Additionally users can make use of the RPM and DEB packages now being built for
+- all Asterisk releases. More information available at
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+Packages
+-
+- Asterisk 10 is the next major release series of Asterisk. It will be a
+- Standard support release, similar to Asterisk 1.6.2. For more
+- information about support time lines for Asterisk releases, see the Asterisk
+- versions page: https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- A short list of included features includes:
+-
+- * T.38 gateway functionality has been added to res_fax.
+- * Protocol independent out-of-call messaging support.  Text messages not
+-  associated with an active call can now be routed through the Asterisk
+-  dialplan.  SIP and XMPP are supported so far.
+- * New highly optimized and customizable ConfBridge application capable of mixing
+-  audio at sample rates ranging from 8kHz-192kHz
+- * Addition of video_mode option in confbridge.conf to provide basic video
+-  conferencing in the ConfBridge() dialplan application.
+- * Support for defining hints has been added to pbx_lua.
+- * Replacement of Berkeley DB with SQLite for the Asterisk Database (AstDB).
+- * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svn.digium.com/view/asterisk/branches/10/CHANGES?view=checkout
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.0.0-beta1
+
+* Thu Jul 21 2011 Petr Sabata <contyk@redhat.com> - 1.8.5.0-1.2
+- Perl mass rebuild
+
+* Wed Jul 20 2011 Petr Sabata <contyk@redhat.com> - 1.8.5.0-1.1
+- Perl mass rebuild
+
 * Mon Jul 11 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.8.5.0-1
 - The Asterisk Development Team announces the release of Asterisk 1.8.5.0. This
 - release is available for immediate download at

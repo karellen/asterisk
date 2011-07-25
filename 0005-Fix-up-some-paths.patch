@@ -1,4 +1,4 @@
-From 2f19333ec27465a585cced316b92493d65284b51 Mon Sep 17 00:00:00 2001
+From 7c814649faa5f53ea8704755d3c88065058de07e Mon Sep 17 00:00:00 2001
 From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:27:48 -0500
 Subject: [PATCH 5/6] Fix up some paths
@@ -45,7 +45,7 @@ index e918217..31d5fc2 100644
  ; Festival command to send to the server.
  ; Defaults to: (tts_textasterisk "%s" 'file)(quit)\n
 diff --git a/configs/http.conf.sample b/configs/http.conf.sample
-index 6f10de7..e956a8f 100644
+index 8a63148..f65107a 100644
 --- a/configs/http.conf.sample
 +++ b/configs/http.conf.sample
 @@ -5,7 +5,7 @@
@@ -57,7 +57,7 @@ index 6f10de7..e956a8f 100644
  ;   HTTP server is enabled in this file by setting the "enabled", "bindaddr",
  ;   and "bindport" options, then you should be able to view the documentation
  ;   remotely by browsing to:
-@@ -69,6 +69,6 @@ bindaddr=127.0.0.1
+@@ -76,6 +76,6 @@ bindaddr=127.0.0.1
  ;[post_mappings]
  ;
  ; In this example, if the prefix option is set to "asterisk", then using the
@@ -67,7 +67,7 @@ index 6f10de7..e956a8f 100644
 +;uploads = /var/spool/asterisk/uploads/
  ;
 diff --git a/configs/iax.conf.sample b/configs/iax.conf.sample
-index a3d0fea..de6e740 100644
+index d08aa31..36a7225 100644
 --- a/configs/iax.conf.sample
 +++ b/configs/iax.conf.sample
 @@ -456,8 +456,8 @@ inkeys=freeworlddialup
@@ -128,7 +128,7 @@ index e72aa32..f7ee625 100644
  ; Specify the private key file name.
  ; If this parameter is unspecified or not present, the default name will be the
 diff --git a/configs/phoneprov.conf.sample b/configs/phoneprov.conf.sample
-index ed8c46f..1fe8e4b 100644
+index 17d8b1f..9f4e2ea 100644
 --- a/configs/phoneprov.conf.sample
 +++ b/configs/phoneprov.conf.sample
 @@ -130,7 +130,7 @@ ${MAC}.cfg => 000000000000.cfg               ; Dynamically generated files.
@@ -513,5 +513,5 @@ index 3c66be2..bedb8d8 100644
  exten => 762,1,agi(tts-riddle.agi)
  exten => 762,2,Background(gsm/what-time-it-is2)
 -- 
-1.7.5.2
+1.7.6
 

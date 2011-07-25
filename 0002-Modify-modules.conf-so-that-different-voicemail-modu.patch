@@ -1,4 +1,4 @@
-From 90d69518a6a3de4c1af75815b792e46f34059882 Mon Sep 17 00:00:00 2001
+From a1058926c9296889f420a39e0448e00455265fdc Mon Sep 17 00:00:00 2001
 From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:23:49 -0500
 Subject: [PATCH 2/6] Modify modules.conf so that different voicemail modules
@@ -43,5 +43,5 @@ index 38e33e1..9a1c1c3 100644
 +;noload => app_directory_plain.so
 +;noload => app_voicemail_plain.so
 -- 
-1.7.5.2
+1.7.6
 
