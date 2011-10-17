@@ -18,7 +18,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
-Release: 0.2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -31,13 +31,11 @@ Source4: menuselect.makeopts
 Source5: asterisk.service
 Source6: asterisk-tmpfiles
 
-Patch1:  0001-Modify-init-scripts-for-better-Fedora-compatibilty.patch
-Patch2:  0002-Modify-modules.conf-so-that-different-voicemail-modu.patch
-# Submitted upstream: https://issues.asterisk.org/view.php?id=16858
-Patch3:  0003-Allow-linking-building-against-an-external-libedit.patch
-Patch4:  0004-Use-the-library-function-for-loading-command-history.patch
-Patch5:  0005-Fix-up-some-paths.patch
-Patch6:  0006-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch1:  0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
+Patch2:  0002-Fix-up-some-paths.patch
+Patch3:  0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Patch4:  0004-Build-against-an-external-libedit.patch
+Patch5:  0005-Change-cli_complete-to-avoid-compilation-error.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -465,7 +463,6 @@ local filesystem.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1260,6 +1257,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Oct 14 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.3.beta2
+- Patch cleanup day
+
 * Thu Sep 29 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.2.beta2
 - The Asterisk Development Team is pleased to announce the second beta release of
 - Asterisk 10.0.0. This release is available for immediate download at
