@@ -1,7 +1,7 @@
-From da59c1b4d83bbee2d9d82e98d0b6bf4dfa35fcc6 Mon Sep 17 00:00:00 2001
+From c38ca7dce403630b166d06ea6fb3e867fe9772c0 Mon Sep 17 00:00:00 2001
 From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:23:49 -0500
-Subject: [PATCH 1/5] Modify modules.conf so that different voicemail modules
+Subject: [PATCH 1/6] Modify modules.conf so that different voicemail modules
  don't load at the same time.
 
 ---

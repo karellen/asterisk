@@ -1,7 +1,7 @@
-From 7cef3031e02ebff0905abadbe6d54ee1ddc819dc Mon Sep 17 00:00:00 2001
+From 30987c4f0a2601b75c3076f9332fb64fe50ff822 Mon Sep 17 00:00:00 2001
 From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Fri, 14 Oct 2011 11:21:26 -0500
-Subject: [PATCH 5/5] Change cli_complete to avoid compilation error:
+Subject: [PATCH 5/6] Change cli_complete to avoid compilation error:
 
 error: assignment of read-only location '*lf->cursor'
 ---

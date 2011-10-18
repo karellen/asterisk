@@ -1,0 +1,43 @@
+From 9b6b7d18e81426ada53b388ae76ac81ec027203d Mon Sep 17 00:00:00 2001
+From: Terry Wilson <twilson@digium.com>
+Date: Mon, 17 Oct 2011 17:35:23 +0000
+Subject: [PATCH 6/6] Initialize variables before calling parse_uri
+
+If parse_uri was called with an empty URI, some pointers would be
+modified and an invalid read could result. This patch avoids calling
+parse_uri with an empty contact uri when parsing REGISTER requests.
+
+AST-2011-012
+
+(closes issue ASTERISK-18668)
+
+git-svn-id: http://svn.asterisk.org/svn/asterisk/branches/1.8@341189 f38db490-d61c-443f-a65b-d21fe96a405b
+---
+ channels/chan_sip.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/channels/chan_sip.c b/channels/chan_sip.c
+index 5dedd59..f786ce1 100644
+--- a/channels/chan_sip.c
++++ b/channels/chan_sip.c
+@@ -13796,7 +13796,7 @@ static enum parse_register_result parse_register_contact(struct sip_pvt *pvt, st
+ 	char data[SIPBUFSIZE];
+ 	const char *expires = sip_get_header(req, "Expires");
+ 	int expire = atoi(expires);
+-	char *curi, *domain, *transport;
++	char *curi = NULL, *domain = NULL, *transport = NULL;
+ 	int transport_type;
+ 	const char *useragent;
+ 	struct ast_sockaddr oldsin, testsa;
+@@ -13874,7 +13874,7 @@ static enum parse_register_result parse_register_contact(struct sip_pvt *pvt, st
+ 	ast_string_field_build(pvt, our_contact, "<%s>", curi);
+ 
+ 	/* Make sure it's a SIP URL */
+-	if (parse_uri_legacy_check(curi, "sip:,sips:", &curi, NULL, &domain, &transport)) {
++	if (ast_strlen_zero(curi) || parse_uri_legacy_check(curi, "sip:,sips:", &curi, NULL, &domain, &transport)) {
+ 		ast_log(LOG_NOTICE, "Not a valid SIP contact (missing sip:/sips:) trying to use anyway\n");
+ 	}
+ 
+-- 
+1.7.6.4
+

@@ -18,7 +18,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
-Release: 0.3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1257,6 +1257,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Oct 18 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.4.beta2
+- Add patch from upstream SVN to fix AST-2011-012
+
 * Fri Oct 14 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.3.beta2
 - Patch cleanup day
 

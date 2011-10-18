@@ -1,7 +1,7 @@
-From 36c8d5593d65598533e429f58c06f7747188ceab Mon Sep 17 00:00:00 2001
+From 99931f9e126bf7e53cae571cfd60df1ee47daf71 Mon Sep 17 00:00:00 2001
 From: "Jeffrey C. Ollie" <jeff@ocjtech.us>
 Date: Wed, 28 Jul 2010 07:27:48 -0500
-Subject: [PATCH 2/5] Fix up some paths
+Subject: [PATCH 2/6] Fix up some paths
 
 ---
  UPGRADE-1.4.txt                             |    2 +-
