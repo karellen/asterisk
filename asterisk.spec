@@ -1,5 +1,5 @@
-#global _rc 1
-%global _beta 2
+%global _rc 1
+#global _beta 2
 
 %if 0%{?fedora} >= 15
 %global astvarrundir /run/asterisk
@@ -18,7 +18,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
-Release: 0.4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.5%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1257,6 +1257,48 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Nov 11 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.5.rc1
+- The Asterisk Development Team is pleased to announce the first release candidate
+- of Asterisk 10.0.0. This release candidate is available for immediate download
+- at http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- All Asterisk users are encouraged to participate in the Asterisk 10 testing
+- process. Please report any issues found to the issue tracker,
+- https://issues.asterisk.org/jira. It is also very useful to see successful test
+- reports. Please post those to the asterisk-dev mailing list.
+-
+- All Asterisk users are invited to participate in the #asterisk-testing
+- channel on IRC to work together in testing the many parts of Asterisk.
+-
+- Asterisk 10 is the next major release series of Asterisk. It will be a
+- Standard support release, similar to Asterisk 1.6.2. For more
+- information about support time lines for Asterisk releases, see the Asterisk
+- versions page: https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- A short list of features includes:
+-
+- * T.38 gateway functionality has been added to res_fax.
+- * Protocol independent out-of-call messaging support. Text messages not
+-  associated with an active call can now be routed through the Asterisk
+-  dialplan. SIP and XMPP are supported so far.
+- * New highly optimized and customizable ConfBridge application capable of mixing
+-  audio at sample rates ranging from 8kHz-192kHz
+-  (More information available at
+-   https://wiki.asterisk.org/wiki/display/AST/ConfBridge+10 )
+- * Addition of video_mode option in confbridge.conf to provide basic video
+-  conferencing in the ConfBridge() dialplan application.
+- * Support for defining hints has been added to pbx_lua.
+- * Replacement of Berkeley DB with SQLite for the Asterisk Database (AstDB).
+- * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+- http://svnview.digium.com/svn/asterisk/branches/10/CHANGES
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.0.0-rc1
+
 * Tue Oct 18 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.4.beta2
 - Add patch from upstream SVN to fix AST-2011-012
 
