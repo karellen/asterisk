@@ -1,4 +1,4 @@
-%global _rc 1
+%global _rc 2
 #global _beta 2
 
 %if 0%{?fedora} >= 15
@@ -18,7 +18,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
-Release: 0.5%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1257,6 +1257,32 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Nov 16 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.6.rc2
+- The Asterisk Development Team has announced the second release candidate of
+- Asterisk 10.0.0. This release candidate is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 10.0.0-rc2 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release candidate:
+-
+- * Ensure that a null vmexten does not cause a segfault
+-
+- * Fix issue with ConfBridge participants hanging up during DTMF feature
+-  menu usage getting stuck in conference forever
+-  (closes issue ASTERISK-18829)
+-  Reported by: zvision
+-
+- * Fix app_macro.c MODULEINFO section termination
+-  (closes issue ASTERISK-18848)
+-  Reported by: Tony Mountifield
+-
+- For a full list of changes in this release candidate, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.0.0-rc2
+
 * Fri Nov 11 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.5.rc1
 - The Asterisk Development Team is pleased to announce the first release candidate
 - of Asterisk 10.0.0. This release candidate is available for immediate download
