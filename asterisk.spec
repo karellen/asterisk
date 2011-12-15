@@ -1,4 +1,4 @@
-%global _rc 2
+#global _rc 3
 #global _beta 2
 
 %if 0%{?fedora} >= 15
@@ -18,7 +18,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
-Release: 0.6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1257,6 +1257,112 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Dec 15 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-1
+- The Asterisk Development Team is proud to announce the release of
+- Asterisk 10.0.0. This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- Asterisk 10 is the next major release series of Asterisk. It will be a
+- Standard support release, similar to Asterisk 1.6.2. For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page:
+-
+-  https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- With the release of the Asterisk 10 branch, the preceding '1.' has been removed
+- from the version number per the blog post available at
+-
+-
+- http://blogs.digium.com/2011/07/21/the-evolution-of-asterisk-or-how-we-arrived-at-asterisk-10/
+-
+- The release of Asterisk 10 would not have been possible without the support and
+- contributions of the community.
+-
+- You can find an overview of the work involved with the 10.0.0 release in the
+- summary:
+-
+- http://svn.asterisk.org/svn/asterisk/tags/10.0.0/asterisk-10.0.0-summary.txt
+-
+- A short list of available features includes:
+-
+- * T.38 gateway functionality has been added to res_fax.
+- * Protocol independent out-of-call messaging support. Text messages not
+-  associated with an active call can now be routed through the Asterisk
+-  dialplan. SIP and XMPP are supported so far.
+- * New highly optimized and customizable ConfBridge application capable of mixing
+-  audio at sample rates ranging from 8kHz-192kHz
+- * Addition of video_mode option in confbridge.conf to provide basic video
+-  conferencing in the ConfBridge() dialplan application.
+- * Support for defining hints has been added to pbx_lua.
+- * Replacement of Berkeley DB with SQLite for the Asterisk Database (AstDB).
+- * Much, much more!
+-
+- A full list of new features can be found in the CHANGES file.
+-
+-  http://svn.asterisk.org/svn/asterisk/branches/10/CHANGES
+-
+- Also, when upgrading a system between major versions, it is imperative that you
+- read and understand the contents of the UPGRADE.txt file, which is located at:
+-
+-  http://svn.asterisk.org/svn/asterisk/branches/10/UPGRADE.txt
+
+* Fri Dec  9 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.7.rc3
+- The Asterisk Development Team has announced the third release candidate of
+- Asterisk 10.0.0. This release candidate is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/
+-
+- The release of Asterisk 10.0.0-rc3 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release candidate:
+-
+- * Add ASTSBINDIR to the list of configurable paths
+-
+-  This patch also makes astdb2sqlite3 and astcanary use the configured
+-  directory instead of relying on $PATH.
+-
+- * Don't crash on INFO automon request with no channel
+-
+-  AST-2011-014. When automon was enabled in features.conf, it was possible
+-  to crash Asterisk by sending an INFO request if no channel had been
+-  created yet.
+-
+- * Fixed crash from orphaned MWI subscriptions in chan_sip
+-
+-  This patch resolves the issue where MWI subscriptions are orphaned
+-  by subsequent SIP SUBSCRIBE messages.
+-
+- * Fix a change in behavior in 'database show' from 1.8.
+-
+-  In 1.8 and previous versions, one could use any fullword portion of
+-  the key name, including the full key, to obtain the record. Until this
+-  patch, this did not work for the full key.
+-
+- * Default to nat=yes; warn when nat in general and peer differ
+-
+-  AST-2011-013.  It is possible to enumerate SIP usernames when the general and
+-  user/peer nat settings differ in whether to respond to the port a request is
+-  sent from or the port listed for responses in the Via header. In 1.4 and
+-  1.6.2, this would mean if one setting was nat=yes or nat=route and the other
+-  was either nat=no or nat=never. In 1.8 and 10, this would mean when one
+-  was nat=force_rport and the other was nat=no.
+-
+-  In order to address this problem, it was decided to switch the default
+-  behavior to nat=yes/force_rport as it is the most commonly used option
+-  and to strongly discourage setting nat per-peer/user when at all
+-  possible.
+-
+- * Fixed SendMessage stripping extension from To: header in SIP MESSAGE
+-
+-  When using the MessageSend application to send a SIP MESSAGE to a
+-  non-peer, chan_sip stripped off the extension and failed to add it back
+-  to the sip_pvt structure before transmitting. This patch adds the full
+-  URI passed in from the message core to the sip_pvt structure.
+-
+- For a full list of changes in this release candidate, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.0.0-rc3
+
 * Wed Nov 16 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-0.6.rc2
 - The Asterisk Development Team has announced the second release candidate of
 - Asterisk 10.0.0. This release candidate is available for immediate download at
