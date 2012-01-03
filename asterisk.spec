@@ -15,6 +15,8 @@
 %global systemd 0
 %endif
 
+%global apidoc 0
+
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
@@ -130,6 +132,7 @@ BuildRequires: alsa-lib-devel
 %description alsa
 Modules for Asterisk that use Alsa sound drivers.
 
+%if 0%{?apidoc}
 %package apidoc
 Summary: API documentation for Asterisk
 Group: Applications/Internet
@@ -137,6 +140,7 @@ Requires: asterisk = %{version}-%{release}
 
 %description apidoc
 API documentation for Asterisk.
+%endif
 
 %package calendar
 Summary: Calendar applications for Asterisk
@@ -544,12 +548,14 @@ mv apps/app_directory.so apps/app_directory_odbc.so
 touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
 
+%if 0%{?apidoc}
 ASTCFLAGS="%{optflags}" make progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk  ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
+%endif
 
-cd doc/tex && ASTCFLAGS="%{optflags}" make html
+cd doc/tex && ASTCFLAGS="%{optflags}" make html NOISY_BUILD=1
 
 %install
 rm -rf %{buildroot}
@@ -603,7 +609,9 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
 
+%if 0%{?apidoc}
 find doc/api/html -name \*.map -size 0 -delete
+%endif
 
 %if 0%{?fedora} == 0
 rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
@@ -1022,9 +1030,11 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
 %{_libdir}/asterisk/modules/chan_alsa.so
 
+%if %{?apidoc}
 %files apidoc
 %defattr(-,root,root,-)
 %doc doc/api/html/*
+%endif
 
 %files calendar
 %defattr(-,root,root,-)
@@ -1257,6 +1267,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Jan  3 2012 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-1
+- Don't build API docs as the build never finishes
+
 * Thu Dec 15 2011 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.0.0-1
 - The Asterisk Development Team is proud to announce the release of
 - Asterisk 10.0.0. This release is available for immediate download at
