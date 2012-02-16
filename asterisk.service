@@ -34,5 +34,7 @@ ExecReload=/usr/sbin/asterisk -rx 'core reload'
 #StandardOutput=tty
 #StandardError=tty
 
+PrivateTmp=true
+
 [Install]
 WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+From e84a67eeedcb863a929f24a761c451ca9c3d4594 Mon Sep 17 00:00:00 2001
+From: "Kevin P. Fleming" <kpfleming@digium.com>
+Date: Wed, 8 Feb 2012 21:29:04 +0000
+Subject: [PATCH 2/2] Revision 354046 added res_corosync as a replacement for
+ res_ais, but didn't actually remove res_ais. This
+ commit removes it.
+
+In addition, the 'install_prereq' script has been updated to no longer install
+AIS dependency packages, and instead install Corosync packages instead.
+
+git-svn-id: http://svn.asterisk.org/svn/asterisk/trunk@354459 f38db490-d61c-443f-a65b-d21fe96a405b
+---
+ contrib/scripts/install_prereq |    4 +-
+ res/res_ais.c                  |  199 ----------------------------------------
+ 2 files changed, 2 insertions(+), 201 deletions(-)
+ delete mode 100644 res/res_ais.c
+
+diff --git a/contrib/scripts/install_prereq b/contrib/scripts/install_prereq
+index b9345ed..d0c19c5 100755
+--- a/contrib/scripts/install_prereq
++++ b/contrib/scripts/install_prereq
+@@ -26,12 +26,11 @@ PACKAGES_DEBIAN="$PACKAGES_DEBIAN libncurses-dev libz-dev libssl-dev libxml2-dev
+ PACKAGES_DEBIAN="$PACKAGES_DEBIAN libcurl-dev libspeex-dev libspeexdsp-dev libogg-dev libvorbis-dev libasound2-dev portaudio19-dev libcurl4-openssl-dev"
+ PACKAGES_DEBIAN="$PACKAGES_DEBIAN libpq-dev unixodbc-dev libsqlite0-dev libsqlite3-dev libmysqlclient15-dev libneon27-dev libgmime-2.0-2-dev libusb-dev liblua5.1-0-dev lua5.1"
+ PACKAGES_DEBIAN="$PACKAGES_DEBIAN libopenh323-dev libvpb-dev libgtk2.0-dev libmysqlclient-dev libbluetooth-dev libradiusclient-ng-dev freetds-dev"
+-PACKAGES_DEBIAN="$PACKAGES_DEBIAN libsnmp-dev libiksemel-dev libopenais-dev libnewt-dev libpopt-dev libical-dev libspandsp-dev libjack-dev"
++PACKAGES_DEBIAN="$PACKAGES_DEBIAN libsnmp-dev libiksemel-dev libcorosync-dev libnewt-dev libpopt-dev libical-dev libspandsp-dev libjack-dev"
+ PACKAGES_DEBIAN="$PACKAGES_DEBIAN libresample-dev libc-client-dev binutils-dev"
+ 
+ PACKAGES_RH="automake gcc gcc-c++ ncurses-devel openssl-devel libxml2-devel unixODBC-devel libcurl-devel libogg-devel libvorbis-devel speex-devel"
+-PACKAGES_RH="$PACKAGES_RH spandsp-devel freetds-devel net-snmp-devel iksemel-devel openais-devel newt-devel popt-devel libtool-ltdl-devel lua-devel"
++PACKAGES_RH="$PACKAGES_RH spandsp-devel freetds-devel net-snmp-devel iksemel-devel corosynclib-devel newt-devel popt-devel libtool-ltdl-devel lua-devel"
+ PACKAGES_RH="$PACKAGES_RH libsqlite3x-devel radiusclient-ng-devel portaudio-devel postgresql-devel libresample-devel neon-devel libical-devel"
+ PACKAGES_RH="$PACKAGES_RH openldap-devel gmime22-devel sqlite2-devel mysql-devel bluez-libs-devel jack-audio-connection-kit-devel gsm-devel"
+ 
+-- 
+1.7.7.6
+
