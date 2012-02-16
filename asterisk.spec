@@ -20,7 +20,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.0.0
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -111,17 +111,6 @@ all of the features you would expect from a PBX and more. Asterisk
 does voice over IP in three protocols, and can interoperate with
 almost all standards-based telephony equipment using relatively
 inexpensive hardware.
-
-%if 0%{?fedora} > 0
-%package ais
-Summary: Modules for Asterisk that use OpenAIS
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: openais-devel
-
-%description ais
-Modules for Asterisk that use OpenAIS.
-%endif
 
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
@@ -483,11 +472,6 @@ rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
 
-# no openais-devel available for el6
-%if 0%{?rhel} == 6
-%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_ais res_http_post/g' menuselect.makeopts
-%endif
-
 %if 0%{?rhel} == 5
 # Get the autoconf scripts working with 2.59
 %{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
@@ -613,9 +597,7 @@ rm -rf %{buildroot}%{_sbindir}/hashtest2
 find doc/api/html -name \*.map -size 0 -delete
 %endif
 
-%if 0%{?fedora} == 0
 rm -f %{buildroot}%{_sysconfdir}/asterisk/ais.conf
-%endif
 
 #rhel6 doesnt have 389 available, nor ices
 %if 0%{?rhel} == 6
@@ -1018,13 +1000,6 @@ fi
 %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 %endif
 
-%if 0%{?fedora} > 0
-%files ais
-%defattr(-,root,root,-)
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ais.conf
-%{_libdir}/asterisk/modules/res_ais.so
-%endif
-
 %files alsa
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
@@ -1267,6 +1242,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Feb 16 2012 Russell Bryant <russellb@fedoraproject.org> - 10.0.0-2
+- Remove asterisk-ais.  OpenAIS was removed from Fedora.
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.0.0-1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
