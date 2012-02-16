@@ -1406,7 +1406,7 @@ fi
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.1.2
 
-* Wed Feb  8 2012 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.1.1-1
+* Thu Feb 16 2012 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.1.1-1
 - The Asterisk Development Team has announced the release of Asterisk 10.1.1. This
 - release is available for immediate download at
 - http://downloads.asterisk.org/pub/telephony/asterisk/
@@ -1427,7 +1427,7 @@ fi
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.1.1
 
-* Wed Feb  8 2012 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.1.0-1
+* Thu Feb 16 2012 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.1.0-1
 - The Asterisk Development Team is pleased to announce the release of
 - Asterisk 10.1.0. This release is available for immediate download at
 - http://downloads.asterisk.org/pub/telephony/asterisk/
@@ -1509,6 +1509,9 @@ fi
 - For a full list of changes in this release candidate, please see the ChangeLog:
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.1.0
+
+* Thu Feb 16 2012 Russell Bryant <russellb@fedoraproject.org> - 10.0.0-2
+- Remove asterisk-ais.  OpenAIS was removed from Fedora.
 
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.0.0-1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
