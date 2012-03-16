@@ -24,12 +24,12 @@
 %global misdn 1
 %global ldap 1
 %global gmime 1
-%global corosync 1
+%global corosync 0
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.1.2
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 10.2.1
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -47,8 +47,8 @@ Patch2:  0002-Fix-up-some-paths.patch
 Patch3:  0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 Patch4:  0004-Build-against-an-external-libedit.patch
 Patch5:  0005-Change-cli_complete-to-avoid-compilation-error.patch
-Patch6:  0001-Replace-res_ais-with-a-new-module-res_corosync.patch
-Patch7:  0002-Revision-354046-added-res_corosync-as-a-replacement-.patch
+#Patch6:  0001-Replace-res_ais-with-a-new-module-res_corosync.patch
+#Patch7:  0002-Revision-354046-added-res_corosync-as-a-replacement-.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -501,10 +501,11 @@ local filesystem.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
+#%patch6 -p1
 #patch7 -p1
 rm -rf res/ais
 rm -f res/res_ais.c
+rm -f configs/ais.conf.sample
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1376,6 +1377,14 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Mar 16 2012 Russell Bryant <russell@russellbryant.net> - 10.2.1-1
+- Update to 10.2.1 from upstream.
+- Fix remote stack overflow in app_milliwatt.
+- Fix remote stack overflow, including possible code injection, in HTTP digest
+  authentication handling.
+- Disable asterisk-corosync package, as it doesn't build right now.
+- Resolves: rhbz#804045, rhbz#804038, rhbz#804042
+
 * Thu Feb 16 2012 Jeffrey C. Ollie <jeff@ocjtech.us> - 10.1.2-2
 - * Add patch extracted from upstream to build with Corosync since
 -   OpenAIS is no longer available.
