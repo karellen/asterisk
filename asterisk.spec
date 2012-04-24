@@ -28,7 +28,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.3.0
+Version: 10.3.1
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1377,6 +1377,55 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Apr 24 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.3.1-1
+- The Asterisk Development Team has announced security releases for Asterisk 1.6.2,
+- 1.8, and 10. The available security releases are released as versions 1.6.2.24,
+- 1.8.11.1, and 10.3.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of Asterisk 1.6.2.24, 1.8.11.1, and 10.3.1 resolve the following two
+- issues:
+-
+-  * A permission escalation vulnerability in Asterisk Manager Interface.  This
+-   would potentially allow remote authenticated users the ability to execute
+-   commands on the system shell with the privileges of the user running the
+-   Asterisk application.
+-
+-  * A heap overflow vulnerability in the Skinny Channel driver.  The keypad
+-   button message event failed to check the length of a fixed length buffer
+-   before appending a received digit to the end of that buffer.  A remote
+-   authenticated user could send sufficient keypad button message events that the
+-   buffer would be overrun.
+-
+- In addition, the release of Asterisk 1.8.11.1 and 10.3.1 resolve the following
+- issue:
+-
+-  * A remote crash vulnerability in the SIP channel driver when processing UPDATE
+-   requests.  If a SIP UPDATE request was received indicating a connected line
+-   update after a channel was terminated but before the final destruction of the
+-   associated SIP dialog, Asterisk would attempt a connected line update on a
+-   non-existing channel, causing a crash.
+-
+- These issues and their resolution are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2012-004, AST-2012-005, and AST-2012-006, which were
+- released at the same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.6.2.24
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.11.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.3.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-004.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-005.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-006.pdf
+
 * Thu Mar 29 2012 Russell Bryant <russell@russellbryant.net> - 10.3.0-1
 - Update to 10.3.0
 
