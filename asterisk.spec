@@ -28,7 +28,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.3.1
+Version: 10.4.0
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -121,6 +121,9 @@ Requires(preun): /sbin/service
 Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
 Obsoletes: asterisk-mobile <= 1.6.1-0.23.rc1
 Obsoletes: asterisk-firmware <= 1.6.2.0-0.2.rc1
+
+# chan_usbradio was been removed in 10.4.0
+Obsoletes: asterisk-usbradio <= 10.3.1-1
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -437,16 +440,6 @@ Requires: asterisk = %{version}-%{release}
 %description unistim
 Unistim channel for Asterisk
 
-%package usbradio
-Summary: USB radio channel for Asterisk
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-BuildRequires: libusb-devel%{?_isa}
-BuildRequires: alsa-lib-devel%{?_isa}
-
-%description usbradio
-Unistim channel for Asterisk
-
 %package voicemail
 Summary: Common Voicemail Modules for Asterisk
 Group: Applications/Internet
@@ -721,6 +714,7 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
 rm -f %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 %endif
 
+rm %{buildroot}%{_sysconfdir}/asterisk/usbradio.conf
 
 %clean
 rm -rf %{buildroot}
@@ -850,7 +844,6 @@ fi
 %{_libdir}/asterisk/modules/app_readfile.so
 %{_libdir}/asterisk/modules/app_read.so
 %{_libdir}/asterisk/modules/app_record.so
-%{_libdir}/asterisk/modules/app_rpt.so
 %{_libdir}/asterisk/modules/app_saycounted.so
 %{_libdir}/asterisk/modules/app_saycountpl.so
 %{_libdir}/asterisk/modules/app_sayunixtime.so
@@ -1348,11 +1341,6 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/unistim.conf
 %{_libdir}/asterisk/modules/chan_unistim.so
 
-%files usbradio
-%defattr(-,root,root,-)
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/usbradio.conf
-%{_libdir}/asterisk/modules/chan_usbradio.so
-
 %files voicemail
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
@@ -1377,6 +1365,40 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri May  4 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.0-1
+- The Asterisk Development Team has announced the release of Asterisk 10.4.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 10.4.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- * --- Prevent chanspy from binding to zombie channels
+-  (Closes issue ASTERISK-19493. Reported by lvl)
+-
+- * --- Fix Dial m and r options and forked calls generating warnings
+-      for voice frames.
+-  (Closes issue ASTERISK-16901. Reported by Chris Gentle)
+-
+- * --- Remove ISDN hold restriction for non-bridged calls.
+-  (Closes issue ASTERISK-19388. Reported by Birger Harzenetter)
+-
+- * --- Fix copying of CDR(accountcode) to local channels.
+-  (Closes issue ASTERISK-19384. Reported by jamicque)
+-
+- * --- Ensure Asterisk acknowledges ACKs to 4xx on Replaces errors
+-  (Closes issue ASTERISK-19303. Reported by Jon Tsiros)
+-
+- * --- Eliminate double close of file descriptor in manager.c
+-  (Closes issue ASTERISK-18453. Reported by Jaco Kroon)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.4.0
+
 * Tue Apr 24 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.3.1-1
 - The Asterisk Development Team has announced security releases for Asterisk 1.6.2,
 - 1.8, and 10. The available security releases are released as versions 1.6.2.24,
