@@ -28,7 +28,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.4.1
+Version: 10.4.2
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -47,8 +47,6 @@ Patch2:  0002-Fix-up-some-paths.patch
 Patch3:  0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 Patch4:  0004-Build-against-an-external-libedit.patch
 Patch5:  0005-Change-cli_complete-to-avoid-compilation-error.patch
-#Patch6:  0001-Replace-res_ais-with-a-new-module-res_corosync.patch
-#Patch7:  0002-Revision-354046-added-res_corosync-as-a-replacement-.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -494,8 +492,7 @@ local filesystem.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-#%patch6 -p1
-#patch7 -p1
+
 rm -rf res/ais
 rm -f res/res_ais.c
 rm -f configs/ais.conf.sample
@@ -1365,6 +1362,28 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed May 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.2-1
+- The Asterisk Development Team has announced the release of Asterisk 10.4.2.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 10.4.2 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- * --- Resolve crash in subscribing for MWI notifications
+-  (Closes issue ASTERISK-19827. Reported by B. R)
+-
+- * --- Fix crash in ConfBridge when user announcement is played for
+-      more than 2 users
+-  (Closes issue ASTERISK-19899. Reported by Florian Gilcher)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.4.2
+
 * Wed May 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.1-1
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.11 and Asterisk 1.8 and 10. The available security releases are
