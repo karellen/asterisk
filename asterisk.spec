@@ -28,7 +28,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.4.0
+Version: 10.4.1
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1365,6 +1365,46 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed May 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.1-1
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.11 and Asterisk 1.8 and 10. The available security releases are
+- released as versions 1.8.11-cert2, 1.8.12.1, and 10.4.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of Asterisk 1.8.11-cert2, 1.8.12.1, and 10.4.1 resolve the following
+- two issues:
+-
+- * A remotely exploitable crash vulnerability exists in the IAX2 channel
+-  driver if an established call is placed on hold without a suggested music
+-  class. Asterisk will attempt to use an invalid pointer to the music
+-  on hold class name, potentially causing a crash.
+-
+- * A remotely exploitable crash vulnerability was found in the Skinny (SCCP)
+-  Channel driver. When an SCCP client closes its connection to the server,
+-  a pointer in a structure is set to NULL.  If the client was not in the
+-  on-hook state at the time the connection was closed, this pointer is later
+-  dereferenced. This allows remote authenticated connections the ability to
+-  cause a crash in the server, denying services to legitimate users.
+-
+- These issues and their resolution are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2012-007 and AST-2012-008, which were released at the
+- same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.11-cert2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.12.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.4.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-007.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-008.pdf
+
 * Fri May  4 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.0-1
 - The Asterisk Development Team has announced the release of Asterisk 10.4.0.
 - This release is available for immediate download at
