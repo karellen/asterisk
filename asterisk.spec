@@ -29,7 +29,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.4.2
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1362,6 +1362,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Jun 11 2012 Petr Pisar <ppisar@redhat.com> - 10.4.2-1.1
+- Perl 5.16 rebuild
+
 * Wed May 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.2-1
 - The Asterisk Development Team has announced the release of Asterisk 10.4.2.
 - This release is available for immediate download at
