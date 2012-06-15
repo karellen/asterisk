@@ -28,7 +28,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.4.2
+Version: 10.5.1
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -711,8 +711,6 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
 rm -f %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 %endif
 
-rm %{buildroot}%{_sysconfdir}/asterisk/usbradio.conf
-
 %clean
 rm -rf %{buildroot}
 
@@ -1058,7 +1056,6 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_stun_monitor.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rpt.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip.conf
@@ -1362,6 +1359,67 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jun 15 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.5.1-1
+- The Asterisk Development Team has announced a security release for Asterisk 10.
+- This security release is released as version 10.5.1.
+-
+- The release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of Asterisk 10.5.1 resolves the following issue:
+-
+- * A remotely exploitable crash vulnerability was found in the Skinny (SCCP)
+-  Channel driver. When an SCCP client sends an Off Hook message, followed by
+-  a Key Pad Button Message, a structure that was previously set to NULL is
+-  dereferenced.  This allows remote authenticated connections the ability to
+-  cause a crash in the server, denying services to legitimate users.
+-
+- This issue and its resolution is described in the security advisory.
+-
+- For more information about the details of this vulnerability, please read
+- security advisory AST-2012-009, which was released at the same time as this
+- announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.5.1
+-
+- The security advisory is available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-009.pdf
+
+* Fri Jun 15 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.5.0-1
+- The Asterisk Development Team has announced the release of Asterisk 10.5.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 10.5.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Turn off warning message when bind address is set to any.
+-  (Closes issue ASTERISK-19456. Reported by Michael L. Young)
+-
+- * --- Prevent overflow in calculation in ast_tvdiff_ms on 32-bit
+-      machines
+-  (Closes issue ASTERISK-19727. Reported by Ben Klang)
+-
+- * --- Make DAHDISendCallreroutingFacility wait 5 seconds for a reply
+-      before disconnecting the call.
+-  (Closes issue ASTERISK-19708. Reported by mehdi Shirazi)
+-
+- * --- Fix recalled party B feature flags for a failed DTMF atxfer.
+-  (Closes issue ASTERISK-19383. Reported by lgfsantos)
+-
+- * --- Fix DTMF atxfer running h exten after the wrong bridge ends.
+-  (Closes issue ASTERISK-19717. Reported by Mario)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.5.0
+
 * Wed May 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.2-1
 - The Asterisk Development Team has announced the release of Asterisk 10.4.2.
 - This release is available for immediate download at
