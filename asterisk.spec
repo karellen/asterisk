@@ -1420,6 +1420,9 @@ fi
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.5.0
 
+* Mon Jun 11 2012 Petr Pisar <ppisar@redhat.com> - 10.4.2-1.1
+- Perl 5.16 rebuild
+
 * Wed May 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.4.2-1
 - The Asterisk Development Team has announced the release of Asterisk 10.4.2.
 - This release is available for immediate download at
