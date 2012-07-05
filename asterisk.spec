@@ -28,8 +28,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.5.1
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Version: 10.5.2
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1359,6 +1359,44 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Jul  5 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.5.2-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.11 and Asterisk 1.8 and 10. The available security releases are
+- released as versions 1.8.11-cert4, 1.8.13.1, 10.5.2, and 10.5.2-digiumphones.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of Asterisk 1.8.11-cert4, 1.8.13.1, 10.5.2, and 10.5.2-digiumphones
+- resolve the following two issues:
+-
+- * If Asterisk sends a re-invite and an endpoint responds to the re-invite with
+-   a provisional response but never sends a final response, then the SIP dialog
+-   structure is never freed and the RTP ports for the call are never released. If
+-   an attacker has the ability to place a call, they could create a denial of
+-   service by using all available RTP ports.
+-
+- * If a single voicemail account is manipulated by two parties simultaneously,
+-   a condition can occur where memory is freed twice causing a crash.
+-
+- These issues and their resolution are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2012-010 and AST-2012-011, which were released at the
+- same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.11-cert4
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.13.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.5.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.5.2-digiumphones
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-010.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-011.pdf
+
 * Thu Jun 28 2012 Petr Pisar <ppisar@redhat.com> - 10.5.1-1.1
 - Perl 5.16 rebuild
 
