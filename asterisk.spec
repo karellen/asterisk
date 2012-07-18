@@ -29,7 +29,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.5.2
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1359,6 +1359,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.5.2-1.2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Mon Jul 09 2012 Petr Pisar <ppisar@redhat.com> - 10.5.2-1.1
 - Perl 5.16 rebuild
 
