@@ -1,6 +1,8 @@
 #global _rc 3
 %global _beta 1
 
+%global _smp_mflags -j1
+
 %if 0%{?fedora} >= 15
 %global astvarrundir /run/asterisk
 %global tmpfilesd 1
