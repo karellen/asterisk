@@ -28,8 +28,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.5.2
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
+Version: 10.7.1
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -45,8 +45,6 @@ Source6: asterisk-tmpfiles
 Patch1:  0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch2:  0002-Fix-up-some-paths.patch
 Patch3:  0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
-Patch4:  0004-Build-against-an-external-libedit.patch
-Patch5:  0005-Change-cli_complete-to-avoid-compilation-error.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -490,8 +488,6 @@ local filesystem.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
 
 rm -rf res/ais
 rm -f res/res_ais.c
@@ -1359,6 +1355,129 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Aug 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.7.1-1
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.11 and Asterisk 1.8 and 10. The available security releases are
+- released as versions 1.8.11-cert7, 1.8.15.1, 10.7.1, and 10.7.1-digiumphones.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of Asterisk 1.8.11-cert7, 1.8.15.1, 10.7.1, and 10.7.1-digiumphones
+- resolve the following two issues:
+-
+- * A permission escalation vulnerability in Asterisk Manager Interface.  This
+-   would potentially allow remote authenticated users the ability to execute
+-   commands on the system shell with the privileges of the user running the
+-   Asterisk application.  Please note that the README-SERIOUSLY.bestpractices.txt
+-   file delivered with Asterisk has been updated due to this and other related
+-   vulnerabilities fixed in previous versions of Asterisk.
+-
+- * When an IAX2 call is made using the credentials of a peer defined in a
+-   dynamic Asterisk Realtime Architecture (ARA) backend, the ACL rules for that
+-   peer are not applied to the call attempt. This allows for a remote attacker
+-   who is aware of a peer's credentials to bypass the ACL rules set for that
+-   peer.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2012-012 and AST-2012-013, which were released at the
+- same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.11-cert7
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.15.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.7.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.7.1-digiumphones
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-012.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-013.pdf
+
+* Thu Aug 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.7.0-1
+- The Asterisk Development Team has announced the release of Asterisk 10.7.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 10.7.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Fix deadlock potential with ast_set_hangupsource() calls.
+-   (Closes issue ASTERISK-19801. Reported by Alec Davis)
+-
+- * --- Fix request routing issue when outboundproxy is used.
+-   (Closes issue ASTERISK-20008. Reported by Marcus Hunger)
+-
+- * --- Set the Caller ID "tag" on peers even if remote party
+-       information is present.
+-   (Closes issue ASTERISK-19859. Reported by Thomas Arimont)
+-
+- * --- Fix NULL pointer segfault in ast_sockaddr_parse()
+-   (Closes issue ASTERISK-20006. Reported by Michael L. Young)
+-
+- * --- Do not perform install on existing directories
+-   (Closes issue ASTERISK-19492. Reported by Karl Fife)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.7.0
+
+* Thu Aug 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.6.1-1
+- The Asterisk Development Team has announced the release of Asterisk 10.6.1.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 10.6.1 resolves an issue reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is the issue resolved in this release:
+-
+- * --- Remove a superfluous and dangerous freeing of an SSL_CTX.
+-   (Closes issue ASTERISK-20074. Reported by Trevor Helmsley)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.6.1
+
+* Thu Aug 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.6.0-1
+- The Asterisk Development Team has announced the release of Asterisk 10.6.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 10.6.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- format_mp3: Fix a possible crash in mp3_read().
+-   (Closes issue ASTERISK-19761. Reported by Chris Maciejewsk)
+-
+- * --- Fix local channel chains optimizing themselves out of a call.
+-   (Closes issue ASTERISK-16711. Reported by Alec Davis)
+-
+- * --- Re-add LastMsgsSent value for SIP peers
+-   (Closes issue ASTERISK-17866. Reported by Steve Davies)
+-
+- * --- Prevent sip_pvt refleak when an ast_channel outlasts its
+-       corresponding sip_pvt.
+-   (Closes issue ASTERISK-19425. Reported by David Cunningham)
+-
+- * --- Send more accurate identification information in dialog-info SIP
+-       NOTIFYs.
+-   (Closes issue ASTERISK-16735. Reported by Maciej Krajewski)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.6.0
+
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.5.2-1.2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
