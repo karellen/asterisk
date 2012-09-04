@@ -29,7 +29,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 10.7.1
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -558,7 +558,11 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %build
 %global optflags %{optflags} -Werror-implicit-function-declaration
+%ifarch s390
+%global ldflags -m31 -Wl,--as-needed,--library-path=%{_libdir}
+%else
 %global ldflags -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir}
+%endif
 
 export CFLAGS="%{optflags}"
 export CXXFLAGS="%{optflags}"
@@ -1355,6 +1359,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Sep 04 2012 Dan Horák <dan[at]danny.cz> - 10.7.1-2
+- fix build on s390
+
 * Thu Aug 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.7.1-1
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.11 and Asterisk 1.8 and 10. The available security releases are
