@@ -31,7 +31,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 11.0.0
-Release: 0.2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -556,7 +556,11 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %build
 %global optflags %{optflags} -Werror-implicit-function-declaration
+%ifarch s390
+%global ldflags -m31 -Wl,--as-needed,--library-path=%{_libdir}
+%else
 %global ldflags -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir}
+%endif
 
 export CFLAGS="%{optflags}"
 export CXXFLAGS="%{optflags}"
@@ -1374,6 +1378,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Sep 04 2012 Dan Horák <dan[at]danny.cz> - 11.0.0-0.3
+- fix build on s390
+
 * Tue Aug 18 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.2
 - The Asterisk Development Team is pleased to announce the first beta release of
 - Asterisk 11.0.0.  This release is available for immediate download at
