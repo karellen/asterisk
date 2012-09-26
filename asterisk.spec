@@ -31,7 +31,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 11.0.0
-Release: 0.4%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.5%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -908,6 +908,7 @@ fi
 %{_libdir}/asterisk/modules/format_gsm.so
 %{_libdir}/asterisk/modules/format_h263.so
 %{_libdir}/asterisk/modules/format_h264.so
+%{_libdir}/asterisk/modules/format_ilbc.so
 %{_libdir}/asterisk/modules/format_jpeg.so
 %{_libdir}/asterisk/modules/format_ogg_vorbis.so
 %{_libdir}/asterisk/modules/format_pcm.so
@@ -1383,6 +1384,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Sep 26 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.5
+- Don't forget format_ilbc module
+
 * Wed Sep 26 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.4
 - The Asterisk Development Team is pleased to announce the second beta release of
 - Asterisk 11.0.0.  This release is available for immediate download at
