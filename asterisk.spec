@@ -1,5 +1,7 @@
-#global _rc 3
+%global _rc 1
 #global _beta 2
+
+%global _smp_mflags -j1
 
 %if 0%{?fedora} >= 15
 %global astvarrundir /run/asterisk
@@ -24,12 +26,12 @@
 %global misdn 1
 %global ldap 1
 %global gmime 1
-%global corosync 0
+%global corosync 1
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 10.8.0
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 11.0.0
+Release: 0.6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -82,6 +84,7 @@ BuildRequires: latex2html
 # for building res_calendar_caldav
 BuildRequires: neon-devel%{?_isa}
 BuildRequires: libical-devel%{?_isa}
+BuildRequires: libxml2-devel%{?_isa}
 
 # for codec_speex
 BuildRequires: speex-devel%{?_isa} >= 1.2
@@ -492,10 +495,6 @@ local filesystem.
 %patch2 -p1
 %patch3 -p1
 
-rm -rf res/ais
-rm -f res/res_ais.c
-rm -f configs/ais.conf.sample
-
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
@@ -585,9 +584,9 @@ pushd menuselect
 popd
 
 %if 0%{?fedora} > 0
-%configure --host=%{_target_platform} --with-imap=system --with-gsm=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
+%configure --host=%{_target_platform} --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
 %else
-%configure --host=%{_target_platform} --with-gsm=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
+%configure --host=%{_target_platform} --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
 %endif
 
 ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} menuselect-tree
@@ -678,6 +677,13 @@ rm -rf %{buildroot}%{_datadir}/asterisk/phoneprov/*
 # these are compiled with -O0 and thus include unfortified code.
 rm -rf %{buildroot}%{_sbindir}/hashtest
 rm -rf %{buildroot}%{_sbindir}/hashtest2
+
+#
+rm -rf %{buildroot}%{_sysconfdir}/asterisk/app_skel.conf
+rm -rf %{buildroot}%{_sysconfdir}/asterisk/config_test.conf
+
+rm -rf %{buildroot}%{_libdir}/libasteriskssl.so
+ln -s libasterisk.so.1 %{buildroot}%{_libdir}/libasteriskssl.so
 
 %if 0%{?apidoc}
 find doc/api/html -name \*.map -size 0 -delete
@@ -799,6 +805,8 @@ fi
 %else
 %{_initrddir}/asterisk
 %endif
+
+%{_libdir}/libasteriskssl.so.1
 
 %dir %{_libdir}/asterisk
 %dir %{_libdir}/asterisk/modules
@@ -931,6 +939,7 @@ fi
 %{_libdir}/asterisk/modules/func_frame_trace.so
 %{_libdir}/asterisk/modules/func_global.so
 %{_libdir}/asterisk/modules/func_groupcount.so
+%{_libdir}/asterisk/modules/func_hangupcause.so
 %{_libdir}/asterisk/modules/func_iconv.so
 %{_libdir}/asterisk/modules/func_jitterbuffer.so
 %{_libdir}/asterisk/modules/func_lock.so
@@ -939,6 +948,7 @@ fi
 %{_libdir}/asterisk/modules/func_md5.so
 %{_libdir}/asterisk/modules/func_module.so
 %{_libdir}/asterisk/modules/func_pitchshift.so
+%{_libdir}/asterisk/modules/func_presencestate.so
 %{_libdir}/asterisk/modules/func_rand.so
 %{_libdir}/asterisk/modules/func_realtime.so
 %{_libdir}/asterisk/modules/func_sha1.so
@@ -966,10 +976,13 @@ fi
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
 %{_libdir}/asterisk/modules/res_format_attr_celt.so
+%{_libdir}/asterisk/modules/res_format_attr_h263.so
+%{_libdir}/asterisk/modules/res_format_attr_h264.so
 %{_libdir}/asterisk/modules/res_format_attr_silk.so
 %if 0%{?fedora} > 0 && 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
+%{_libdir}/asterisk/modules/res_http_websocket.so
 %{_libdir}/asterisk/modules/res_limit.so
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
@@ -1015,6 +1028,7 @@ fi
 %{_mandir}/man8/safe_asterisk.8*
 
 %attr(0750,asterisk,asterisk) %dir %{_sysconfdir}/asterisk
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/acl.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
 #%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/agents.conf
@@ -1169,6 +1183,8 @@ fi
 %{_includedir}/asterisk/*.h
 %{_includedir}/asterisk/doxygen/*.h
 
+%{_libdir}/libasteriskssl.so
+
 %files fax
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_fax.conf
@@ -1190,14 +1206,16 @@ fi
 
 %files jabber
 %defattr(-,root,root,-)
-#doc doc/jabber.txt
-#doc doc/jingle.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/gtalk.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jabber.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jingle.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/motif.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/xmpp.conf
 %{_libdir}/asterisk/modules/chan_gtalk.so
 %{_libdir}/asterisk/modules/chan_jingle.so
+%{_libdir}/asterisk/modules/chan_motif.so
 %{_libdir}/asterisk/modules/res_jabber.so
+%{_libdir}/asterisk/modules/res_xmpp.so
 
 %files jack
 %defattr(-,root,root,-)
@@ -1270,7 +1288,7 @@ fi
 
 %files ooh323
 %defattr(-,root,root,-)
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_ooh323.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ooh323.conf
 %{_libdir}/asterisk/modules/chan_ooh323.so
 
 %files oss
@@ -1324,8 +1342,10 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_sqlite3_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite3.conf
 %{_libdir}/asterisk/modules/cdr_sqlite3_custom.so
 %{_libdir}/asterisk/modules/cel_sqlite3_custom.so
+%{_libdir}/asterisk/modules/res_config_sqlite3.so
 
 %files tds
 %defattr(-,root,root,-)
@@ -1364,6 +1384,189 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Oct  9 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.6.rc1
+- The Asterisk Development Team is pleased to announce the first release candidate
+- of Asterisk 11.0.0.  This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- All interested users of Asterisk are encouraged to participate in the
+- Asterisk 11 testing process.  Please report any issues found to the issue
+- tracker, https://issues.asterisk.org/jira.  It is also very useful to see
+- successful test reports.  Please post those to the asterisk-dev mailing list.
+- All Asterisk users are invited to participate in the #asterisk-testing channel
+- on IRC to work together in testing the many parts of Asterisk.
+-
+- Asterisk 11 is the next major release series of Asterisk.  It will be a Long
+- Term Support (LTS) release, similar to Asterisk 1.8.  For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page:
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- For important information regarding upgrading to Asterisk 11, please see the
+- Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Upgrading+to+Asterisk+11
+-
+- A short list of new features includes:
+-
+- * A new channel driver named chan_motif has been added which provides support
+-   for Google Talk and Jingle in a single channel driver.  This new channel
+-   driver includes support for both audio and video, RFC2833 DTMF, all codecs
+-   supported by Asterisk, hold, unhold, and ringing notification. It is also
+-   compliant with the current Jingle specification, current Google Jingle
+-   specification, and the original Google Talk protocol.
+-
+- * Support for the WebSocket transport for chan_sip.
+-
+- * SIP peers can now be configured to support negotiation of ICE candidates.
+-
+- * The app_page application now no longer depends on DAHDI or app_meetme. It
+-   has been re-architected to use app_confbridge internally.
+-
+- * Hangup handlers can be attached to channels using the CHANNEL() function.
+-   Hangup handlers will run when the channel is hung up similar to the h
+-   extension; however, unlike an h extension, a hangup handler is associated with
+-   the actual channel and will execute anytime that channel is hung up,
+-   regardless of where it is in the dialplan.
+-
+- * Added pre-dial handlers for the Dial and Follow-Me applications.  Pre-dial
+-   allows you to execute a dialplan subroutine on a channel before a call is
+-   placed but after the application performing a dial action is invoked. This
+-   means that the handlers are executed after the creation of the callee
+-   channels, but before any actions have been taken to actually dial the callee
+-   channels.
+-
+- * Log messages can now be easily associated with a certain call by looking at
+-   a new unique identifier, "Call Id".  Call ids are attached to log messages for
+-   just about any case where it can be determined that the message is related
+-   to a particular call.
+-
+- * Introduced Named ACLs as a new way to define Access Control Lists (ACLs) in
+-   Asterisk. Unlike traditional ACLs defined in specific module configuration
+-   files, Named ACLs can be shared across multiple modules.
+-
+- * The Hangup Cause family of functions and dialplan applications allow for
+-   inspection of the hangup cause codes for each channel involved in a call.
+-   This allows a dialplan writer to determine, for each channel, who hung up and
+-   for what reason(s).
+-
+- * Two new functions have been added: FEATURE() and FEATUREMAP(). FEATURE()
+-   lets you set some of the configuration options from the general section
+-   of features.conf on a per-channel basis. FEATUREMAP() lets you customize
+-   the key sequence used to activate built-in features, such as blindxfer,
+-   and automon.
+-
+- * Support for DTLS-SRTP in chan_sip.
+-
+- * Support for named pickupgroups/callgroups, allowing any number of pickupgroups
+-   and callgroups to be defined for several channel drivers.
+-
+- * IPv6 Support for AMI, AGI, ExternalIVR, and the SIP Security Event Framework.
+-
+- More information about the new features can be found on the Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+11+Documentation
+-
+- A full list of all new features can also be found in the CHANGES file.
+-
+- http://svnview.digium.com/svn/asterisk/branches/11/CHANGES
+-
+- For a full list of changes in the current release, please see the ChangeLog.
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.0.0-rc1
+
+* Wed Sep 26 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.5.beta2
+- Don't forget format_ilbc module
+
+* Wed Sep 26 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.4.beta2
+- The Asterisk Development Team is pleased to announce the second beta release of
+- Asterisk 11.0.0.  This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- All interested users of Asterisk are encouraged to participate in the
+- Asterisk 11 testing process.  Please report any issues found to the issue
+- tracker, https://issues.asterisk.org/jira.  It is also very useful to see
+- successful test reports.  Please post those to the asterisk-dev mailing list.
+- All Asterisk users are invited to participate in the #asterisk-testing channel
+- on IRC to work together in testing the many parts of Asterisk.
+-
+- Asterisk 11 is the next major release series of Asterisk.  It will be a Long
+- Term Support (LTS) release, similar to Asterisk 1.8.  For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page:
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- For important information regarding upgrading to Asterisk 11, please see the
+- Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Upgrading+to+Asterisk+11
+-
+- A short list of new features includes:
+-
+- * A new channel driver named chan_motif has been added which provides support
+-   for Google Talk and Jingle in a single channel driver.  This new channel
+-   driver includes support for both audio and video, RFC2833 DTMF, all codecs
+-   supported by Asterisk, hold, unhold, and ringing notification. It is also
+-   compliant with the current Jingle specification, current Google Jingle
+-   specification, and the original Google Talk protocol.
+-
+- * Support for the WebSocket transport for chan_sip.
+-
+- * SIP peers can now be configured to support negotiation of ICE candidates.
+-
+- * The app_page application now no longer depends on DAHDI or app_meetme. It
+-   has been re-architected to use app_confbridge internally.
+-
+- * Hangup handlers can be attached to channels using the CHANNEL() function.
+-   Hangup handlers will run when the channel is hung up similar to the h
+-   extension; however, unlike an h extension, a hangup handler is associated with
+-   the actual channel and will execute anytime that channel is hung up,
+-   regardless of where it is in the dialplan.
+-
+- * Added pre-dial handlers for the Dial and Follow-Me applications.  Pre-dial
+-   allows you to execute a dialplan subroutine on a channel before a call is
+-   placed but after the application performing a dial action is invoked. This
+-   means that the handlers are executed after the creation of the callee
+-   channels, but before any actions have been taken to actually dial the callee
+-   channels.
+-
+- * Log messages can now be easily associated with a certain call by looking at
+-   a new unique identifier, "Call Id".  Call ids are attached to log messages for
+-   just about any case where it can be determined that the message is related
+-   to a particular call.
+-
+- * Introduced Named ACLs as a new way to define Access Control Lists (ACLs) in
+-   Asterisk. Unlike traditional ACLs defined in specific module configuration
+-   files, Named ACLs can be shared across multiple modules.
+-
+- * The Hangup Cause family of functions and dialplan applications allow for
+-   inspection of the hangup cause codes for each channel involved in a call.
+-   This allows a dialplan writer to determine, for each channel, who hung up and
+-   for what reason(s).
+-
+- * Two new functions have been added: FEATURE() and FEATUREMAP(). FEATURE()
+-   lets you set some of the configuration options from the general section
+-   of features.conf on a per-channel basis. FEATUREMAP() lets you customize
+-   the key sequence used to activate built-in features, such as blindxfer,
+-   and automon.
+-
+- * Support for DTLS-SRTP in chan_sip.
+-
+- * Support for named pickupgroups/callgroups, allowing any number of pickupgroups
+-   and callgroups to be defined for several channel drivers.
+-
+- * IPv6 Support for AMI, AGI, ExternalIVR, and the SIP Security Event Framework.
+-
+- More information about the new features can be found on the Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+11+Documentation
+-
+- A full list of all new features can also be found in the CHANGES file.
+-
+- http://svnview.digium.com/svn/asterisk/branches/11/CHANGES
+-
+- For a full list of changes in the current release, please see the ChangeLog.
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.0.0-beta2
+
 * Wed Sep 26 2012 Jeffrey Ollie <jeff@ocjtech.us> - 10.8.0-1
 - The Asterisk Development Team has announced the release of Asterisk 10.8.0.
 - This release is available for immediate download at
@@ -1395,6 +1598,9 @@ fi
 - For a full list of changes in this release, please see the ChangeLog:
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.8.0
+
+* Tue Sep 04 2012 Dan Horák <dan[at]danny.cz> - 11.0.0-0.3.beta1
+- fix build on s390
 
 * Tue Sep 04 2012 Dan Horák <dan[at]danny.cz> - 10.7.1-2
 - fix build on s390
@@ -1521,6 +1727,94 @@ fi
 - For a full list of changes in this release, please see the ChangeLog:
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.6.0
+
+* Tue Aug 18 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.2.beta1
+- The Asterisk Development Team is pleased to announce the first beta release of
+- Asterisk 11.0.0.  This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- All interested users of Asterisk are encouraged to participate in the
+- Asterisk 11 testing process.  Please report any issues found to the issue
+- tracker, https://issues.asterisk.org/jira.  It is also very useful to see
+- successful test reports.  Please post those to the asterisk-dev mailing list.
+- All Asterisk users are invited to participate in the #asterisk-testing channel
+- on IRC to work together in testing the many parts of Asterisk.
+-
+- Asterisk 11 is the next major release series of Asterisk.  It will be a Long
+- Term Support (LTS) release, similar to Asterisk 1.8.  For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page:
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- For important information regarding upgrading to Asterisk 11, please see the
+- Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Upgrading+to+Asterisk+11
+-
+- A short list of new features includes:
+-
+- * A new channel driver named chan_motif has been added which provides support
+-   for Google Talk and Jingle in a single channel driver.  This new channel
+-   driver includes support for both audio and video, RFC2833 DTMF, all codecs
+-   supported by Asterisk, hold, unhold, and ringing notification. It is also
+-   compliant with the current Jingle specification, current Google Jingle
+-   specification, and the original Google Talk protocol.
+-
+- * Support for the WebSocket transport for chan_sip.
+-
+- * SIP peers can now be configured to support negotiation of ICE candidates.
+-
+- * The app_page application now no longer depends on DAHDI or app_meetme. It
+-   has been re-architected to use app_confbridge internally.
+-
+- * Hangup handlers can be attached to channels using the CHANNEL() function.
+-   Hangup handlers will run when the channel is hung up similar to the h
+-   extension; however, unlike an h extension, a hangup handler is associated with
+-   the actual channel and will execute anytime that channel is hung up,
+-   regardless of where it is in the dialplan.
+-
+- * Added pre-dial handlers for the Dial and Follow-Me applications.  Pre-dial
+-   allows you to execute a dialplan subroutine on a channel before a call is
+-   placed but after the application performing a dial action is invoked. This
+-   means that the handlers are executed after the creation of the caller/callee
+-   channels, but before any actions have been taken to actually dial the callee
+-   channels.
+-
+- * Log messages can now be easily associated with a certain call by looking at
+-   a new unique identifier, "Call Id".  Call ids are attached to log messages for
+-   just about any case where it can be determined that the message is related
+-   to a particular call.
+-
+- * Introduced Named ACLs as a new way to define Access Control Lists (ACLs) in
+-   Asterisk. Unlike traditional ACLs defined in specific module configuration
+-   files, Named ACLs can be shared across multiple modules.
+-
+- * The Hangup Cause family of functions and dialplan applications allow for
+-   inspection of the hangup cause codes for each channel involved in a call.
+-   This allows a dialplan writer to determine, for each channel, who hung up and
+-   for what reason(s).
+-
+- * Two new functions have been added: FEATURE() and FEATUREMAP(). FEATURE()
+-   lets you set some of the configuration options from the general section
+-   of features.conf on a per-channel basis. FEATUREMAP() lets you customize
+-   the key sequence used to activate built-in features, such as blindxfer,
+-   and automon.
+-
+- * Support for named pickupgroups/callgroups, allowing any number of pickupgroups
+-   and callgroups to be defined for several channel drivers.
+-
+- * IPv6 Support for AMI, AGI, ExternalIVR, and the SIP Security Event Framework.
+-
+- More information about the new features can be found on the Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+11+Documentation
+-
+- A full list of all new features can also be found in the CHANGES file.
+-
+- http://svnview.digium.com/svn/asterisk/branches/11/CHANGES
+-
+- For a full list of changes in the current release, please see the ChangeLog.
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.0.0-beta1
 
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.5.2-1.2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
