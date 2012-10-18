@@ -1,4 +1,4 @@
-%global _rc 1
+%global _rc 2
 #global _beta 2
 
 %global _smp_mflags -j1
@@ -31,7 +31,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 11.0.0
-Release: 0.6%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 0.7%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1384,6 +1384,32 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Oct 17 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.7.rc2:
+- The Asterisk Development Team has announced the second release candidate of
+- Asterisk 11.0.0. This release candidate is available for immediate
+- download at http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.0.0-rc2 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release candidate:
+-
+- * --- Fix an issue where outgoing calls would fail to establish audio
+-       due to ICE negotiation failures.
+-   (Closes issue ASTERISK-20554. Reported by mmichelson)
+-
+- * --- Ensure Asterisk fails TCP/TLS SIP calls when certificate
+-       checking fails
+-   (Closes issue ASTERISK-20559. Reported by kmoore)
+-
+- * --- Don't make chan_sip export global symbols.
+-   (Closes issue ASTERISK-20545. Reported by kmoore)
+-
+- For a full list of changes in this release candidate, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.0.0-rc2
+
 * Tue Oct  9 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.6.rc1
 - The Asterisk Development Team is pleased to announce the first release candidate
 - of Asterisk 11.0.0.  This release is available for immediate download at
