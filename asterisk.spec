@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.0.0
+Version: 11.0.1
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1384,6 +1384,33 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Nov  5 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.1-1
+- The Asterisk Development Team has announced the release of Asterisk 11.0.1.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.0.1 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- * --- chan_sip: Fix a bug causing SIP reloads to remove all entries
+-       from the registry
+-   (Closes issue ASTERISK-20611. Reported by Alisher)
+-
+- * --- confbridge: Fix a bug which made conferences not record with
+-       AMI/CLI commands
+-   (Closes issue ASTERISK-20601. Reported by Vilius)
+-
+- * --- Fix an issue with res_http_websocket where the chan_sip
+-       WebSocket handler could not be registered.
+-   (Closes issue ASTERISK-20631. Reported by danjenkins)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.0.1
+
 * Tue Oct 30 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-1:
 - The Asterisk Development Team is pleased to announce the release of
 - Asterisk 11.0.0.  This release is available for immediate download at
