@@ -31,7 +31,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 11.0.1
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -560,9 +560,7 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %build
 %global optflags %{optflags} -Werror-implicit-function-declaration
-%ifarch s390
-%global ldflags -m31 -Wl,--as-needed,--library-path=%{_libdir}
-%else ifarch arm
+%ifarch s390 %{arm}
 %global ldflags -Wl,--as-needed,--library-path=%{_libdir}
 %else
 %global ldflags -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir}
@@ -1386,6 +1384,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Dec  5 2012 Dan Horák <dan[at]danny.cz> - 11.0.1-3
+- simplify LDFLAGS setting
+
 * Fri Nov 30 2012 Dennis Gilmore <dennis@ausil.us> - 11.0.1-2
 - clean up things to allow building on arm arches
 
