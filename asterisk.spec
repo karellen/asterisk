@@ -30,8 +30,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.0.1
-Release: 3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 11.0.2
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1384,6 +1384,24 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Dec  7 2012 Jeffrey Ollie <jcollie@desktop01.dmacc.net> - 11.0.2-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.0.2.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.0.2 resolves an issue reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is the issue resolved in this release:
+-
+- * --- chan_local: Fix local_pvt ref leak in local_devicestate().
+-   (Closes issue ASTERISK-20769. Reported by rmudgett)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.0.2
+
 * Wed Dec  5 2012 Dan Horák <dan[at]danny.cz> - 11.0.1-3
 - simplify LDFLAGS setting
 
