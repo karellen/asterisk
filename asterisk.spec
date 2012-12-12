@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.0.2
+Version: 11.1.0
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1384,7 +1384,38 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
-* Fri Dec  7 2012 Jeffrey Ollie <jcollie@desktop01.dmacc.net> - 11.0.2-1:
+* Wed Dec 12 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.1.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.1.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.1.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Fix execution of 'i' extension due to uninitialized variable.
+-   (Closes issue ASTERISK-20455. Reported by Richard Miller)
+-
+- * --- Prevent resetting of NATted realtime peer address on reload.
+-   (Closes issue ASTERISK-18203. Reported by daren ferreira)
+-
+- * --- Fix ConfBridge crash if no timing module loaded.
+-   (Closes issue ASTERISK-19448. Reported by feyfre)
+-
+- * --- Fix the Park 'r' option when a channel parks itself.
+-   (Closes issue ASTERISK-19382. Reported by James Stocks)
+-
+- * --- Fix an issue where outgoing calls would fail to establish audio
+-       due to ICE negotiation failures.
+-   (Closes issue ASTERISK-20554. Reported by mmichelson)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.1.0
+
+* Fri Dec  7 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.2-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.0.2.
 - This release is available for immediate download at
 - http://downloads.asterisk.org/pub/telephony/asterisk
