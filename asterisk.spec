@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.1.0
+Version: 11.1.2
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1384,6 +1384,86 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Jan  3 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.1.2-1:
+- The Asterisk Development Team has announced a security release for Asterisk 11,
+- Asterisk 11.1.2. This release addresses the security vulnerabilities reported in
+- AST-2012-014 and AST-2012-015, and replaces the previous version of Asterisk 11
+- released for these security vulnerabilities. The prior release left open a
+- vulnerability in res_xmpp that exists only in Asterisk 11; as such, other
+- versions of Asterisk were resolved correctly by the previous releases.
+-
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolve the following two issues:
+-
+- * Stack overflows that occur in some portions of Asterisk that manage a TCP
+-   connection. In SIP, this is exploitable via a remote unauthenticated session;
+-   in XMPP and HTTP connections, this is exploitable via remote authenticated
+-   sessions. The vulnerabilities in SIP and HTTP were corrected in a prior
+-   release of Asterisk; the vulnerability in XMPP is resolved in this release.
+-
+- * A denial of service vulnerability through exploitation of the device state
+-   cache. Anonymous calls had the capability to create devices in Asterisk that
+-   would never be disposed of. Handling the cachability of device states
+-   aggregated via XMPP is handled in this release.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2012-014 and AST-2012-015.
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.1.2
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-014.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-015.pdf
+-
+- Thank you for your continued support of Asterisk - and we apologize for having
+- to do this twice!
+
+* Wed Jan  2 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.1.1-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.11 and Asterisk 1.8, 10, and 11. The available security releases
+- are released as versions 1.8.11-cert10, 1.8.19.1, 10.11.1, 10.11.1-digiumphones,
+- and 11.1.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolve the following two issues:
+-
+- * Stack overflows that occur in some portions of Asterisk that manage a TCP
+-   connection. In SIP, this is exploitable via a remote unauthenticated session;
+-   in XMPP and HTTP connections, this is exploitable via remote authenticated
+-   sessions.
+-
+- * A denial of service vulnerability through exploitation of the device state
+-   cache. Anonymous calls had the capability to create devices in Asterisk that
+-   would never be disposed of.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2012-014 and AST-2012-015, which were released at the
+- same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.11-cert10
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.19.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.11.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.11.1-digiumphones
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.1.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2012-014.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2012-015.pdf
+
 * Wed Dec 12 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.1.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.1.0.
 - This release is available for immediate download at
