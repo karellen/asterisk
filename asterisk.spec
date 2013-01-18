@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.1.2
+Version: 11.2.0
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1384,6 +1384,41 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Jan 18 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.2.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.2.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.2.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- app_meetme: Fix channels lingering when hung up under certain
+-       conditions
+-   (Closes issue ASTERISK-20486. Reported by Michael Cargile)
+-
+- * --- Fix stuck DTMF when bridge is broken.
+-   (Closes issue ASTERISK-20492. Reported by Jeremiah Gowdy)
+-
+- * --- Add missing support for "who hung up" to chan_motif.
+-   (Closes issue ASTERISK-20671. Reported by Matt Jordan)
+-
+- * --- Remove a fixed size limitation for producing SDP and change how
+-       ICE support is disabled by default.
+-   (Closes issue ASTERISK-20643. Reported by coopvr)
+-
+- * --- Fix chan_sip websocket payload handling
+-   (Closes issue ASTERISK-20745. Reported by Iñaki Baz Castillo)
+-
+- * --- Fix pjproject compilation in certain circumstances
+-   (Closes issue ASTERISK-20681. Reported by Dinesh Ramjuttun)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.2.0
+
 * Thu Jan  3 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.1.2-1:
 - The Asterisk Development Team has announced a security release for Asterisk 11,
 - Asterisk 11.1.2. This release addresses the security vulnerabilities reported in
