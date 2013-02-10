@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.2.0
+Version: 11.2.1
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -697,6 +697,7 @@ rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
 
 %if %{tmpfilesd}
 install -D -p -m 0644 %{SOURCE6} %{buildroot}/usr/lib/tmpfiles.d/asterisk.conf
+mkdir -p %{buildroot}%{astvarrundir}
 %endif
 
 %if ! 0%{?mysql}
@@ -1115,10 +1116,8 @@ fi
 
 %if %{tmpfilesd}
 %attr(0644,root,root) /usr/lib/tmpfiles.d/asterisk.conf
-%ghost %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
-%else
-%attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 %endif
+%attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 
 %if 0%{?corosync}
 %files corosync
@@ -1384,6 +1383,32 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sun Feb 10 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.2.1-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.2.1.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.2.1 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- * --- Fix astcanary startup problem due to wrong pid value from before
+-       daemon call
+-   (Closes issue ASTERISK-20947. Reported by Jakob Hirsch)
+-
+- * --- Update init.d scripts to handle stderr; readd splash screen for
+-       remote consoles
+-   (Closes issue ASTERISK-20945. Reported by Warren Selby)
+-
+- * --- Reset RTP timestamp; sequence number on SSRC change
+-   (Closes issue ASTERISK-20906. Reported by Eelco Brolman)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.2.1
+
 * Fri Jan 18 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.2.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.2.0.
 - This release is available for immediate download at
