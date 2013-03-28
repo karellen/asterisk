@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.2.1
+Version: 11.2.2
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -571,17 +571,25 @@ export CXXFLAGS="%{optflags}"
 export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
 
-aclocal -I autoconf
-autoconf
-autoheader
-
 pushd menuselect/mxml
+
 %configure --host=%{_target_platform} LDFLAGS="%{ldflags}"
+
 popd
 
 pushd menuselect
+
+aclocal -I ../autoconf --force
+autoconf --force
+autoheader --force
+
 %configure --host=%{_target_platform} LDFLAGS="%{ldflags}"
+
 popd
+
+aclocal -I autoconf --force
+autoconf --force
+autoheader --force
 
 %if 0%{?fedora} > 0
 %configure --host=%{_target_platform} --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
@@ -1383,6 +1391,59 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Mar 28 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.2.2-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.15 and Asterisk 1.8, 10, and 11. The available security releases
+- are released as versions 1.8.15-cert2, 1.8.20.2, 10.12.2, 10.12.2-digiumphones,
+- and 11.2.2.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolve the following issues:
+-
+- * A possible buffer overflow during H.264 format negotiation. The format
+-   attribute resource for H.264 video performs an unsafe read against a media
+-   attribute when parsing the SDP.
+-
+-   This vulnerability only affected Asterisk 11.
+-
+- * A denial of service exists in Asterisk's HTTP server. AST-2012-014, fixed
+-   in January of this year, contained a fix for Asterisk's HTTP server for a
+-   remotely-triggered crash. While the fix prevented the crash from being
+-   triggered, a denial of service vector still exists with that solution if an
+-   attacker sends one or more HTTP POST requests with very large Content-Length
+-   values.
+-
+-   This vulnerability affects Certified Asterisk 1.8.15, Asterisk 1.8, 10, and 11
+-
+- * A potential username disclosure exists in the SIP channel driver. When
+-   authenticating a SIP request with alwaysauthreject enabled, allowguest
+-   disabled, and autocreatepeer disabled, Asterisk discloses whether a user
+-   exists for INVITE, SUBSCRIBE, and REGISTER transactions in multiple ways.
+-
+-   This vulnerability affects Certified Asterisk 1.8.15, Asterisk 1.8, 10, and 11
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2013-001, AST-2013-002, and AST-2013-003, which were
+- released at the same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.15-cert2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.20.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.12.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.12.2-digiumphones
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.2.2
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2013-001.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2013-002.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2013-003.pdf
+
 * Sun Feb 10 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.2.1-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.2.1.
 - This release is available for immediate download at
