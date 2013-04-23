@@ -30,7 +30,7 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.2.2
+Version: 11.3.0
 Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
@@ -1391,6 +1391,39 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Apr 23 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.3.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.3.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.3.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Fix issue where chan_mobile fails to bind to first available
+-       port
+-   (Closes issue ASTERISK-16357. Reported by challado)
+-
+- * --- Fix Queue Log Reporting Every Call COMPLETECALLER With "h"
+-       Extension Present
+-   (Closes issue ASTERISK-20743. Reported by call)
+-
+- * --- Retain XMPP filters across reconnections so external modules
+-       continue to function as expected.
+-   (Closes issue ASTERISK-20916. Reported by kuj)
+-
+- * --- Ensure that a declined media stream is terminated with a '\r\n'
+-   (Closes issue ASTERISK-20908. Reported by Dennis DeDonatis)
+-
+- * --- Fix pjproject compilation in certain circumstances
+-   (Closes issue ASTERISK-20681. Reported by Dinesh Ramjuttun)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.3.0
+
 * Thu Mar 28 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.2.2-1:
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.15 and Asterisk 1.8, 10, and 11. The available security releases
@@ -2120,7 +2153,7 @@ fi
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-10.6.0
 
-* Tue Aug 18 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.2.beta1
+* Sat Aug 18 2012 Jeffrey Ollie <jeff@ocjtech.us> - 11.0.0-0.2.beta1
 - The Asterisk Development Team is pleased to announce the first beta release of
 - Asterisk 11.0.0.  This release is available for immediate download at
 - http://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -4364,7 +4397,7 @@ http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-1.8.3-rc2
 * Fri Jul 25 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.18.beta9
 - Add patch for LDAP extracted from upstream SVN (#442011)
 
-* Thu Jul  2 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.17.beta9
+* Wed Jul  2 2008 Jeffrey C. Ollie <jeff@ocjtech.us> - 1.6.0-0.17.beta9
 - Add patch that unbreaks cdr_tds with FreeTDS 0.82.
 - Properly obsolete conference subpackage.
 
