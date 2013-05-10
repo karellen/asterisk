@@ -31,7 +31,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 11.3.0
-Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -47,6 +47,8 @@ Source6: asterisk-tmpfiles
 Patch1:  0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch2:  0002-Fix-up-some-paths.patch
 Patch3:  0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+
+Patch10: asterisk-11.3.0-lua-5.2.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -494,6 +496,7 @@ local filesystem.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch10 -p1 -b .lua-52
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -566,8 +569,8 @@ chmod -x contrib/scripts/dbsep.cgi
 %global ldflags -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir}
 %endif
 
-export CFLAGS="%{optflags}"
-export CXXFLAGS="%{optflags}"
+export CFLAGS="%{optflags} -DLUA_COMPAT_MODULE"
+export CXXFLAGS="%{optflags} -DLUA_COMPAT_MODULE"
 export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
 
@@ -1391,6 +1394,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri May 10 2013 Tom Callaway <spot@fedoraproject.org> - 11.3.0-2
+- fix build with lua 5.2
+
 * Tue Apr 23 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.3.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.3.0.
 - This release is available for immediate download at
