@@ -30,8 +30,8 @@
 
 Summary: The Open Source PBX
 Name: asterisk
-Version: 11.3.0
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version: 11.4.0
+Release: 1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1394,7 +1394,39 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
-* Fri May 10 2013 Tom Callaway <spot@fedoraproject.org> - 11.3.0-2
+* Mon May 20 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.4.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.4.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.4.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Fix Sorting Order For Parking Lots Stored In Static Realtime
+-   (Closes issue ASTERISK-21035. Reported by Alex Epshteyn)
+-
+- * --- Fix StopMixMonitor Hanging Up When Unable To Stop MixMonitor On
+-       A Channel
+-   (Closes issue ASTERISK-21294. Reported by daroz)
+-
+- * --- When a session timer expires during a T.38 call, re-invite with
+-       correct SDP
+-   (Closes issue ASTERISK-21232. Reported by Nitesh Bansal)
+-
+- * --- Fix white noise on SRTP decryption
+-   (Closes issue ASTERISK-21323. Reported by andrea)
+-
+- * --- Fix reload skinny with active devices.
+-   (Closes issue ASTERISK-16610. Reported by wedhorn)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.4.0
+
+* Fri May 10 2013 Tom Callaway <spot@fedoraproject.org> - 11.3.0-2:
 - fix build with lua 5.2
 
 * Tue Apr 23 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.3.0-1:
