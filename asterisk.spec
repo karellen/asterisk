@@ -31,7 +31,7 @@
 Summary: The Open Source PBX
 Name: asterisk
 Version: 11.4.0
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
 License: GPLv2
 Group: Applications/Internet
 URL: http://www.asterisk.org/
@@ -1394,6 +1394,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Jul 17 2013 Petr Pisar <ppisar@redhat.com> - 11.4.0-2.1
+- Perl 5.18 rebuild
+
 * Fri May 24 2013 Rex Dieter <rdieter@fedoraproject.org> 11.4.0-2
 - rebuild (libical)
 
