@@ -1,133 +1,204 @@
 #global _rc 2
 #global _beta 2
 
-%global _smp_mflags -j1
+%global           _hardened_build 1
+%global           _smp_mflags     -j1
+
+%global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
+%ifarch s390 %{arm}
+%global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
+%else
+%global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
+%endif
 
 %if 0%{?fedora} >= 15
-%global astvarrundir /run/asterisk
-%global tmpfilesd 1
+%global           astvarrundir     /run/asterisk
+%global           tmpfilesd        1
 %else
-%global astvarrundir %{_localstatedir}/run/asterisk
-%global tmpfilesd 0
+%global           astvarrundir     %{_localstatedir}/run/asterisk
+%global           tmpfilesd        0
 %endif
 
 %if 0%{?fedora} >= 16
-%global systemd 1
+%global           systemd    1
 %else
-%global systemd 0
+%global           systemd    0
 %endif
 
-%global apidoc 0
-%global mysql 1
-%global odbc 1
-%global postgresql 1
-%global radius 1
-%global snmp 1
-%global misdn 1
-%global ldap 1
-%global gmime 1
-%global corosync 1
+%global           apidoc     0
+%global           mysql      1
+%global           odbc       1
+%global           postgresql 1
+%global           radius     1
+%global           snmp       1
+%global           misdn      1
+%global           ldap       1
+%global           gmime      1
+%global           corosync   1
 
-Summary: The Open Source PBX
-Name: asterisk
-Version: 11.4.0
-Release: 2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
-License: GPLv2
-Group: Applications/Internet
-URL: http://www.asterisk.org/
+%global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
-Source0: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
-Source1: http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
-Source2: asterisk-logrotate
-Source3: menuselect.makedeps
-Source4: menuselect.makeopts
-Source5: asterisk.service
-Source6: asterisk-tmpfiles
+Summary:          The Open Source PBX
+Name:             asterisk
+Version:          11.5.1
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+License:          GPLv2
+Group:            Applications/Internet
+URL:              http://www.asterisk.org/
 
-Patch1:  0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
-Patch2:  0002-Fix-up-some-paths.patch
-Patch3:  0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
+Source0:          http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
+Source1:          http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+Source2:          asterisk-logrotate
+Source3:          menuselect.makedeps
+Source4:          menuselect.makeopts
+Source5:          asterisk.service
+Source6:          asterisk-tmpfiles
 
-Patch10: asterisk-11.3.0-lua-5.2.patch
+Patch1:           0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
+Patch2:           0002-Fix-up-some-paths.patch
+Patch3:           0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
+Patch10:          asterisk-11.5.0-lua-5.2.patch
 
-BuildRequires: autoconf
-BuildRequires: automake
+BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
+
+BuildRequires:    autoconf
+BuildRequires:    automake
 
 # core build requirements
-BuildRequires: openssl-devel
-BuildRequires: newt-devel
+BuildRequires:    openssl-devel
+BuildRequires:    newt-devel
 %if 0%{?fedora} <= 8
-BuildRequires: libtermcap-devel
+BuildRequires:    libtermcap-devel
 %endif
-BuildRequires: ncurses-devel
-BuildRequires: libcap-devel
+BuildRequires:    ncurses-devel
+BuildRequires:    libcap-devel
 %if 0%{?gmime}
-BuildRequires: gtk2-devel
+BuildRequires:    gtk2-devel
 %endif
-BuildRequires: libsrtp-devel
-BuildRequires: popt-devel
+BuildRequires:    libsrtp-devel
+BuildRequires:    popt-devel
 %if %{systemd}
-BuildRequires: systemd-units
+BuildRequires:    systemd-units
 %endif
 
 # for res_http_post
 %if (0%{?fedora} > 0) && 0%{?gmime}
-BuildRequires: gmime22-devel
+BuildRequires:    gmime22-devel
 %endif
 
 # for building docs
-BuildRequires: doxygen
-BuildRequires: graphviz
-BuildRequires: libxml2-devel
-BuildRequires: latex2html
+BuildRequires:    doxygen
+BuildRequires:    graphviz
+BuildRequires:    libxml2-devel
+BuildRequires:    latex2html
 
 # for building res_calendar_caldav
-BuildRequires: neon-devel
-BuildRequires: libical-devel
-BuildRequires: libxml2-devel
+BuildRequires:    neon-devel
+BuildRequires:    libical-devel
+BuildRequires:    libxml2-devel
 
 # for codec_speex
-BuildRequires: speex-devel >= 1.2
+BuildRequires:    speex-devel >= 1.2
 
 # for format_ogg_vorbis
-BuildRequires: libogg-devel
-BuildRequires: libvorbis-devel
+BuildRequires:    libogg-devel
+BuildRequires:    libvorbis-devel
 
 # codec_gsm
-BuildRequires: gsm-devel
+BuildRequires:    gsm-devel
 
 # additional dependencies
-BuildRequires: SDL-devel
-BuildRequires: SDL_image-devel
+BuildRequires:    SDL-devel
+BuildRequires:    SDL_image-devel
 
 # cli
-BuildRequires: libedit-devel
+BuildRequires:    libedit-devel
 
 # codec_ilbc
 BuildRequires:    ilbc-devel
 
+# res_rtp_asterisk
+BuildRequires:    libuuid-devel
+
+%if 0%{?corosync}
+BuildRequires:    corosynclib-devel
+%endif
+
+BuildRequires:    alsa-lib-devel
+BuildRequires:    libcurl-devel
+BuildRequires:    dahdi-tools-devel >= 2.0.0
+BuildRequires:    dahdi-tools-libs >= 2.0.0
+BuildRequires:    libpri-devel >= 1.4.12
+BuildRequires:    libss7-devel >= 1.0.1
+BuildRequires:    spandsp-devel >= 0.0.5-0.1.pre4
+BuildRequires:    libtiff-devel
+BuildRequires:    libjpeg-devel
+BuildRequires:    iksemel-devel
+BuildRequires:    lua-devel
+BuildRequires:    jack-audio-connection-kit-devel
+BuildRequires:    libresample-devel
+BuildRequires:    bluez-libs-devel
+BuildRequires:    libtool-ltdl-devel
+BuildRequires:    portaudio-devel >= 19
+BuildRequires:    sqlite-devel
+BuildRequires:    freetds-devel
+
+%if 0%{?misdn}
+BuildRequires:    mISDN-devel
+%endif
+
+%if 0%{?ldap}
+BuildRequires:    openldap-devel
+%endif
+
+%if 0%{?mysql}
+BuildRequires:    mysql-devel
+%endif
+
+%if 0%{?odbc}
+BuildRequires:    libtool-ltdl-devel
+BuildRequires:    unixODBC-devel
+%endif
+
+%if 0%{?postgresql}
+BuildRequires:    postgresql-devel
+%endif
+
+%if 0%{?radius}
+BuildRequires:    radiusclient-ng-devel
+%endif
+
+%if 0%{?snmp}
+BuildRequires:    net-snmp-devel
+BuildRequires:    lm_sensors-devel
+%endif
+
+%if 0%{?fedora} > 0
+BuildRequires:    uw-imap-devel
+%endif
+
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
-%if %{systemd}
+
+%if 0%{?systemd}
 Requires(post):   systemd-units
 Requires(post):   systemd-sysv
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 %else
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-Requires(preun): /sbin/service
+Requires(post):   /sbin/chkconfig
+Requires(preun):  /sbin/chkconfig
+Requires(preun):  /sbin/service
 %endif
 
 # asterisk-conference package removed since patch no longer compiles
-Obsoletes: asterisk-conference <= 1.6.0-0.14.beta9
-Obsoletes: asterisk-mobile <= 1.6.1-0.23.rc1
-Obsoletes: asterisk-firmware <= 1.6.2.0-0.2.rc1
+Obsoletes:        asterisk-conference <= 1.6.0-0.14.beta9
+Obsoletes:        asterisk-mobile <= 1.6.1-0.23.rc1
+Obsoletes:        asterisk-firmware <= 1.6.2.0-0.2.rc1
 
 # chan_usbradio was been removed in 10.4.0
-Obsoletes: asterisk-usbradio <= 10.3.1-1
+Obsoletes:        asterisk-usbradio <= 10.3.1-1
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -141,7 +212,6 @@ inexpensive hardware.
 Summary: Modules for Asterisk that use Corosync
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: corosynclib-devel
 Obsoletes: asterisk-ais <= 10.1.2-1
 
 %description corosync
@@ -152,7 +222,6 @@ Modules for Asterisk that use Corosync.
 Summary: Modules for Asterisk that use Alsa sound drivers
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: alsa-lib-devel
 
 %description alsa
 Modules for Asterisk that use Alsa sound drivers.
@@ -179,7 +248,6 @@ Calendar applications for Asterisk.
 Summary: Modules for Asterisk that use cURL
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: libcurl-devel
 
 %description curl
 Modules for Asterisk that use cURL.
@@ -190,10 +258,6 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
-BuildRequires: dahdi-tools-devel >= 2.0.0
-BuildRequires: dahdi-tools-libs >= 2.0.0
-BuildRequires: libpri-devel >= 1.4.12
-BuildRequires: libss7-devel >= 1.0.1
 Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
 Provides: asterisk-zaptel = %{version}-%{release}
 
@@ -212,9 +276,6 @@ Development files for Asterisk.
 Summary: FAX applications for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: spandsp-devel >= 0.0.5-0.1.pre4
-BuildRequires: libtiff-devel
-BuildRequires: libjpeg-devel
 
 %description fax
 FAX applications for Asterisk
@@ -245,7 +306,6 @@ Stream audio from Asterisk to an IceCast server.
 Summary: Jabber/XMPP resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: iksemel-devel
 
 %description jabber
 Jabber/XMPP resources for Asterisk.
@@ -254,8 +314,6 @@ Jabber/XMPP resources for Asterisk.
 Summary: JACK resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: jack-audio-connection-kit-devel
-BuildRequires: libresample-devel
 
 %description jack
 JACK resources for Asterisk.
@@ -264,7 +322,6 @@ JACK resources for Asterisk.
 Summary: Lua resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: lua-devel
 
 %description lua
 Lua resources for Asterisk.
@@ -274,7 +331,6 @@ Lua resources for Asterisk.
 Summary: LDAP resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: openldap-devel
 
 %description ldap
 LDAP resources for Asterisk.
@@ -300,7 +356,6 @@ Summary: mISDN channel for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires(pre): %{_sbindir}/usermod
-BuildRequires: mISDN-devel
 
 %description misdn
 mISDN channel for Asterisk.
@@ -311,7 +366,6 @@ Summary: Mobile (BlueTooth) channel for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires(pre): %{_sbindir}/usermod
-BuildRequires: bluez-libs-devel
 
 %description mobile
 Mobile (BlueTooth) channel for Asterisk.
@@ -329,7 +383,6 @@ MiniVM application for Asterisk.
 Summary: Applications for Asterisk that use MySQL
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: mysql-devel
 
 %description mysql
 Applications for Asterisk that use MySQL.
@@ -340,8 +393,6 @@ Applications for Asterisk that use MySQL.
 Summary: Applications for Asterisk that use ODBC (except voicemail)
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: libtool-ltdl-devel
-BuildRequires: unixODBC-devel
 
 %description odbc
 Applications for Asterisk that use ODBC (except voicemail)
@@ -351,8 +402,6 @@ Applications for Asterisk that use ODBC (except voicemail)
 Summary: H.323 channel for Asterisk using the Objective Systems Open H.323 for C library
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: libtool-ltdl-devel
-BuildRequires: unixODBC-devel
 
 %description ooh323
 H.323 channel for Asterisk using the Objective Systems Open H.323 for C library.
@@ -369,7 +418,6 @@ Modules for Asterisk that use OSS sound drivers.
 Summary: Modules for Asterisk that use the portaudio library
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: portaudio-devel >= 19
 
 %description portaudio
 Modules for Asterisk that use the portaudio library.
@@ -379,7 +427,6 @@ Modules for Asterisk that use the portaudio library.
 Summary: Applications for Asterisk that use PostgreSQL
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: postgresql-devel
 
 %description postgresql
 Applications for Asterisk that use PostgreSQL.
@@ -390,7 +437,6 @@ Applications for Asterisk that use PostgreSQL.
 Summary: Applications for Asterisk that use RADIUS
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: radiusclient-ng-devel
 
 %description radius
 Applications for Asterisk that use RADIUS.
@@ -409,8 +455,6 @@ Modules for Asterisk that support the SCCP/Skinny protocol.
 Summary: Module that enables SNMP monitoring of Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: net-snmp-devel
-BuildRequires: lm_sensors-devel
 # This subpackage depends on perl-libs, this Requires tracks versioning.
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
@@ -422,7 +466,6 @@ Module that enables SNMP monitoring of Asterisk.
 Summary: Sqlite modules for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: sqlite-devel
 
 %description sqlite
 Sqlite modules for Asterisk.
@@ -431,7 +474,6 @@ Sqlite modules for Asterisk.
 Summary: Modules for Asterisk that use FreeTDS
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-BuildRequires: freetds-devel
 
 %description tds
 Modules for Asterisk that use FreeTDS.
@@ -462,7 +504,6 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: asterisk-voicemail = %{version}-%{release}
 Provides: asterisk-voicemail-implementation = %{version}-%{release}
-BuildRequires: uw-imap-devel
 
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
@@ -562,21 +603,16 @@ chmod -x contrib/scripts/dbsep.cgi
 %endif
 
 %build
-%global optflags %{optflags} -Werror-implicit-function-declaration
-%ifarch s390 %{arm}
-%global ldflags -Wl,--as-needed,--library-path=%{_libdir}
-%else
-%global ldflags -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir}
-%endif
 
-export CFLAGS="%{optflags} -DLUA_COMPAT_MODULE"
-export CXXFLAGS="%{optflags} -DLUA_COMPAT_MODULE"
+export CFLAGS="%{optflags}"
+export CXXFLAGS="%{optflags}"
 export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
+export ASTCFLAGS=" "
 
 pushd menuselect/mxml
 
-%configure --host=%{_target_platform} LDFLAGS="%{ldflags}"
+%configure --host=%{_target_platform}
 
 popd
 
@@ -586,7 +622,7 @@ aclocal -I ../autoconf --force
 autoconf --force
 autoheader --force
 
-%configure --host=%{_target_platform} LDFLAGS="%{ldflags}"
+%configure --host=%{_target_platform}
 
 popd
 
@@ -600,10 +636,10 @@ autoheader --force
 %configure --host=%{_target_platform} --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
 %endif
 
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} menuselect-tree
+make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
 
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
@@ -611,7 +647,7 @@ mv apps/app_directory.so apps/app_directory_plain.so
 
 %if 0%{?fedora} > 0
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
@@ -619,7 +655,7 @@ mv apps/app_directory.so apps/app_directory_imap.so
 %endif
 
 %{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_odbc.so
@@ -630,19 +666,23 @@ touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
 
 %if 0%{?apidoc}
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} progdocs DEBUG= OPTIMIZE= ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk  ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+make %{?_smp_mflags} progdocs %{makeargs}
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
 %endif
 
-cd doc/tex && ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make %{?_smp_mflags} html NOISY_BUILD=1
-
 %install
 rm -rf %{buildroot}
 
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make install DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
-ASTCFLAGS="%{optflags}" LDFLAGS="%{ldflags}" make samples DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
+export CFLAGS="%{optflags}"
+export CXXFLAGS="%{optflags}"
+export FFLAGS="%{optflags}"
+export LDFLAGS="%{ldflags}"
+export ASTCFLAGS="%{optflags}"
+
+make install %{makeargs}
+make samples %{makeargs}
 
 %if 0%{?systemd}
 install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
@@ -652,11 +692,10 @@ install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir
 %endif
 install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
-#install -D -p -m 0644 doc/asterisk-mib.txt %{buildroot}%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
-#install -D -p -m 0644 doc/digium-mib.txt %{buildroot}%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
+
 %if 0%{?fedora} > 0
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_imap.so
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_imap.so
@@ -796,21 +835,6 @@ fi
 %doc README* *.txt ChangeLog BUGS CREDITS configs
 
 %doc doc/asterisk.sgml
-#doc doc/backtrace.txt
-#doc doc/callfiles.txt
-#doc doc/externalivr.txt
-#doc doc/macroexclusive.txt
-#doc doc/manager_1_1.txt
-#doc doc/modules.txt
-#doc doc/PEERING
-#doc doc/queue.txt
-#doc doc/rtp-packetization.txt
-#doc doc/siptls.txt
-#doc doc/smdi.txt
-#doc doc/sms.txt
-#doc doc/speechrec.txt
-#doc doc/ss7.txt
-#doc doc/video.txt
 
 %if %{systemd}
 %{_unitdir}/asterisk.service
@@ -1394,6 +1418,84 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Aug 29 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.5.1-2:
+- Enable hardened build BZ#954338
+- Significant clean ups
+
+* Thu Aug 29 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.5.1-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.15, 11.2, and Asterisk 1.8, 10, and 11. The available security releases
+- are released as versions 1.8.15-cert2, 11.2-cert2, 1.8.23.1, 10.12.3, 10.12.3-digiumphones,
+- and 11.5.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolve the following issues:
+-
+- * A remotely exploitable crash vulnerability exists in the SIP channel driver if
+-   an ACK with SDP is received after the channel has been terminated. The
+-   handling code incorrectly assumes that the channel will always be present.
+-
+- * A remotely exploitable crash vulnerability exists in the SIP channel driver if
+-   an invalid SDP is sent in a SIP request that defines media descriptions before
+-   connection information. The handling code incorrectly attempts to reference
+-   the socket address information even though that information has not yet been
+-   set.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2013-004 and AST-2013-005, which were
+- released at the same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.15-cert3
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.2-cert2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.23.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.12.3
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.12.3-digiumphones
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.5.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2013-004.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2013-005.pdf
+-
+- The Asterisk Development Team has announced the release of Asterisk 11.5.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.5.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Fix Segfault In app_queue When "persistentmembers" Is Enabled
+-       And Using Realtime
+-   (Closes issue ASTERISK-21738. Reported by JoshE)
+-
+- * --- IAX2: fix race condition with nativebridge transfers.
+-   (Closes issue ASTERISK-21409. Reported by alecdavis)
+-
+- * --- Fix The Payload Being Set On CN Packets And Do Not Set Marker
+-       Bit
+-   (Closes issue ASTERISK-21246. Reported by Peter Katzmann)
+-
+- * --- Fix One-Way Audio With auto_* NAT Settings When SIP Calls
+-       Initiated By PBX
+-   (Closes issue ASTERISK-21374. Reported by Michael L. Young)
+-
+- * --- chan_sip: NOTIFYs for BLF start queuing up and fail to be sent
+-       out after retries fail
+-   (Closes issue ASTERISK-21677. Reported by Dan Martens)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.5.0
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 11.4.0-2.2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 

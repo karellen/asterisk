@@ -1,0 +1,55 @@
+diff --git a/configure b/configure
+index 37cd437..0a3c27b 100755
+--- a/configure
++++ b/configure
+@@ -26334,7 +26334,7 @@ if test "x${PBX_LUA}" != "x1" -a "${USE_LUA}" != "no"; then
+          pbxlibdir="-L${LUA_DIR}"
+       fi
+    fi
+-   pbxfuncname="luaL_register"
++   pbxfuncname="luaL_openlib"
+    if test "x${pbxfuncname}" = "x" ; then   # empty lib, assume only headers
+       AST_LUA_FOUND=yes
+    else
+diff --git a/configure.ac b/configure.ac
+index 9237ba3..b32cf25 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2098,7 +2098,7 @@ if test "x${PBX_LUA}" = "x1" ; then
+ fi
+ 
+ # Some distributions (like SuSE) remove the 5.1 suffix.
+-AST_EXT_LIB_CHECK([LUA], [lua], [luaL_register], [lua.h], [-lm])
++AST_EXT_LIB_CHECK([LUA], [lua], [luaL_openlib], [lua.h], [-lm])
+ 
+ AST_EXT_LIB_CHECK([RADIUS], [radiusclient-ng], [rc_read_config], [radiusclient-ng.h])
+ 
+diff --git a/pbx/pbx_lua.c b/pbx/pbx_lua.c
+index 1b91827..579bc76 100644
+--- a/pbx/pbx_lua.c
++++ b/pbx/pbx_lua.c
+@@ -873,8 +873,11 @@ static int lua_sort_extensions(lua_State *L)
+ 		 * table in the extensions_order table */
+ 		for (lua_pushnil(L); lua_next(L, context); lua_pop(L, 1)) {
+ 			int exten = lua_gettop(L) - 1;
+-
++#if LUA_VERSION_NUM < 502
+ 			lua_pushinteger(L, lua_objlen(L, context_order) + 1);
++#else
++			lua_pushinteger(L, lua_rawlen(L, context_order) + 1);
++#endif
+ 			lua_pushvalue(L, exten);
+ 			lua_settable(L, context_order);
+ 		}
+@@ -1508,7 +1511,11 @@ static int lua_find_extension(lua_State *L, const char *context, const char *ext
+ 	context_order_table = lua_gettop(L);
+ 	
+ 	/* step through the extensions looking for a match */
++#if LUA_VERSION_NUM < 502
+ 	for (i = 1; i < lua_objlen(L, context_order_table) + 1; i++) {
++#else
++	for (i = 1; i < lua_rawlen(L, context_order_table) + 1; i++) {
++#endif
+ 		int e_index_copy, match = 0;
+ 		const char *e;
+ 
