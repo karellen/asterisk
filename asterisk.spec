@@ -1,7 +1,6 @@
 #global _rc 2
 #global _beta 2
 
-%global           _hardened_build 1
 %global           _smp_mflags     -j1
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
@@ -41,7 +40,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          11.5.1
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1418,6 +1417,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Mon Oct 21 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.5.1-3:
+- Disable hardened build, as it's apparently causing problems loading modules.
+
 * Thu Aug 29 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.5.1-2:
 - Enable hardened build BZ#954338
 - Significant clean ups
