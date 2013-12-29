@@ -39,8 +39,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          11.5.1
-Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version:          11.7.0
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1057,6 +1057,8 @@ fi
 %{_sbindir}/stereorize
 %{_sbindir}/streamplayer
 
+%{_mandir}/man8/astdb2bdb.8*
+%{_mandir}/man8/astdb2sqlite3.8*
 %{_mandir}/man8/asterisk.8*
 %{_mandir}/man8/astgenkey.8*
 %{_mandir}/man8/autosupport.8*
@@ -1252,7 +1254,7 @@ fi
 
 %files jack
 %defattr(-,root,root,-)
-%{_libdir}/asterisk/modules/app_jack.so
+#%{_libdir}/asterisk/modules/app_jack.so
 
 %files lua
 %defattr(-,root,root,-)
@@ -1283,7 +1285,7 @@ fi
 %files misdn
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
-%{_libdir}/asterisk/modules/chan_misdn.so
+#%{_libdir}/asterisk/modules/chan_misdn.so
 %endif
 
 %files mobile
@@ -1417,6 +1419,119 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Sat Dec 28 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.7.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.7.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.7.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- app_confbridge: Can now set the language used for announcements
+-       to the conference.
+-   (Closes issue ASTERISK-19983. Reported by Jonathan White)
+-
+- * --- app_queue: Fix CLI "queue remove member" queue_log entry.
+-   (Closes issue ASTERISK-21826. Reported by Oscar Esteve)
+-
+- * --- chan_sip: Do not increment the SDP version between 183 and 200
+-       responses.
+-   (Closes issue ASTERISK-21204. Reported by NITESH BANSAL)
+-
+- * --- chan_sip: Allow a sip peer to accept both AVP and AVPF calls
+-   (Closes issue ASTERISK-22005. Reported by Torrey Searle)
+-
+- * --- chan_sip: Fix Realtime Peer Update Problem When Un-registering
+-       And Expires Header In 200ok
+-   (Closes issue ASTERISK-22428. Reported by Ben Smithurst)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.7.0
+
+* Sat Dec 28 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.6.1-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.15, 11.2, and Asterisk 1.8, 10, and 11. The available security
+- releases are released as versions 1.8.15-cert4, 11.2-cert3, 1.8.24.1, 10.12.4,
+- 10.12.4-digiumphones, and 11.6.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolve the following issues:
+-
+- * A buffer overflow when receiving odd length 16 bit messages in app_sms. An
+-   infinite loop could occur which would overwrite memory when a message is
+-   received into the unpacksms16() function and the length of the message is an
+-   odd number of bytes.
+-
+- * Prevent permissions escalation in the Asterisk Manager Interface. Asterisk
+-   now marks certain individual dialplan functions as 'dangerous', which will
+-   inhibit their execution from external sources.
+-
+-   A 'dangerous' function is one which results in a privilege escalation. For
+-   example, if one were to read the channel variable SHELL(rm -rf /) Bad
+-   Things(TM) could happen; even if the external source has only read
+-   permissions.
+-
+-   Execution from external sources may be enabled by setting 'live_dangerously'
+-   to 'yes' in the [options] section of asterisk.conf. Although doing so is not
+-   recommended.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2013-006 and AST-2013-007, which were
+- released at the same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.15-cert4
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.2-cert3
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.24.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.12.4
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-10.12.4-digiumphones
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.6.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2013-006.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2013-007.pdf
+
+* Sat Dec 28 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.6.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.6.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.6.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following is a sample of the issues resolved in this release:
+-
+- * --- Confbridge: empty conference not being torn down
+-   (Closes issue ASTERISK-21859. Reported by Chris Gentle)
+-
+- * --- Let Queue wrap up time influence member availability
+-   (Closes issue ASTERISK-22189. Reported by Tony Lewis)
+-
+- * --- Fix a longstanding issue with MFC-R2 configuration that
+-       prevented users
+-   (Closes issue ASTERISK-21117. Reported by Rafael Angulo)
+-
+- * --- chan_iax2: Fix saving the wrong expiry time in astdb.
+-   (Closes issue ASTERISK-22504. Reported by Stefan Wachtler)
+-
+- * --- Fix segfault for certain invalid WebSocket input.
+-   (Closes issue ASTERISK-21825. Reported by Alfred Farrugia)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.6.0
+
 * Mon Oct 21 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.5.1-3:
 - Disable hardened build, as it's apparently causing problems loading modules.
 

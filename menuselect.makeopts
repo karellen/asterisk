@@ -1,9 +1,9 @@
 MENUSELECT_ADDONS=format_mp3
-MENUSELECT_APPS=app_ivrdemo app_mp3 app_osplookup app_skel 
+MENUSELECT_APPS=app_ivrdemo app_mp3 app_osplookup app_skel app_jack
 MENUSELECT_BRIDGES=
 MENUSELECT_CDR=cdr_sqlite
 MENUSELECT_CFLAGS=LOADABLE_MODULES
-MENUSELECT_CHANNELS=chan_h323 chan_nbs chan_vpb
+MENUSELECT_CHANNELS=chan_h323 chan_nbs chan_vpb chan_misdn
 MENUSELECT_CODECS=
 MENUSELECT_CORE_SOUNDS=
 MENUSELECT_EMBED=
