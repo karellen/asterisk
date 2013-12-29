@@ -1254,7 +1254,7 @@ fi
 
 %files jack
 %defattr(-,root,root,-)
-#%{_libdir}/asterisk/modules/app_jack.so
+%{_libdir}/asterisk/modules/app_jack.so
 
 %files lua
 %defattr(-,root,root,-)
@@ -1285,7 +1285,7 @@ fi
 %files misdn
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
-#%{_libdir}/asterisk/modules/chan_misdn.so
+%{_libdir}/asterisk/modules/chan_misdn.so
 %endif
 
 %files mobile
