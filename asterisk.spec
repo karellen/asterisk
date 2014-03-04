@@ -30,16 +30,25 @@
 %global           postgresql 1
 %global           radius     1
 %global           snmp       1
+%if 0%{?fedora} >= 21
+%global           misdn      0
+%else
 %global           misdn      1
+%endif
 %global           ldap       1
 %global           gmime      1
 %global           corosync   1
+%if 0%{?fedora} >= 21
+%global           jack       0
+%else
+%global           jack       1
+%endif
 
 %global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          11.7.0
+Version:          11.8.0
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -56,8 +65,6 @@ Source6:          asterisk-tmpfiles
 Patch1:           0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch2:           0002-Fix-up-some-paths.patch
 Patch3:           0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
-
-Patch10:          asterisk-11.5.0-lua-5.2.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -135,7 +142,9 @@ BuildRequires:    libtiff-devel
 BuildRequires:    libjpeg-devel
 BuildRequires:    iksemel-devel
 BuildRequires:    lua-devel
+%if 0%{?jack}
 BuildRequires:    jack-audio-connection-kit-devel
+%endif
 BuildRequires:    libresample-devel
 BuildRequires:    bluez-libs-devel
 BuildRequires:    libtool-ltdl-devel
@@ -309,6 +318,7 @@ Requires: asterisk = %{version}-%{release}
 %description jabber
 Jabber/XMPP resources for Asterisk.
 
+%if 0%{?jack}
 %package jack
 Summary: JACK resources for Asterisk
 Group: Applications/Internet
@@ -316,6 +326,7 @@ Requires: asterisk = %{version}-%{release}
 
 %description jack
 JACK resources for Asterisk.
+%endif
 
 %package lua
 Summary: Lua resources for Asterisk
@@ -536,7 +547,6 @@ local filesystem.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch10 -p1 -b .lua-52
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -591,6 +601,10 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %if ! 0%{?misdn}
 %{__perl} -pi -e 's/^MENUSELECT_CHANNELS=(.*)$/MENUSELECT_CHANNELS=\1 chan_misdn/g' menuselect.makeopts
+%endif
+
+%if ! 0%{?jack}
+%{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_jack/g' menuselect.makeopts
 %endif
 
 %if ! 0%{?ldap}
@@ -824,7 +838,7 @@ fi
 %pre dahdi
 %{_sbindir}/usermod -a -G dahdi asterisk
 
-%if %{misdn}
+%if 0%{?misdn}
 %pre misdn
 %{_sbindir}/usermod -a -G misdn asterisk
 %endif
@@ -1252,9 +1266,11 @@ fi
 %{_libdir}/asterisk/modules/res_jabber.so
 %{_libdir}/asterisk/modules/res_xmpp.so
 
+%if 0%{?jack}
 %files jack
 %defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/app_jack.so
+%endif
 
 %files lua
 %defattr(-,root,root,-)
@@ -1419,6 +1435,94 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Mar  4 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.8.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.8.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.8.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- Bugs fixed in this release:
+- -----------------------------------
+-  * ASTERISK-22544 - Italian prompt vm-options has advertisement in
+-       it (Reported by Rusty Newton)
+-  * ASTERISK-21383 - STUN Binding Requests Not Being Sent Back from
+-       Asterisk to Chrome (Reported by Shaun Clark)
+-  * ASTERISK-22478 - [patch]Can't use pound(hash) symbol for custom
+-       DTMF menus in ConfBridge (processed as directive) (Reported by
+-       Nicolas Tanski)
+-  * ASTERISK-12117 - chan_sip creates a new local tag (from-tag) for
+-       every register message (Reported by Pawel Pierscionek)
+-  * ASTERISK-20862 - Asterisk min and max member penalties not
+-       honored when set with 0 (Reported by Schmooze Com)
+-  * ASTERISK-22746 - [patch]Crash in chan_dahdi during caller id
+-       read (Reported by Michael Walton)
+-  * ASTERISK-22788 - [patch] main/translate.c: access to variable f
+-       after free in ast_translate() (Reported by Corey Farrell)
+-  * ASTERISK-21242 - Segfault when T.38 re-invite retransmission
+-       receives 200 OK (Reported by Ashley Winters)
+-  * ASTERISK-22590 - BufferOverflow in unpacksms16() when receiving
+-       16 bit multipart SMS with app_sms (Reported by Jan Juergens)
+-  * ASTERISK-22905 - Prevent Asterisk functions that are 'dangerous'
+-       from being executed from external interfaces (Reported by Matt
+-       Jordan)
+-  * ASTERISK-23021 - Typos in code : "avaliable" instead of
+-       "available" (Reported by Jeremy Lainé)
+-  * ASTERISK-22970 - [patch]Documentation fix for QUOTE() (Reported
+-       by Gareth Palmer)
+-  * ASTERISK-21960 - ooh323 channels stuck (Reported by Dmitry
+-       Melekhov)
+-  * ASTERISK-22350 - DUNDI - core dump on shutdown - segfault in
+-       sqlite3_reset from /usr/lib/libsqlite3.so.0 (Reported by Birger
+-       "WIMPy" Harzenetter)
+-  * ASTERISK-22942 - [patch] - Asterisk crashed after
+-       Set(FAXOPT(faxdetect)=t38) (Reported by adomjan)
+-  * ASTERISK-22856 - [patch]SayUnixTime in polish reads minutes
+-       instead of seconds (Reported by Robert Mordec)
+-  * ASTERISK-22854 - [patch] - Deadlock between cel_pgsql unload and
+-       core_event_dispatcher taskprocessor thread (Reported by Etienne
+-       Lessard)
+-  * ASTERISK-22910 - [patch] - REPLACE() calls strcpy on overlapping
+-       memory when <replace-char> is empty (Reported by Gareth Palmer)
+-  * ASTERISK-22871 - cel_pgsql module not loading after "reload" or
+-       "reload cel_pgsql.so" command (Reported by Matteo)
+-  * ASTERISK-23084 - [patch]rasterisk needlessly prints the
+-       AST-2013-007 warning (Reported by Tzafrir Cohen)
+-  * ASTERISK-17138 - [patch] Asterisk not re-registering after it
+-       receives "Forbidden - wrong password on authentication"
+-       (Reported by Rudi)
+-  * ASTERISK-23011 - [patch]configure.ac and pbx_lua don't support
+-       lua 5.2 (Reported by George Joseph)
+-  * ASTERISK-22834 - Parking by blind transfer when lot full orphans
+-       channels (Reported by rsw686)
+-  * ASTERISK-23047 - Orphaned (stuck) channel occurs during a failed
+-       SIP transfer to parking space (Reported by Tommy Thompson)
+-  * ASTERISK-22946 - Local From tag regression with sipgate.de
+-       (Reported by Stephan Eisvogel)
+-  * ASTERISK-23010 - No BYE message sent when sip INVITE is received
+-       (Reported by Ryan Tilton)
+-  * ASTERISK-23135 - Crash - segfault in ast_channel_hangupcause_set
+-       - probably introduced in 11.7.0 (Reported by OK)
+-
+- Improvements made in this release:
+- -----------------------------------
+-  * ASTERISK-22728 - [patch] Improve Understanding Of 'Forcerport'
+-       When Running "sip show peers" (Reported by Michael L. Young)
+-  * ASTERISK-22659 - Make a new core and extra sounds release
+-       (Reported by Rusty Newton)
+-  * ASTERISK-22919 - core show channeltypes slicing  (Reported by
+-       outtolunc)
+-  * ASTERISK-22918 - dahdi show channels slices PRI channel dnid on
+-       output (Reported by outtolunc)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.8.0
+
 * Sat Dec 28 2013 Jeffrey Ollie <jeff@ocjtech.us> - 11.7.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.7.0.
 - This release is available for immediate download at
