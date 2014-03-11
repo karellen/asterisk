@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          11.8.0
+Version:          11.8.1
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -1435,6 +1435,64 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Tue Mar 11 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.8.1-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.15, 11.6, and Asterisk 1.8, 11, and 12. The available security
+- releases are released as versions 1.8.15-cert5, 11.6-cert2, 1.8.26.1, 11.8.1,
+- and 12.1.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolve the following issues:
+-
+- * AST-2014-001: Stack overflow in HTTP processing of Cookie headers.
+-
+-   Sending a HTTP request that is handled by Asterisk with a large number of
+-   Cookie headers could overflow the stack.
+-
+-   Another vulnerability along similar lines is any HTTP request with a
+-   ridiculous number of headers in the request could exhaust system memory.
+-
+- * AST-2014-002: chan_sip: Exit early on bad session timers request
+-
+-   This change allows chan_sip to avoid creation of the channel and
+-   consumption of associated file descriptors altogether if the inbound
+-   request is going to be rejected anyway.
+-
+- Additionally, the release of 12.1.1 resolves the following issue:
+-
+- * AST-2014-003: res_pjsip: When handling 401/407 responses don't assume a
+-   request will have an endpoint.
+-
+-   This change removes the assumption that an outgoing request will always
+-   have an endpoint and makes the authenticate_qualify option work once again.
+-
+- Finally, a security advisory, AST-2014-004, was released for a vulnerability
+- fixed in Asterisk 12.1.0. Users of Asterisk 12.0.0 are encouraged to upgrade to
+- 12.1.1 to resolve both vulnerabilities.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2014-001, AST-2014-002, AST-2014-003, and AST-2014-004,
+- which were released at the same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.15-cert5
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.26.1
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.6-cert2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.8.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-12.1.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2014-001.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-002.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-003.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-004.pdf
+
 * Tue Mar  4 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.8.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.8.0.
 - This release is available for immediate download at
