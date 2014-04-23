@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          11.8.1
+Version:          11.9.0
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -1435,6 +1435,151 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Wed Apr 23 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.9.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.9.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.9.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- Bugs fixed in this release:
+- -----------------------------------
+-  * ASTERISK-22790 - check_modem_rate() may return incorrect rate
+-       for V.27 (Reported by Paolo Compagnini)
+-  * ASTERISK-23034 - [patch] manager Originate doesn't abort on
+-       failed format_cap allocation (Reported by Corey Farrell)
+-  * ASTERISK-23061 - [Patch] 'textsupport' setting not mentioned in
+-       sip.conf.sample (Reported by Eugene)
+-  * ASTERISK-23028 - [patch] Asterisk man pages contains unquoted
+-       minus signs (Reported by Jeremy Lainé)
+-  * ASTERISK-23046 - Custom CDR fields set during a GoSUB called
+-       from app_queue are not inserted (Reported by Denis Pantsyrev)
+-  * ASTERISK-23027 - [patch] Spelling typo "transfered" instead of
+-       "transferred" (Reported by Jeremy Lainé)
+-  * ASTERISK-23008 - Local channels loose CALLERID name when DAHDI
+-       channel connects (Reported by Michael Cargile)
+-  * ASTERISK-23100 - [patch] In chan_mgcp the ident in transmitted
+-       request and request queue may differ - fix for locking (Reported
+-       by adomjan)
+-  * ASTERISK-22988 - [patch]T38 , SIP 488 after Rejecting image
+-       media offer due to invalid or unsupported syntax (Reported by
+-       adomjan)
+-  * ASTERISK-22861 - [patch]Specifying a null time as parameter to
+-       GotoIfTime or ExecIfTime causes segmentation fault (Reported by
+-       Sebastian Murray-Roberts)
+-  * ASTERISK-17837 - extconfig.conf - Maximum Include level (1)
+-       exceeded (Reported by pz)
+-  * ASTERISK-22662 - Documentation fix? - queues.conf says
+-       persistentmembers defaults to yes, it appears to lie (Reported
+-       by Rusty Newton)
+-  * ASTERISK-23134 - [patch] res_rtp_asterisk port selection cannot
+-       handle selinux port restrictions (Reported by Corey Farrell)
+-  * ASTERISK-23220 - STACK_PEEK function with no arguments causes
+-       crash/core dump (Reported by James Sharp)
+-  * ASTERISK-19773 - Asterisk crash on issuing Asterisk-CLI 'reload'
+-       command multiple times on cli_aliases (Reported by Joel Vandal)
+-  * ASTERISK-22757 - segfault in res_clialiases.so on reload when
+-       mapping "module reload" command (Reported by Gareth Blades)
+-  * ASTERISK-17727 - [patch] TLS doesn't get all certificate chain
+-       (Reported by LN)
+-  * ASTERISK-23178 - devicestate.h: device state setting functions
+-       are documented with the wrong return values (Reported by
+-       Jonathan Rose)
+-  * ASTERISK-23232 - LocalBridge AMI Event LocalOptimization value
+-       is opposite to what's expected (Reported by Leon Roy)
+-  * ASTERISK-23098 - [patch]possible null pointer dereference in
+-       format.c (Reported by Marcello Ceschia)
+-  * ASTERISK-23297 - Asterisk 12, pbx_config.so segfaults if
+-       res_parking.so is not loaded, or if res_parking.conf has no
+-       configuration (Reported by CJ Oster)
+-  * ASTERISK-23069 - Custom CDR variable not recorded when set in
+-       macro called from app_queue (Reported by Bryan Anderson)
+-  * ASTERISK-19499 - ConfBridge MOH is not working for transferee
+-       after attended transfer (Reported by Timo Teräs)
+-  * ASTERISK-23261 - [patch]Output mixup in
+-       ${CHANNEL(rtpqos,audio,all)} (Reported by rsw686)
+-  * ASTERISK-23279 - [patch]Asterisk doesn't support the dynamic
+-       payload change in rtp mapping in the 200 OK response (Reported
+-       by NITESH BANSAL)
+-  * ASTERISK-23255 - UUID included for Redhat, but missing for
+-       Debian distros in install_prereq script (Reported by Rusty
+-       Newton)
+-  * ASTERISK-23260 - [patch]ForkCDR v option does not keep CDR
+-       variables for subsequent records (Reported by zvision)
+-  * ASTERISK-23141 - Asterisk crashes on Dial(), in
+-       pbx_find_extension at pbx.c (Reported by Maxim)
+-  * ASTERISK-23336 - Asterisk warning "Don't know how to indicate
+-       condition 33 on ooh323c" on outgoing calls from H323 to SIP peer
+-       (Reported by Alexander Semych)
+-  * ASTERISK-23231 - Since 405693 If we have res_fax.conf file set
+-       to minrate=2400, then res_fax refuse to load (Reported by David
+-       Brillert)
+-  * ASTERISK-23135 - Crash - segfault in ast_channel_hangupcause_set
+-       - probably introduced in 11.7.0 (Reported by OK)
+-  * ASTERISK-23323 - [patch]chan_sip: missing p->owner checks in
+-       handle_response_invite (Reported by Walter Doekes)
+-  * ASTERISK-23406 - [patch]Fix typo in "sip show peer" (Reported by
+-       ibercom)
+-  * ASTERISK-23310 - bridged channel crashes in bridge_p2p_rtp_write
+-       (Reported by Jeremy Lainé)
+-  * ASTERISK-22911 - [patch]Asterisk fails to resume WebRTC call
+-       from hold (Reported by Vytis Valentinavičius)
+-  * ASTERISK-23104 - Specifying the SetVar AMI without a Channel
+-       cause Asterisk to crash (Reported by Joel Vandal)
+-  * ASTERISK-21930 - [patch]WebRTC over WSS is not working.
+-       (Reported by John)
+-  * ASTERISK-23383 - Wrong sense test on stat return code causes
+-       unchanged config check to break with include files. (Reported by
+-       David Woolley)
+-  * ASTERISK-20149 - Crash when faxing SIP to SIP with strictrtp set
+-       to yes (Reported by Alexandr Gordeev)
+-  * ASTERISK-17523 - Qualify for static realtime peers does not work
+-       (Reported by Maciej Krajewski)
+-  * ASTERISK-21406 - [patch] chan_sip deadlock on monlock between
+-       unload_module and do_monitor (Reported by Corey Farrell)
+-  * ASTERISK-23373 - [patch]Security: Open FD exhaustion with
+-       chan_sip Session-Timers (Reported by Corey Farrell)
+-  * ASTERISK-23340 - Security Vulnerability: stack allocation of
+-       cookie headers in loop allows for unauthenticated remote denial
+-       of service attack (Reported by Matt Jordan)
+-  * ASTERISK-23311 - Manager - MoH Stop Event fails to show up when
+-       leaving Conference (Reported by Benjamin Keith Ford)
+-  * ASTERISK-23420 - [patch]Memory leak in manager_add_filter
+-       function in manager.c (Reported by Etienne Lessard)
+-  * ASTERISK-23488 - Logic error in callerid checksum processing
+-       (Reported by Russ Meyerriecks)
+-  * ASTERISK-23461 - Only first user is muted when joining
+-       confbridge with 'startmuted=yes' (Reported by Chico Manobela)
+-  * ASTERISK-20841 - fromdomain not honored on outbound INVITE
+-       request (Reported by Kelly Goedert)
+-  * ASTERISK-22079 - Segfault: INTERNAL_OBJ (user_data=0x6374652f)
+-       at astobj2.c:120 (Reported by Jamuel Starkey)
+-  * ASTERISK-23509 - [patch]SayNumber for Polish language tries to
+-       play empty files for numbers divisible by 100 (Reported by
+-       zvision)
+-  * ASTERISK-23103 - [patch]Crash in ast_format_cmp, in ao2_find
+-       (Reported by JoshE)
+-  * ASTERISK-23391 - Audit dialplan function usage of channel
+-       variable (Reported by Corey Farrell)
+-  * ASTERISK-23548 - POST to ARI sometimes returns no body on
+-       success (Reported by Scott Griepentrog)
+-  * ASTERISK-23460 - ooh323 channel stuck if call is placed directly
+-       and gatekeeper is not available (Reported by Dmitry Melekhov)
+-
+- Improvements made in this release:
+- -----------------------------------
+-  * ASTERISK-22980 - [patch]Allow building cdr_radius and cel_radius
+-       against libfreeradius-client (Reported by Jeremy Lainé)
+-  * ASTERISK-22661 - Unable to exit ChanSpy if spied channel does
+-       not have a call in progress (Reported by Chris Hillman)
+-  * ASTERISK-23099 - [patch] WSS: enable ast_websocket_read()
+-       function to read the whole available data at first and then wait
+-       for any fragmented packets (Reported by Thava Iyer)
+
 * Tue Mar 11 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.8.1-1:
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.15, 11.6, and Asterisk 1.8, 11, and 12. The available security

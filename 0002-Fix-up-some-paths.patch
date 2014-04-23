@@ -152,7 +152,7 @@ index 6376048..e4a5a80 100644
 +	echo "need to be moved to /usr/share/asterisk/keys if you want"
  	echo "to use them, and any private keys (.key files) will"
  	echo "need to be initialized at runtime either by running"
- 	echo "Asterisk with the '-i' option, or with the 'init keys'"
+ 	echo "Asterisk with the '-i' option, or with the 'keys init'"
 diff --git a/contrib/scripts/astgenkey.8 b/contrib/scripts/astgenkey.8
 index 063feca..9ace9f2 100644
 --- a/contrib/scripts/astgenkey.8
