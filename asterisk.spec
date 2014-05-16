@@ -4,7 +4,7 @@
 %global           _smp_mflags     -j1
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
-%ifarch s390 %{arm}
+%ifarch s390 %{arm} aarch64
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %else
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          11.9.0
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -90,7 +90,7 @@ BuildRequires:    systemd-units
 
 # for res_http_post
 %if (0%{?fedora} > 0) && 0%{?gmime}
-BuildRequires:    gmime22-devel
+BuildRequires:    gmime-devel
 %endif
 
 # for building docs
@@ -1435,6 +1435,10 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu May 15 2014 Dennis Gilmore <dennis@ausil.us> - 11.9.0-2
+- build against gmime-devel not gmime22-devel
+- do not use -m64 on aarch64 
+
 * Wed Apr 23 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.9.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.9.0.
 - This release is available for immediate download at
