@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          11.9.0
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Version:          11.10.2
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -64,7 +64,6 @@ Source6:          asterisk-tmpfiles
 
 Patch1:           0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch2:           0002-Fix-up-some-paths.patch
-Patch3:           0003-Add-LDAP-schema-that-is-compatible-with-Fedora-Direc.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -344,20 +343,6 @@ Requires: asterisk = %{version}-%{release}
 
 %description ldap
 LDAP resources for Asterisk.
-
-%if 0%{?rhel} <= 5 || 0%{?fedora}
-%package ldap-389
-Summary: LDAP resources for Asterisk and the 389 Directory Server
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-ldap = %{version}-%{release}
-Requires: 389-ds-base
-Obsoletes: asterisk-ldap-fds < 1.8.4.4-2
-Conflicts: asterisk-ldap-fds < 1.8.4.4-2
-
-%description ldap-389
-LDAP resources for Asterisk and the 389 Directory Server.
-%endif
 %endif
 
 %if 0%{?misdn}
@@ -546,7 +531,6 @@ local filesystem.
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -703,7 +687,6 @@ rm -f %{buildroot}%{_sbindir}/safe_asterisk
 %else
 install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
 %endif
-install -D -p -m 0644 contrib/scripts/99asterisk.ldif %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
@@ -781,7 +764,6 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_snmp.conf
 
 %if ! 0%{?ldap}
 rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
-rm -f %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
 %endif
 
 %clean
@@ -1283,12 +1265,6 @@ fi
 #doc doc/ldap.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
-
-%if 0%{?rhel} <= 5 || 0%{?fedora}
-%files ldap-389
-%defattr(-,root,root,-)
-%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
-%endif
 %endif
 
 %files minivm
@@ -1435,12 +1411,204 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Thu Jun 19 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.10.2-2:
+- Drop the 389 directory server schema (1061414)
+
+* Thu Jun 19 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.10.2-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.15, 11.6, and Asterisk 1.8, 11, and 12. The available security
+- releases are released as versions 1.8.15-cert7, 11.6-cert4, 1.8.28.2, 11.10.2,
+- and 12.3.2.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- These releases resolve security vulnerabilities that were previously fixed in
+- 1.8.15-cert6, 11.6-cert3, 1.8.28.1, 11.10.1, and 12.3.1. Unfortunately, the fix
+- for AST-2014-007 inadvertently introduced a regression in Asterisk's TCP and TLS
+- handling that prevented Asterisk from sending data over these transports. This
+- regression and the security vulnerabilities have been fixed in the versions
+- specified in this release announcement.
+-
+- The security patches for AST-2014-007 have been updated with the fix for the
+- regression, and are available at http://downloads.asterisk.org/pub/security
+-
+- Please note that the release of these versions resolves the following security
+- vulnerabilities:
+-
+- * AST-2014-005: Remote Crash in PJSIP Channel Driver's Publish/Subscribe
+-                 Framework
+-
+- * AST-2014-006: Permission Escalation via Asterisk Manager User Unauthorized
+-                 Shell Access
+-
+- * AST-2014-007: Denial of Service via Exhaustion of Allowed Concurrent HTTP
+-                 Connections
+-
+- * AST-2014-008: Denial of Service in PJSIP Channel Driver Subscriptions
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2014-005, AST-2014-006, AST-2014-007, and AST-2014-008,
+- which were released with the previous versions that addressed these
+- vulnerabilities.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.15-cert7
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.28.2
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.6-cert4
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.10.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-12.3.2
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2014-005.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-006.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-007.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-008.pdf
+
+* Thu Jun 19 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.10.1-1:
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.15, 11.6, and Asterisk 1.8, 11, and 12. The available security
+- releases are released as versions 1.8.15-cert6, 11.6-cert3, 1.8.28.1, 11.10.1,
+- and 12.3.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolves the following issue:
+-
+- * AST-2014-007: Denial of Service via Exhaustion of Allowed Concurrent HTTP
+-                 Connections
+-
+-   Establishing a TCP or TLS connection to the configured HTTP or HTTPS port
+-   respectively in http.conf and then not sending or completing a HTTP request
+-   will tie up a HTTP session. By doing this repeatedly until the maximum number
+-   of open HTTP sessions is reached, legitimate requests are blocked.
+-
+- Additionally, the release of 11.6-cert3, 11.10.1, and 12.3.1 resolves the
+- following issue:
+-
+- * AST-2014-006: Permission Escalation via Asterisk Manager User Unauthorized
+-                 Shell Access
+-
+-   Manager users can execute arbitrary shell commands with the MixMonitor manager
+-   action. Asterisk does not require system class authorization for a manager
+-   user to use the MixMonitor action, so any manager user who is permitted to use
+-   manager commands can potentially execute shell commands as the user executing
+-   the Asterisk process.
+-
+- Additionally, the release of 12.3.1 resolves the following issues:
+-
+- * AST-2014-005: Remote Crash in PJSIP Channel Driver's Publish/Subscribe
+-                 Framework
+-
+-   A remotely exploitable crash vulnerability exists in the PJSIP channel
+-   driver's pub/sub framework. If an attempt is made to unsubscribe when not
+-   currently subscribed and the endpoint's “sub_min_expiry” is set to zero,
+-   Asterisk tries to create an expiration timer with zero seconds, which is not
+-   allowed, so an assertion raised.
+-
+- * AST-2014-008: Denial of Service in PJSIP Channel Driver Subscriptions
+-
+-   When a SIP transaction timeout caused a subscription to be terminated, the
+-   action taken by Asterisk was guaranteed to deadlock the thread on which SIP
+-   requests are serviced. Note that this behavior could only happen on
+-   established subscriptions, meaning that this could only be exploited if an
+-   attacker bypassed authentication and successfully subscribed to a real
+-   resource on the Asterisk server.
+-
+- These issues and their resolutions are described in the security advisories.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2014-005, AST-2014-006, AST-2014-007, and AST-2014-008,
+- which were released at the same time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.15-cert6
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.28.1
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.6-cert3
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.10.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-12.3.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2014-005.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-006.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-007.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-008.pdf
+
+* Thu Jun 19 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.10.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 11.10.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 11.10.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- Bugs fixed in this release:
+- -----------------------------------
+-  * ASTERISK-23547 - [patch] app_queue removing callers from queue
+-       when reloading (Reported by Italo Rossi)
+-  * ASTERISK-23559 - app_voicemail fails to load after fix to
+-       dialplan functions (Reported by Corey Farrell)
+-  * ASTERISK-22846 - testsuite: masquerade super test fails on all
+-       branches (still) (Reported by Matt Jordan)
+-  * ASTERISK-23545 - Confbridge talker detection settings
+-       configuration load bug (Reported by John Knott)
+-  * ASTERISK-23546 - CB_ADD_LEN does not do what you'd think
+-       (Reported by Walter Doekes)
+-  * ASTERISK-23620 - Code path in app_stack fails to unlock list
+-       (Reported by Bradley Watkins)
+-  * ASTERISK-23616 - Big memory leak in logger.c (Reported by
+-       ibercom)
+-  * ASTERISK-23576 - Build failure on SmartOS / Illumos / SunOS
+-       (Reported by Sebastian Wiedenroth)
+-  * ASTERISK-23550 - Newer sound sets don't show up in menuselect
+-       (Reported by Rusty Newton)
+-  * ASTERISK-18331 - app_sms failure (Reported by David Woodhouse)
+-  * ASTERISK-19465 - P-Asserted-Identity Privacy (Reported by
+-       Krzysztof Chmielewski)
+-  * ASTERISK-23605 - res_http_websocket: Race condition in shutting
+-       down websocket causes crash (Reported by Matt Jordan)
+-  * ASTERISK-23707 - Realtime Contacts: Apparent mismatch between
+-       PGSQL database state and Asterisk state (Reported by Mark
+-       Michelson)
+-  * ASTERISK-23381 - [patch]ChanSpy- Barge only works on the initial
+-       'spy', if the spied-on channel makes a new call, unable to
+-       barge. (Reported by Robert Moss)
+-  * ASTERISK-23665 - Wrong mime type for codec H263-1998 (h263+)
+-       (Reported by Guillaume Maudoux)
+-  * ASTERISK-23664 - Incorrect H264 specification in SDP. (Reported
+-       by Guillaume Maudoux)
+-  * ASTERISK-22977 - chan_sip+CEL: missing ANSWER and PICKUP event
+-       for INVITE/w/replaces pickup (Reported by Walter Doekes)
+-  * ASTERISK-23709 - Regression in Dahdi/Analog/waitfordialtone
+-       (Reported by Steve Davies)
+-
+- Improvements made in this release:
+- -----------------------------------
+-  * ASTERISK-23649 - [patch]Support for DTLS retransmission
+-       (Reported by NITESH BANSAL)
+-  * ASTERISK-23564 - [patch]TLS/SRTP status of channel not currently
+-       available in a CLI command (Reported by Patrick Laimbock)
+-  * ASTERISK-23754 - [patch] Use var/lib directory for log file
+-       configured in asterisk.conf (Reported by Igor Goncharovsky)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-11.10.0
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 11.9.0-2.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
 * Thu May 15 2014 Dennis Gilmore <dennis@ausil.us> - 11.9.0-2
 - build against gmime-devel not gmime22-devel
-- do not use -m64 on aarch64 
+- do not use -m64 on aarch64
 
 * Wed Apr 23 2014 Jeffrey Ollie <jeff@ocjtech.us> - 11.9.0-1:
 - The Asterisk Development Team has announced the release of Asterisk 11.9.0.
