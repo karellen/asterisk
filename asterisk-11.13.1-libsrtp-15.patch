@@ -1,0 +1,12 @@
+diff -up asterisk-11.13.1/res/res_srtp.c.srtp-15 asterisk-11.13.1/res/res_srtp.c
+--- asterisk-11.13.1/res/res_srtp.c.srtp-15	2014-11-14 14:07:00.640238010 -0500
++++ asterisk-11.13.1/res/res_srtp.c	2014-11-14 14:07:11.278170731 -0500
+@@ -39,6 +39,8 @@
+ 
+ ASTERISK_FILE_VERSION(__FILE__, "$Revision: 413587 $")
+ 
++#include <srtp/config.h>
++#include <srtp/crypto_kernel.h>
+ #include <srtp/srtp.h>
+ 
+ #include "asterisk/lock.h"

@@ -64,6 +64,7 @@ Source6:          asterisk-tmpfiles
 
 Patch1:           0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch2:           0002-Fix-up-some-paths.patch
+Patch3:           asterisk-11.13.1-libsrtp-15.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -531,6 +532,7 @@ local filesystem.
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
