@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          11.13.1
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1411,6 +1411,9 @@ fi
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %changelog
+* Fri Nov 14 2014 Tom Callaway <spot@fedoraproject.org> - 11.13.1-2
+- rebuild for new libsrtp
+
 * Mon Oct 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 11.13.1-1
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.28 and 11.6 and Asterisk 1.8, 11, 12, and 13. The available
