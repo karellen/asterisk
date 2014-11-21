@@ -64,6 +64,7 @@ Source6:          asterisk-tmpfiles
 
 Patch1:           0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
 Patch2:           0002-Fix-up-some-paths.patch
+Patch3:           asterisk-11.13.1-libsrtp-15.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -621,8 +622,9 @@ Jabber/XMPP resources for Asterisk.
 
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
-#patch1 -p1
-#patch2 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1607,7 +1609,8 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
-* Sat Oct 25 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.0-1
+
+* Thu Nov 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.0-1
 - The Asterisk Development Team is pleased to announce the release of
 - Asterisk 13.0.0. This release is available for immediate download at
 - http://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -1664,6 +1667,9 @@ fi
 - For a full list of changes in the current release, please see the ChangeLog:
 -
 - http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-13.0.0
+
+* Fri Nov 14 2014 Tom Callaway <spot@fedoraproject.org> - 11.13.1-2
+- rebuild for new libsrtp
 
 * Mon Oct 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 11.13.1-1
 - The Asterisk Development Team has announced security releases for Certified
