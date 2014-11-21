@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.0.0
+Version:          13.0.1
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -62,9 +62,7 @@ Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
 
-Patch1:           0001-Modify-modules.conf-so-that-different-voicemail-modu.patch
-Patch2:           0002-Fix-up-some-paths.patch
-Patch3:           asterisk-11.13.1-libsrtp-15.patch
+Patch0:           asterisk-13.0.0-libsrtp-15.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -622,9 +620,7 @@ Jabber/XMPP resources for Asterisk.
 
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+%patch0 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1609,6 +1605,113 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Nov 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.1-1
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 1.8.28 and 11.6 and Asterisk 1.8, 11, 12, and 13. The available
+- security releases are released as versions 1.8.28-cert3, 11.6-cert8, 1.8.32.1,
+- 11.14.1, 12.7.1, and 13.0.1.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolves the following security vulnerabilities:
+-
+- * AST-2014-012: Unauthorized access in the presence of ACLs with mixed IP
+-   address families
+-
+-   Many modules in Asterisk that service incoming IP traffic have ACL options
+-   ("permit" and "deny") that can be used to whitelist or blacklist address
+-   ranges. A bug has been discovered where the address family of incoming
+-   packets is only compared to the IP address family of the first entry in the
+-   list of access control rules. If the source IP address for an incoming
+-   packet is not of the same address as the first ACL entry, that packet
+-   bypasses all ACL rules.
+-
+- * AST-2014-018: Permission Escalation through DB dialplan function
+-
+-   The DB dialplan function when executed from an external protocol, such as AMI,
+-   could result in a privilege escalation. Users with a lower class authorization
+-   in AMI can access the internal Asterisk database without the required SYSTEM
+-   class authorization.
+-
+- In addition, the release of 11.6-cert8 and 11.14.1 resolves the following
+- security vulnerability:
+-
+- * AST-2014-014: High call load with ConfBridge can result in resource exhaustion
+-
+-   The ConfBridge application uses an internal bridging API to implement
+-   conference bridges. This internal API uses a state model for channels within
+-   the conference bridge and transitions between states as different things
+-   occur. Unload load it is possible for some state transitions to be delayed
+-   causing the channel to transition from being hung up to waiting for media. As
+-   the channel has been hung up remotely no further media will arrive and the
+-   channel will stay within ConfBridge indefinitely.
+-
+- In addition, the release of 11.6-cert8, 11.14.1, 12.7.1, and 13.0.1 resolves
+- the following security vulnerability:
+-
+- * AST-2014-017: Permission Escalation via ConfBridge dialplan function and
+-                 AMI ConfbridgeStartRecord Action
+-
+-   The CONFBRIDGE dialplan function when executed from an external protocol (such
+-   as AMI) can result in a privilege escalation as certain options within that
+-   function can affect the underlying system. Additionally, the AMI
+-   ConfbridgeStartRecord action has options that would allow modification of the
+-   underlying system, and does not require SYSTEM class authorization in AMI.
+-
+- Finally, the release of 12.7.1 and 13.0.1 resolves the following security
+- vulnerabilities:
+-
+- * AST-2014-013: Unauthorized access in the presence of ACLs in the PJSIP stack
+-
+-   The Asterisk module res_pjsip provides the ability to configure ACLs that may
+-   be used to reject SIP requests from various hosts. However, the module
+-   currently fails to create and apply the ACLs defined in its configuration
+-   file on initial module load.
+-
+- * AST-2014-015: Remote crash vulnerability in PJSIP channel driver
+-
+-   The chan_pjsip channel driver uses a queue approach for relating to SIP
+-   sessions. There exists a race condition where actions may be queued to answer
+-   a session or send ringing after a SIP session has been terminated using a
+-   CANCEL request. The code will incorrectly assume that the SIP session is still
+-   active and attempt to send the SIP response. The PJSIP library does not
+-   expect the SIP session to be in the disconnected state when sending the
+-   response and asserts.
+-
+- * AST-2014-016: Remote crash vulnerability in PJSIP channel driver
+-
+-   When handling an INVITE with Replaces message the res_pjsip_refer module
+-   incorrectly assumes that it will be operating on a channel that has just been
+-   created. If the INVITE with Replaces message is sent in-dialog after a session
+-   has been established this assumption will be incorrect. The res_pjsip_refer
+-   module will then hang up a channel that is actually owned by another thread.
+-   When this other thread attempts to use the just hung up channel it will end up
+-   using a freed channel which will likely result in a crash.
+-
+- For more information about the details of these vulnerabilities, please read
+- security advisories AST-2014-012, AST-2014-013, AST-2014-014, AST-2014-015,
+- AST-2014-016, AST-2014-017, and AST-2014-018, which were released at the same
+- time as this announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-1.8.28-cert3
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.6-cert8
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-1.8.32.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.14.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-12.7.1
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-13.0.1
+-
+- The security advisories are available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2014-012.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-013.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-014.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-015.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-016.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-017.pdf
+-  * http://downloads.asterisk.org/pub/security/AST-2014-018.pdf
 
 * Thu Nov 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.0-1
 - The Asterisk Development Team is pleased to announce the release of
