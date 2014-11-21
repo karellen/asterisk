@@ -1,5 +1,5 @@
 #global _rc 2
-#global _beta 2
+#global _beta 3
 
 %global           _smp_mflags     -j1
 
@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          11.13.1
+Version:          13.0.0
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -185,6 +185,9 @@ BuildRequires:    lm_sensors-devel
 BuildRequires:    uw-imap-devel
 %endif
 
+BuildRequires:    pjproject-devel
+BuildRequires:    jansson-devel
+
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
 
@@ -214,16 +217,13 @@ does voice over IP in three protocols, and can interoperate with
 almost all standards-based telephony equipment using relatively
 inexpensive hardware.
 
-%if 0%{?corosync}
-%package corosync
-Summary: Modules for Asterisk that use Corosync
+%package ael
+Summary: AEL (Asterisk Extension Logic) modules for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-Obsoletes: asterisk-ais <= 10.1.2-1
 
-%description corosync
-Modules for Asterisk that use Corosync.
-%endif
+%description ael
+AEL (Asterisk Extension Logic) mdoules for Asterisk
 
 %package alsa
 Summary: Modules for Asterisk that use Alsa sound drivers
@@ -250,6 +250,31 @@ Requires: asterisk = %{version}-%{release}
 
 %description calendar
 Calendar applications for Asterisk.
+
+%package compat
+Summary: Metapackage to help transition Asterisk users to the new package split
+Obsoletes: asterisk < 13.0.0
+Requires: asterisk = %{version}-%{release}
+Requires: asterisk-ael = %{version}-%{release}
+Requires: asterisk-iax2 = %{version}-%{release}
+Requires: asterisk-mgcp = %{version}-%{release}
+Requires: asterisk-phone = %{version}-%{release}
+Requires: asterisk-sip = %{version}-%{release}
+
+%description compat
+This package only exists to help transition Asterisk users to the new
+package split. It will be removed after one distribution release
+cycle, please do not reference it or depend on it in any way.
+
+%if 0%{?corosync}
+%package corosync
+Summary: Modules for Asterisk that use Corosync
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description corosync
+Modules for Asterisk that use Corosync.
+%endif
 
 %package curl
 Summary: Modules for Asterisk that use cURL
@@ -296,26 +321,32 @@ Requires: festival
 %description festival
 Application for the Asterisk PBX that uses Festival to convert text to speech.
 
+%package iax2
+Summary: IAX2 channel driver for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description iax2
+IAX2 channel driver for Asterisk
+
+%package hep
+Summary: Modules for capturing SIP traffic using Homer (HEPv3)
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description hep
+Modules for capturing SIP traffic using Homer (HEPv3)
+
 %if 0%{?fedora}
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: ices
-Obsoletes: asterisk < 1.4.18-1
-Conflicts: asterisk < 1.4.18-1
 
 %description ices
 Stream audio from Asterisk to an IceCast server.
 %endif
-
-%package jabber
-Summary: Jabber/XMPP resources for Asterisk
-Group: Applications/Internet
-Requires: asterisk = %{version}-%{release}
-
-%description jabber
-Jabber/XMPP resources for Asterisk.
 
 %if 0%{?jack}
 %package jack
@@ -356,6 +387,14 @@ Requires(pre): %{_sbindir}/usermod
 mISDN channel for Asterisk.
 %endif
 
+%package mgcp
+Summary: MGCP channel driver for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description mgcp
+MGCP channel driver for Asterisk
+
 %package mobile
 Summary: Mobile (BlueTooth) channel for Asterisk
 Group: Applications/Internet
@@ -372,6 +411,16 @@ Requires: asterisk = %{version}-%{release}
 
 %description minivm
 MiniVM application for Asterisk.
+
+%package mwi-external
+Summary: Support for developing external voicemail applications
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Conflicts: asterisk-voicemail = %{version}-%{release}
+Conflicts: asterisk-voicemail-implementation = %{version}-%{release}
+
+%description mwi-external
+Support for developing external voicemail applications
 
 %if 0%{?mysql}
 %package mysql
@@ -409,6 +458,24 @@ Requires: asterisk = %{version}-%{release}
 %description oss
 Modules for Asterisk that use OSS sound drivers.
 
+%package phone
+Summary: Channel driver for Quicknet Technologies, Inc.'s Telephony cards
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description phone
+Quicknet Technologies, Inc.'s Telephony cards including the Internet
+PhoneJACK, Internet PhoneJACK Lite, Internet PhoneJACK PCI, Internet
+LineJACK, Internet PhoneCARD and SmartCABLE.
+
+%package pjsip
+Summary: SIP channel based upon the PJSIP library
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description pjsip
+SIP channel based upon the PJSIP library
+
 %package portaudio
 Summary: Modules for Asterisk that use the portaudio library
 Group: Applications/Internet
@@ -444,6 +511,14 @@ Requires: asterisk = %{version}-%{release}
 
 %description skinny
 Modules for Asterisk that support the SCCP/Skinny protocol.
+
+%package sip
+Summary: Legacy SIP channel driver for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+
+%description sip
+Legacy SIP channel driver for Asterisk
 
 %if 0%{?snmp}
 %package snmp
@@ -488,6 +563,7 @@ Requires: asterisk = %{version}-%{release}
 Requires: asterisk-voicemail-implementation = %{version}-%{release}
 Requires: /usr/bin/sox
 Requires: /usr/sbin/sendmail
+Conflicts: asterisk-mwi-external <= %{version}-%{release}
 
 %description voicemail
 Common Voicemail Modules for Asterisk.
@@ -499,6 +575,8 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: asterisk-voicemail = %{version}-%{release}
 Provides: asterisk-voicemail-implementation = %{version}-%{release}
+Conflicts: asterisk-voicemail-odbc <= %{version}-%{release}
+Conflicts: asterisk-voicemail-plain <= %{version}-%{release}
 
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
@@ -511,6 +589,8 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: asterisk-voicemail = %{version}-%{release}
 Provides: asterisk-voicemail-implementation = %{version}-%{release}
+Conflicts: asterisk-voicemail-imap <= %{version}-%{release}
+Conflicts: asterisk-voicemail-plain <= %{version}-%{release}
 
 %description voicemail-odbc
 Voicemail implementation for Asterisk that uses ODBC to store
@@ -522,15 +602,27 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: asterisk-voicemail = %{version}-%{release}
 Provides: asterisk-voicemail-implementation = %{version}-%{release}
+Conflicts: asterisk-voicemail-imap <= %{version}-%{release}
+Conflicts: asterisk-voicemail-odbc <= %{version}-%{release}
 
 %description voicemail-plain
 Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
+%package xmpp
+Summary: Jabber/XMPP resources for Asterisk
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Obsoletes: asterisk-jabber < 13.0.0
+Conflicts: asterisk-jabber < 13.0.0
+
+%description xmpp
+Jabber/XMPP resources for Asterisk.
+
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
-%patch1 -p1
-%patch2 -p1
+#patch1 -p1
+#patch2 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -607,12 +699,6 @@ export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
 export ASTCFLAGS=" "
 
-pushd menuselect/mxml
-
-%configure --host=%{_target_platform}
-
-popd
-
 pushd menuselect
 
 aclocal -I ../autoconf --force
@@ -643,7 +729,7 @@ mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
 %if 0%{?fedora} > 0
-%{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
+sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
@@ -651,16 +737,23 @@ mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
 %endif
 
-%{__sed} -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
+sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
 make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_odbc.so
 mv apps/app_directory.so apps/app_directory_odbc.so
 
-# so that these modules don't get built again during the install phase
+# so that these modules don't get built again
 touch apps/app_voicemail.o apps/app_directory.o
 touch apps/app_voicemail.so apps/app_directory.so
+
+sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_mwi_external\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
+sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_mwi_external_ami\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
+sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_stasis_mailbox\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
+sed -i -e 's/^MENUSELECT_APP=\(.*\)$/MENUSELECT_RES=\1 app_voicemail/g' menuselect.makeopts
+
+make %{?_smp_mflags} %{makeargs}
 
 %if 0%{?apidoc}
 make %{?_smp_mflags} progdocs %{makeargs}
@@ -727,6 +820,7 @@ rm -rf %{buildroot}%{_sbindir}/hashtest2
 #
 rm -rf %{buildroot}%{_sysconfdir}/asterisk/app_skel.conf
 rm -rf %{buildroot}%{_sysconfdir}/asterisk/config_test.conf
+rm -rf %{buildroot}%{_sysconfdir}/asterisk/test_sorcery.conf
 
 rm -rf %{buildroot}%{_libdir}/libasteriskssl.so
 ln -s libasterisk.so.1 %{buildroot}%{_libdir}/libasteriskssl.so
@@ -842,10 +936,12 @@ fi
 %dir %{_libdir}/asterisk
 %dir %{_libdir}/asterisk/modules
 
+%{_libdir}/asterisk/modules/app_agent_pool.so
 %{_libdir}/asterisk/modules/app_adsiprog.so
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_authenticate.so
+%{_libdir}/asterisk/modules/app_bridgewait.so
 %{_libdir}/asterisk/modules/app_cdr.so
 %{_libdir}/asterisk/modules/app_celgenuserevent.so
 %{_libdir}/asterisk/modules/app_chanisavail.so
@@ -872,17 +968,17 @@ fi
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
 %{_libdir}/asterisk/modules/app_originate.so
-%{_libdir}/asterisk/modules/app_parkandannounce.so
+#%{_libdir}/asterisk/modules/app_parkandannounce.so
 %{_libdir}/asterisk/modules/app_playback.so
 %{_libdir}/asterisk/modules/app_playtones.so
 %{_libdir}/asterisk/modules/app_privacy.so
 %{_libdir}/asterisk/modules/app_queue.so
 %{_libdir}/asterisk/modules/app_readexten.so
-%{_libdir}/asterisk/modules/app_readfile.so
+#%{_libdir}/asterisk/modules/app_readfile.so
 %{_libdir}/asterisk/modules/app_read.so
 %{_libdir}/asterisk/modules/app_record.so
 %{_libdir}/asterisk/modules/app_saycounted.so
-%{_libdir}/asterisk/modules/app_saycountpl.so
+#%{_libdir}/asterisk/modules/app_saycountpl.so
 %{_libdir}/asterisk/modules/app_sayunixtime.so
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
@@ -891,6 +987,7 @@ fi
 %{_libdir}/asterisk/modules/app_softhangup.so
 %{_libdir}/asterisk/modules/app_speech_utils.so
 %{_libdir}/asterisk/modules/app_stack.so
+%{_libdir}/asterisk/modules/app_stasis.so
 %{_libdir}/asterisk/modules/app_system.so
 %{_libdir}/asterisk/modules/app_talkdetect.so
 %{_libdir}/asterisk/modules/app_test.so
@@ -904,7 +1001,9 @@ fi
 %{_libdir}/asterisk/modules/app_while.so
 %{_libdir}/asterisk/modules/app_zapateller.so
 %{_libdir}/asterisk/modules/bridge_builtin_features.so
-%{_libdir}/asterisk/modules/bridge_multiplexed.so
+%{_libdir}/asterisk/modules/bridge_builtin_interval_features.so
+%{_libdir}/asterisk/modules/bridge_holding.so
+%{_libdir}/asterisk/modules/bridge_native_rtp.so
 %{_libdir}/asterisk/modules/bridge_simple.so
 %{_libdir}/asterisk/modules/bridge_softmix.so
 %{_libdir}/asterisk/modules/cdr_csv.so
@@ -913,14 +1012,8 @@ fi
 %{_libdir}/asterisk/modules/cdr_syslog.so
 %{_libdir}/asterisk/modules/cel_custom.so
 %{_libdir}/asterisk/modules/cel_manager.so
-%{_libdir}/asterisk/modules/chan_agent.so
-%{_libdir}/asterisk/modules/chan_bridge.so
-%{_libdir}/asterisk/modules/chan_iax2.so
-%{_libdir}/asterisk/modules/chan_local.so
-%{_libdir}/asterisk/modules/chan_mgcp.so
+%{_libdir}/asterisk/modules/chan_bridge_media.so
 %{_libdir}/asterisk/modules/chan_multicast_rtp.so
-%{_libdir}/asterisk/modules/chan_phone.so
-%{_libdir}/asterisk/modules/chan_sip.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
 %{_libdir}/asterisk/modules/codec_alaw.so
 %{_libdir}/asterisk/modules/codec_a_mu.so
@@ -946,7 +1039,6 @@ fi
 %{_libdir}/asterisk/modules/format_siren14.so
 %{_libdir}/asterisk/modules/format_siren7.so
 %{_libdir}/asterisk/modules/format_sln.so
-#%{_libdir}/asterisk/modules/format_sln16.so
 %{_libdir}/asterisk/modules/format_vox.so
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
@@ -978,30 +1070,45 @@ fi
 %{_libdir}/asterisk/modules/func_math.so
 %{_libdir}/asterisk/modules/func_md5.so
 %{_libdir}/asterisk/modules/func_module.so
+%{_libdir}/asterisk/modules/func_periodic_hook.so
 %{_libdir}/asterisk/modules/func_pitchshift.so
 %{_libdir}/asterisk/modules/func_presencestate.so
 %{_libdir}/asterisk/modules/func_rand.so
 %{_libdir}/asterisk/modules/func_realtime.so
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
+%{_libdir}/asterisk/modules/func_sorcery.so
 %{_libdir}/asterisk/modules/func_speex.so
 %{_libdir}/asterisk/modules/func_sprintf.so
 %{_libdir}/asterisk/modules/func_srv.so
 %{_libdir}/asterisk/modules/func_strings.so
 %{_libdir}/asterisk/modules/func_sysinfo.so
+%{_libdir}/asterisk/modules/func_talkdetect.so
 %{_libdir}/asterisk/modules/func_timeout.so
 %{_libdir}/asterisk/modules/func_uri.so
 %{_libdir}/asterisk/modules/func_version.so
 %{_libdir}/asterisk/modules/func_volume.so
-%{_libdir}/asterisk/modules/pbx_ael.so
 %{_libdir}/asterisk/modules/pbx_config.so
 %{_libdir}/asterisk/modules/pbx_dundi.so
 %{_libdir}/asterisk/modules/pbx_loopback.so
 %{_libdir}/asterisk/modules/pbx_realtime.so
 %{_libdir}/asterisk/modules/pbx_spool.so
 %{_libdir}/asterisk/modules/res_adsi.so
-%{_libdir}/asterisk/modules/res_ael_share.so
 %{_libdir}/asterisk/modules/res_agi.so
+%{_libdir}/asterisk/modules/res_ari.so
+%{_libdir}/asterisk/modules/res_ari_applications.so
+%{_libdir}/asterisk/modules/res_ari_asterisk.so
+%{_libdir}/asterisk/modules/res_ari_bridges.so
+%{_libdir}/asterisk/modules/res_ari_channels.so
+%{_libdir}/asterisk/modules/res_ari_device_states.so
+%{_libdir}/asterisk/modules/res_ari_endpoints.so
+%{_libdir}/asterisk/modules/res_ari_events.so
+%{_libdir}/asterisk/modules/res_ari_mailboxes.so
+%{_libdir}/asterisk/modules/res_ari_model.so
+%{_libdir}/asterisk/modules/res_ari_playbacks.so
+%{_libdir}/asterisk/modules/res_ari_recordings.so
+%{_libdir}/asterisk/modules/res_ari_sounds.so
+%{_libdir}/asterisk/modules/res_chan_stats.so
 %{_libdir}/asterisk/modules/res_clialiases.so
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
@@ -1009,31 +1116,44 @@ fi
 %{_libdir}/asterisk/modules/res_format_attr_celt.so
 %{_libdir}/asterisk/modules/res_format_attr_h263.so
 %{_libdir}/asterisk/modules/res_format_attr_h264.so
+%{_libdir}/asterisk/modules/res_format_attr_opus.so
 %{_libdir}/asterisk/modules/res_format_attr_silk.so
 %if 0%{?fedora} > 0 && 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
 %{_libdir}/asterisk/modules/res_http_websocket.so
 %{_libdir}/asterisk/modules/res_limit.so
+%{_libdir}/asterisk/modules/res_manager_devicestate.so
+%{_libdir}/asterisk/modules/res_manager_presencestate.so
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
 %{_libdir}/asterisk/modules/res_mutestream.so
+%{_libdir}/asterisk/modules/res_parking.so
 %{_libdir}/asterisk/modules/res_phoneprov.so
-%{_libdir}/asterisk/modules/res_pktccops.so
 %{_libdir}/asterisk/modules/res_realtime.so
 %{_libdir}/asterisk/modules/res_rtp_asterisk.so
 %{_libdir}/asterisk/modules/res_rtp_multicast.so
 %{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
+%{_libdir}/asterisk/modules/res_sorcery_astdb.so
+%{_libdir}/asterisk/modules/res_sorcery_config.so
+%{_libdir}/asterisk/modules/res_sorcery_memory.so
+%{_libdir}/asterisk/modules/res_sorcery_realtime.so
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_srtp.so
+%{_libdir}/asterisk/modules/res_stasis.so
+%{_libdir}/asterisk/modules/res_stasis_answer.so
+%{_libdir}/asterisk/modules/res_stasis_device_state.so
+%{_libdir}/asterisk/modules/res_stasis_playback.so
+%{_libdir}/asterisk/modules/res_stasis_recording.so
+%{_libdir}/asterisk/modules/res_stasis_snoop.so
+%{_libdir}/asterisk/modules/res_statsd.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %if 0%{?fedora} > 0 || 0%{?rhel} >= 6
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
 %endif
 
-%{_sbindir}/aelparse
 %{_sbindir}/astcanary
 %{_sbindir}/astdb2sqlite3
 %{_sbindir}/asterisk
@@ -1042,10 +1162,9 @@ fi
 %{_sbindir}/autosupport
 %{_sbindir}/check_expr
 %{_sbindir}/check_expr2
-%{_sbindir}/conf2ael
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
-%{_sbindir}/refcounter
+#%{_sbindir}/refcounter
 %if ! %{systemd}
 %{_sbindir}/safe_asterisk
 %endif
@@ -1063,10 +1182,10 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_sysconfdir}/asterisk
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/acl.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
-#%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adtranvofr.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/agents.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/amd.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ari.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.adsi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ccss.conf
@@ -1086,34 +1205,29 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dundi.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/enum.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extconfig.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/features.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/followme.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/h323.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/http.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iax.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iaxprov.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/indications.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/logger.conf
 %attr(0600,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/manager.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/mgcp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/modules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/musiconhold.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/muted.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/osp.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phone.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phoneprov.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_parking.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_stun_monitor.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip_notify.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sla.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/smdi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sorcery.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/stasis.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/statsd.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/telcordia-1.adsi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/udptl.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/users.conf
@@ -1124,12 +1238,11 @@ fi
 %dir %{_datadir}/asterisk
 %dir %{_datadir}/asterisk/agi-bin
 %{_datadir}/asterisk/documentation
-%dir %{_datadir}/asterisk/firmware
-%dir %{_datadir}/asterisk/firmware/iax
 %{_datadir}/asterisk/images
 %attr(0750,asterisk,asterisk) %{_datadir}/asterisk/keys
 %{_datadir}/asterisk/phoneprov
 %{_datadir}/asterisk/static-http
+%{_datadir}/asterisk/rest-api
 %dir %{_datadir}/asterisk/moh
 %dir %{_datadir}/asterisk/sounds
 
@@ -1151,12 +1264,13 @@ fi
 %endif
 %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 
-%if 0%{?corosync}
-%files corosync
+%files ael
 %defattr(-,root,root,-)
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_corosync.conf
-%{_libdir}/asterisk/modules/res_corosync.so
-%endif
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
+%{_sbindir}/aelparse
+%{_sbindir}/conf2ael
+%{_libdir}/asterisk/modules/pbx_ael.so
+%{_libdir}/asterisk/modules/res_ael_share.so
 
 %files alsa
 %defattr(-,root,root,-)
@@ -1178,6 +1292,13 @@ fi
 %{_libdir}/asterisk/modules/res_calendar_exchange.so
 %{_libdir}/asterisk/modules/res_calendar_icalendar.so
 
+%if 0%{?corosync}
+%files corosync
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_corosync.conf
+%{_libdir}/asterisk/modules/res_corosync.so
+%endif
+
 %files curl
 %defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
@@ -1191,23 +1312,18 @@ fi
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/meetme.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_dahdi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ss7.timers
 %{_libdir}/asterisk/modules/app_flash.so
 %{_libdir}/asterisk/modules/app_meetme.so
 %{_libdir}/asterisk/modules/app_page.so
-%{_libdir}/asterisk/modules/app_dahdibarge.so
 %{_libdir}/asterisk/modules/app_dahdiras.so
-#%{_libdir}/asterisk/modules/app_dahdiscan.so
 %{_libdir}/asterisk/modules/chan_dahdi.so
 %{_libdir}/asterisk/modules/codec_dahdi.so
 %{_libdir}/asterisk/modules/res_timing_dahdi.so
+%{_datadir}/dahdi/span_config.d/40-asterisk
 
 %files devel
 %defattr(-,root,root,-)
-#doc doc/CODING-GUIDELINES
-#doc doc/datastores.txt
-#doc doc/modules.txt
-#doc doc/valgrind.txt
-
 %dir %{_includedir}/asterisk
 %dir %{_includedir}/asterisk/doxygen
 %{_includedir}/asterisk.h
@@ -1228,25 +1344,27 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival
 %{_libdir}/asterisk/modules/app_festival.so
 
+%files iax2
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iax.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iaxprov.conf
+%dir %{_datadir}/asterisk/firmware
+%dir %{_datadir}/asterisk/firmware/iax
+%{_libdir}/asterisk/modules/chan_iax2.so
+
+%files hep
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/hep.conf
+%{_libdir}/asterisk/modules/res_hep.so
+%{_libdir}/asterisk/modules/res_hep_rtcp.so
+%{_libdir}/asterisk/modules/res_hep_pjsip.so
+
 %if 0%{?fedora}
 %files ices
 %defattr(-,root,root,-)
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
 %endif
-
-%files jabber
-%defattr(-,root,root,-)
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/gtalk.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jabber.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/jingle.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/motif.conf
-%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/xmpp.conf
-%{_libdir}/asterisk/modules/chan_gtalk.so
-%{_libdir}/asterisk/modules/chan_jingle.so
-%{_libdir}/asterisk/modules/chan_motif.so
-%{_libdir}/asterisk/modules/res_jabber.so
-%{_libdir}/asterisk/modules/res_xmpp.so
 
 %if 0%{?jack}
 %files jack
@@ -1280,6 +1398,13 @@ fi
 %{_libdir}/asterisk/modules/chan_misdn.so
 %endif
 
+%files mgcp
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/mgcp.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
+%{_libdir}/asterisk/modules/chan_mgcp.so
+%{_libdir}/asterisk/modules/res_pktccops.so
+
 %files mobile
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_mobile.conf
@@ -1296,6 +1421,12 @@ fi
 %{_libdir}/asterisk/modules/cdr_mysql.so
 %{_libdir}/asterisk/modules/res_config_mysql.so
 %endif
+
+%files mwi-external
+%defattr(-,root,root,-)
+%{_libdir}/asterisk/modules/res_mwi_external.so
+%{_libdir}/asterisk/modules/res_mwi_external_ami.so
+%{_libdir}/asterisk/modules/res_stasis_mailbox.so
 
 %if %{odbc}
 %files odbc
@@ -1323,6 +1454,59 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/oss.conf
 %{_libdir}/asterisk/modules/chan_oss.so
 
+%files phone
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phone.conf
+%{_libdir}/asterisk/modules/chan_phone.so
+
+%files pjsip
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_notify.conf
+%{_libdir}/asterisk/modules/chan_pjsip.so
+%{_libdir}/asterisk/modules/func_pjsip_endpoint.so
+%{_libdir}/asterisk/modules/res_pjsip.so
+%{_libdir}/asterisk/modules/res_pjsip_acl.so
+%{_libdir}/asterisk/modules/res_pjsip_authenticator_digest.so
+%{_libdir}/asterisk/modules/res_pjsip_caller_id.so
+%{_libdir}/asterisk/modules/res_pjsip_dialog_info_body_generator.so
+%{_libdir}/asterisk/modules/res_pjsip_diversion.so
+%{_libdir}/asterisk/modules/res_pjsip_dtmf_info.so
+%{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_anonymous.so
+%{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_ip.so
+%{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_user.so
+%{_libdir}/asterisk/modules/res_pjsip_exten_state.so
+%{_libdir}/asterisk/modules/res_pjsip_header_funcs.so
+%{_libdir}/asterisk/modules/res_pjsip_log_forwarder.so
+%{_libdir}/asterisk/modules/res_pjsip_logger.so
+%{_libdir}/asterisk/modules/res_pjsip_messaging.so
+%{_libdir}/asterisk/modules/res_pjsip_multihomed.so
+%{_libdir}/asterisk/modules/res_pjsip_mwi.so
+%{_libdir}/asterisk/modules/res_pjsip_mwi_body_generator.so
+%{_libdir}/asterisk/modules/res_pjsip_nat.so
+%{_libdir}/asterisk/modules/res_pjsip_notify.so
+%{_libdir}/asterisk/modules/res_pjsip_one_touch_record_info.so
+%{_libdir}/asterisk/modules/res_pjsip_outbound_authenticator_digest.so
+%{_libdir}/asterisk/modules/res_pjsip_outbound_publish.so
+%{_libdir}/asterisk/modules/res_pjsip_outbound_registration.so
+%{_libdir}/asterisk/modules/res_pjsip_path.so
+%{_libdir}/asterisk/modules/res_pjsip_phoneprov_provider.so
+%{_libdir}/asterisk/modules/res_pjsip_pidf_body_generator.so
+%{_libdir}/asterisk/modules/res_pjsip_pidf_digium_body_supplement.so
+%{_libdir}/asterisk/modules/res_pjsip_pidf_eyebeam_body_supplement.so
+%{_libdir}/asterisk/modules/res_pjsip_publish_asterisk.so
+%{_libdir}/asterisk/modules/res_pjsip_pubsub.so
+%{_libdir}/asterisk/modules/res_pjsip_refer.so
+%{_libdir}/asterisk/modules/res_pjsip_registrar.so
+%{_libdir}/asterisk/modules/res_pjsip_registrar_expire.so
+%{_libdir}/asterisk/modules/res_pjsip_rfc3326.so
+%{_libdir}/asterisk/modules/res_pjsip_sdp_rtp.so
+%{_libdir}/asterisk/modules/res_pjsip_send_to_voicemail.so
+%{_libdir}/asterisk/modules/res_pjsip_session.so
+%{_libdir}/asterisk/modules/res_pjsip_t38.so
+%{_libdir}/asterisk/modules/res_pjsip_transport_websocket.so
+%{_libdir}/asterisk/modules/res_pjsip_xpidf_body_generator.so
+
 %files portaudio
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/console.conf
@@ -1346,6 +1530,12 @@ fi
 %{_libdir}/asterisk/modules/cdr_radius.so
 %{_libdir}/asterisk/modules/cel_radius.so
 %endif
+
+%files sip
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip_notify.conf
+%{_libdir}/asterisk/modules/chan_sip.so
 
 %files skinny
 %defattr(-,root,root,-)
@@ -1383,7 +1573,6 @@ fi
 
 %files unistim
 %defattr(-,root,root,-)
-#doc doc/unistim.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/unistim.conf
 %{_libdir}/asterisk/modules/chan_unistim.so
 
@@ -1410,7 +1599,72 @@ fi
 %{_libdir}/asterisk/modules/app_directory_plain.so
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
+%files xmpp
+%defattr(-,root,root,-)
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/motif.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/xmpp.conf
+%{_libdir}/asterisk/modules/chan_motif.so
+%{_libdir}/asterisk/modules/res_xmpp.so
+
 %changelog
+* Sat Oct 25 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.0-1
+- The Asterisk Development Team is pleased to announce the release of
+- Asterisk 13.0.0. This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- Asterisk 13 is the next major release series of Asterisk. It is a Long Term
+- Support (LTS) release, similar to Asterisk 11. For more information about
+- support time lines for Asterisk releases, see the Asterisk versions page:
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+Versions
+-
+- For important information regarding upgrading to Asterisk 13, please see the
+- Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Upgrading+to+Asterisk+13
+-
+- A short list of new features includes:
+-
+- * Asterisk security events are now provided via AMI, allowing end users to
+-   monitor their Asterisk system in real time for security related issues.
+-
+- * Both AMI and ARI now allow external systems to control the state of a mailbox.
+-   Using AMI actions or ARI resources, external systems can programmatically
+-   trigger Message Waiting Indicators (MWI) on subscribed phones. This is of
+-   particular use to those who want to build their own VoiceMail application
+-   using ARI.
+-
+- * ARI now supports the reception/transmission of out of call text messages using
+-   any supported channel driver/protocol stack through ARI. Users receive out of
+-   call text messages as JSON events over the ARI websocket connection, and can
+-   send out of call text messages using HTTP requests.
+-
+- * The PJSIP stack now supports RFC 4662 Resource Lists, allowing Asterisk to act
+-   as a Resource List Server. This includes defining lists of presence state,
+-   mailbox state, or lists of presence state/mailbox state; managing
+-   subscriptions to lists; and batched delivery of NOTIFY requests to
+-   subscribers.
+-
+- * The PJSIP stack can now be used as a means of distributing device state or
+-   mailbox state via PUBLISH requests to other Asterisk instances. This is
+-   analogous to Asterisk's clustering support using XMPP or Corosync; unlike
+-   existing clustering mechanisms, using the PJSIP stack to perform the
+-   distribution of state does not rely on another daemon or server to perform the
+-   work.
+-
+- And much more!
+-
+- More information about the new features can be found on the Asterisk wiki:
+-
+- https://wiki.asterisk.org/wiki/display/AST/Asterisk+13+Documentation
+-
+- A full list of all new features can also be found in the CHANGES file:
+-
+- http://svnview.digium.com/svn/asterisk/branches/13/CHANGES
+-
+- For a full list of changes in the current release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-13.0.0
+
 * Mon Oct 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 11.13.1-1
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.28 and 11.6 and Asterisk 1.8, 11, 12, and 13. The available
