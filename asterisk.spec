@@ -10,7 +10,7 @@
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %endif
 
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 %global           astvarrundir     /run/asterisk
 %global           tmpfilesd        1
 %else
@@ -18,7 +18,7 @@
 %global           tmpfilesd        0
 %endif
 
-%if 0%{?fedora} >= 16
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
 %global           systemd    1
 %else
 %global           systemd    0
@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.0.1
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -87,7 +87,7 @@ BuildRequires:    systemd-units
 %endif
 
 # for res_http_post
-%if (0%{?fedora} > 0) && 0%{?gmime}
+%if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
 BuildRequires:    gmime-devel
 %endif
 
@@ -180,7 +180,7 @@ BuildRequires:    net-snmp-devel
 BuildRequires:    lm_sensors-devel
 %endif
 
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 BuildRequires:    uw-imap-devel
 %endif
 
@@ -336,7 +336,7 @@ Requires: asterisk = %{version}-%{release}
 %description hep
 Modules for capturing SIP traffic using Homer (HEPv3)
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
@@ -567,7 +567,7 @@ Conflicts: asterisk-mwi-external <= %{version}-%{release}
 %description voicemail
 Common Voicemail Modules for Asterisk.
 
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Group: Applications/Internet
@@ -711,7 +711,7 @@ aclocal -I autoconf --force
 autoconf --force
 autoheader --force
 
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
 %else
 %configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
@@ -726,7 +726,7 @@ rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 make %{?_smp_mflags} %{makeargs}
 
@@ -783,7 +783,7 @@ install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
 
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_imap.so
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_imap.so
 %endif
@@ -1116,7 +1116,7 @@ fi
 %{_libdir}/asterisk/modules/res_format_attr_h264.so
 %{_libdir}/asterisk/modules/res_format_attr_opus.so
 %{_libdir}/asterisk/modules/res_format_attr_silk.so
-%if 0%{?fedora} > 0 && 0%{?gmime}
+%if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
 %{_libdir}/asterisk/modules/res_http_websocket.so
@@ -1357,7 +1357,7 @@ fi
 %{_libdir}/asterisk/modules/res_hep_rtcp.so
 %{_libdir}/asterisk/modules/res_hep_pjsip.so
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %files ices
 %defattr(-,root,root,-)
 %doc contrib/asterisk-ices.xml
@@ -1579,7 +1579,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
-%if 0%{?fedora} > 0
+%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %files voicemail-imap
 %defattr(-,root,root,)
 %{_libdir}/asterisk/modules/app_directory_imap.so
