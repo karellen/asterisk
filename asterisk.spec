@@ -703,7 +703,7 @@ aclocal -I ../autoconf --force
 autoconf --force
 autoheader --force
 
-%configure --host=%{_target_platform}
+%configure
 
 popd
 
@@ -712,9 +712,9 @@ autoconf --force
 autoheader --force
 
 %if 0%{?fedora} > 0
-%configure --host=%{_target_platform} --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
 %else
-%configure --host=%{_target_platform} --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
+%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
 %endif
 
 make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
