@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.0.1
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version:          13.0.2
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1605,6 +1605,40 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Wed Dec 10 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.2-1
+- The Asterisk Development Team has announced security releases for Certified
+- Asterisk 11.6 and Asterisk 11, 12, and 13. The available security releases are
+- released as versions 11.6-cert9, 11.14.2, 12.7.2, and 13.0.2.
+-
+- These releases are available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases
+-
+- The release of these versions resolves the following security vulnerability:
+-
+- * AST-2014-019: Remote Crash Vulnerability in WebSocket Server
+-
+-   When handling a WebSocket frame the res_http_websocket module dynamically
+-   changes the size of the memory used to allow the provided payload to fit. If a
+-   payload length of zero was received the code would incorrectly attempt to
+-   resize to zero. This operation would succeed and end up freeing the memory but
+-   be treated as a failure. When the session was subsequently torn down this
+-   memory would get freed yet again causing a crash.
+-
+- For more information about the details of this vulnerability, please read
+- security advisory AST-2014-019, which was released at the same time as this
+- announcement.
+-
+- For a full list of changes in the current releases, please see the ChangeLogs:
+-
+- http://downloads.asterisk.org/pub/telephony/certified-asterisk/releases/ChangeLog-11.6-cert9
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-11.14.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-12.7.2
+- http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-13.0.2
+-
+- The security advisory is available at:
+-
+-  * http://downloads.asterisk.org/pub/security/AST-2014-019.pdf
+
 * Thu Nov 20 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.1-1
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.28 and 11.6 and Asterisk 1.8, 11, 12, and 13. The available
