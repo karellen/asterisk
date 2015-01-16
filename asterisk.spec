@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.0.2
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1605,6 +1605,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Jan 15 2015 Tom Callaway <spot@fedoraproject.org> - 13.0.2-2
+- update for lua 5.3
+
 * Wed Dec 10 2014 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.0.2-1
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 11.6 and Asterisk 11, 12, and 13. The available security releases are
