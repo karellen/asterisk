@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.0.2
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -104,6 +104,7 @@ BuildRequires:    libxml2-devel
 
 # for codec_speex
 BuildRequires:    speex-devel >= 1.2
+BuildRequires:    speexdsp-devel >= 1.2
 
 # for format_ogg_vorbis
 BuildRequires:    libogg-devel
@@ -1605,6 +1606,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Jan 29 2015 Peter Robinson <pbrobinson@fedoraproject.org> 13.0.2-3
+- Add speexdsp as build dep as speex_echo.h has moved - rhbz 1181021
+
 * Thu Jan 15 2015 Tom Callaway <spot@fedoraproject.org> - 13.0.2-2
 - update for lua 5.3
 
