@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.1.1
+Version:          13.3.0
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -1603,6 +1603,350 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Wed Apr  1 2015 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.3.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 13.3.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 13.3.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- New Features made in this release:
+- -----------------------------------
+-  * ASTERISK-24703 - ARI: Add the ability to "transfer" (redirect) a
+-       channel (Reported by Matt Jordan)
+-  * ASTERISK-17899 - Handle crypto lifetime in SDES-SRTP negotiation
+-       (Reported by Dwayne Hubbard)
+-
+- Bugs fixed in this release:
+- -----------------------------------
+-  * ASTERISK-24616 - Crash in res_format_attr_h264 due to invalid
+-       string copy (Reported by Yura Kocyuba)
+-  * ASTERISK-24748 - res_pjsip: If wizards explicitly configured in
+-       sorcery.conf false ERROR messages may occur (Reported by Joshua
+-       Colp)
+-  * ASTERISK-24769 - res_pjsip_sdp_rtp: Local ICE candidates leaked
+-       (Reported by Matt Jordan)
+-  * ASTERISK-24742 - [patch] Fix ast_odbc_find_table function in
+-       res_odbc (Reported by ibercom)
+-  * ASTERISK-24479 - Enable REF_DEBUG for module references
+-       (Reported by Corey Farrell)
+-  * ASTERISK-24701 - Stasis: Write timeout on WebSocket fails to
+-       fully disconnect underlying socket, leading to events being
+-       dropped with no additional information (Reported by Matt Jordan)
+-  * ASTERISK-24772 - ODBC error in realtime sippeers when device
+-       unregisters under MariaDB (Reported by Richard Miller)
+-  * ASTERISK-24752 - Crash in bridge_manager_service_req when bridge
+-       is destroyed by ARI during shutdown (Reported by Richard
+-       Mudgett)
+-  * ASTERISK-24741 - dtls_handler causes Asterisk to crash (Reported
+-       by Zane Conkle)
+-  * ASTERISK-24015 - app_transfer fails with PJSIP channels
+-       (Reported by Private Name)
+-  * ASTERISK-24727 - PJSIP: Crash experienced during multi-Asterisk
+-       transfer scenario. (Reported by Mark Michelson)
+-  * ASTERISK-24771 - ${CHANNEL(pjsip)} - segfault (Reported by
+-       Niklas Larsson)
+-  * ASTERISK-24716 - Improve pjsip log messages for presence
+-       subscription failure (Reported by Rusty Newton)
+-  * ASTERISK-24612 - res_pjsip: No information if a required sorcery
+-       wizard is not loaded (Reported by Joshua Colp)
+-  * ASTERISK-24768 - res_timing_pthread: file descriptor leak
+-       (Reported by Matthias Urlichs)
+-  * ASTERISK-24685 - "pjsip show version" CLI command (Reported by
+-       Joshua Colp)
+-  * ASTERISK-24632 - install_prereq script installs pjproject
+-       without IPv6 support (Reported by Rusty Newton)
+-  * ASTERISK-24085 - Documentation - We should remove or further
+-       document the 'contact' section in pjsip.conf (Reported by Rusty
+-       Newton)
+-  * ASTERISK-24791 - Crash in ast_rtcp_write_report (Reported by
+-       JoshE)
+-  * ASTERISK-24700 - CRASH: NULL channel is being passed to
+-       ast_bridge_transfer_attended() (Reported by Zane Conkle)
+-  * ASTERISK-24451 - chan_iax2: reference leak in sched_delay_remove
+-       (Reported by Corey Farrell)
+-  * ASTERISK-24799 - [patch] make fails with undefined reference to
+-       SSLv3_client_method (Reported by Alexander Traud)
+-  * ASTERISK-22670 - Asterisk crashes when processing ISDN AoC
+-       Events (Reported by klaus3000)
+-  * ASTERISK-24689 - Segfault on hangup after outgoing PRI-Euroisdn
+-       call (Reported by Marcel Manz)
+-  * ASTERISK-24740 - [patch]Segmentation fault on aoc-e event
+-       (Reported by Panos Gkikakis)
+-  * ASTERISK-24787 - [patch] - Microsoft exchange incompatibility
+-       for playing back messages stored in IMAP - play_message: No
+-       origtime (Reported by Graham Barnett)
+-  * ASTERISK-24814 - asterisk/lock.h: Fix syntax errors for non-gcc
+-       OSX with 64 bit integers (Reported by Corey Farrell)
+-  * ASTERISK-24796 - Codecs and bucket schema's prevent module
+-       unload (Reported by Corey Farrell)
+-  * ASTERISK-24724 - 'httpstatus' Web Page Produces Incomplete HTML
+-       (Reported by Ashley Sanders)
+-  * ASTERISK-24499 - Need more explicit debug when PJSIP dialstring
+-       is invalid (Reported by Rusty Newton)
+-  * ASTERISK-24785 - 'Expires' header missing from 200 OK on
+-       REGISTER (Reported by Ross Beer)
+-  * ASTERISK-24677 - ARI GET variable on channel provides unhelpful
+-       response on non-existent variable (Reported by Joshua Colp)
+-  * ASTERISK-24797 - bridge_softmix: G.729 codec license held
+-       (Reported by Kevin Harwell)
+-  * ASTERISK-24812 - ARI: Creating channels through /channels
+-       resource always uses SLIN, which results in unneeded transcoding
+-       (Reported by Matt Jordan)
+-  * ASTERISK-24800 - Crash in __sip_reliable_xmit due to invalid
+-       thread ID being passed to pthread_kill (Reported by JoshE)
+-  * ASTERISK-17721 - Incoming SRTP calls that specify a key lifetime
+-       fail (Reported by Terry Wilson)
+-  * ASTERISK-23214 - chan_sip WARNING message 'We are requesting
+-       SRTP for audio, but they responded without it' is ambiguous and
+-       wrong in some cases (Reported by Rusty Newton)
+-  * ASTERISK-15434 - [patch] When ast_pbx_start failed, both an
+-       error response and BYE are sent to the caller (Reported by
+-       Makoto Dei)
+-  * ASTERISK-18105 - most of asterisk modules are unbuildable in
+-       cygwin environment (Reported by feyfre)
+-  * ASTERISK-24828 - Fix Frame Leaks (Reported by Kevin Harwell)
+-  * ASTERISK-24751 - Integer values in json payload to ARI cause
+-       asterisk to crash (Reported by jeffrey putnam)
+-  * ASTERISK-24838 - chan_sip: Locking inversion occurs when
+-       building a peer causes a peer poke during request handling
+-       (Reported by Richard Mudgett)
+-  * ASTERISK-24825 - Caller ID not recognized using
+-       Centrex/Distinctive dialing (Reported by Richard Mudgett)
+-  * ASTERISK-24830 - res_rtp_asterisk.c checks USE_PJPROJECT not
+-       HAVE_PJPROJECT (Reported by Stefan Engström)
+-  * ASTERISK-24840 - res_pjsip: conflicting endpoint identifiers
+-       (Reported by Kevin Harwell)
+-  * ASTERISK-24755 - Asterisk sends unexpected early BYE to
+-       transferrer during attended transfer when using a Stasis bridge
+-       (Reported by John Bigelow)
+-  * ASTERISK-24739 - [patch] - Out of files -- call fails --
+-       numerous files with inodes from under /usr/share/zoneinfo,
+-       mostly posixrules (Reported by Ed Hynan)
+-  * ASTERISK-23390 - NewExten Event with application AGI shows up
+-       before and after AGI runs (Reported by Benjamin Keith Ford)
+-  * ASTERISK-24786 - [patch] - Asterisk terminates when playing a
+-       voicemail stored in LDAP (Reported by Graham Barnett)
+-  * ASTERISK-24808 - res_config_odbc: Improper escaping of
+-       backslashes occurs with MySQL (Reported by Javier Acosta)
+-  * ASTERISK-24807 - Missing mandatory field Max-Forwards (Reported
+-       by Anatoli)
+-  * ASTERISK-20850 - [patch]Nested functions aren't portable.
+-       Adapting RAII_VAR to use clang/llvm blocks to get the
+-       same/similar functionality. (Reported by Diederik de Groot)
+-  * ASTERISK-24872 - [patch] AMI PJSIPShowEndpoint closes AMI
+-       connection on error (Reported by Dmitriy Serov)
+-  * ASTERISK-19470 - Documentation on app_amd is incorrect (Reported
+-       by Frank DiGennaro)
+-  * ASTERISK-21038 - Bad command completion of "core set debug
+-       channel" (Reported by Richard Kenner)
+-  * ASTERISK-18708 - func_curl hangs channel under load (Reported by
+-       Dave Cabot)
+-  * ASTERISK-16779 - Cannot disallow unknown format '' (Reported by
+-       Atis Lezdins)
+-  * ASTERISK-24876 - Investigate reference leaks from
+-       tests/channels/local/local_optimize_away (Reported by Corey
+-       Farrell)
+-  * ASTERISK-24882 - chan_sip: Improve usage of REF_DEBUG (Reported
+-       by Corey Farrell)
+-  * ASTERISK-24817 - init_logger_chain: unreachable code block
+-       (Reported by Corey Farrell)
+-  * ASTERISK-24880 - [patch]Compilation under OpenBSD  (Reported by
+-       snuffy)
+-  * ASTERISK-24879 - [patch]Compilation fails due to 64bit time
+-       under OpenBSD (Reported by snuffy)
+-
+- Improvements made in this release:
+- -----------------------------------
+-  * ASTERISK-24745 - [patch]Add no_answer to ARI hangup causes
+-       (Reported by Ben Merrills)
+-  * ASTERISK-24811 - asterisk-publication sorcery object does not
+-       use realtime (Reported by Matt Hoskins)
+-  * ASTERISK-24790 - Reduce spurious noise in logs from voicemail -
+-       Couldn't find mailbox %s in context (Reported by Graham Barnett)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-13.3.0
+
+* Wed Apr  1 2015 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.2.0-1:
+- The Asterisk Development Team has announced the release of Asterisk 13.2.0.
+- This release is available for immediate download at
+- http://downloads.asterisk.org/pub/telephony/asterisk
+-
+- The release of Asterisk 13.2.0 resolves several issues reported by the
+- community and would have not been possible without your participation.
+- Thank you!
+-
+- The following are the issues resolved in this release:
+-
+- Bugs fixed in this release:
+- -----------------------------------
+-  * ASTERISK-24342 - PJSIP: Qualifying endpoints attempts to do them
+-       all at the same time. (Reported by Richard Mudgett)
+-  * ASTERISK-24514 - res_pjsip_outbound_registration: stack overflow
+-       when using non-default sorcery wizard (Reported by Kevin
+-       Harwell)
+-  * ASTERISK-24472 - Asterisk Crash in OpenSSL when calling over WSS
+-       from JSSIP (Reported by Badalian Vyacheslav)
+-  * ASTERISK-24607 - res_pjsip_session: re-INVITE with declined
+-       media streams results in 488 (Reported by Matt Jordan)
+-  * ASTERISK-24563 - Direct Media calls within private network
+-       sometimes get one way audio (Reported by Kevin Harwell)
+-  * ASTERISK-24604 - res_rtp_asterisk: Crash during restart due to
+-       race condition in accessing codec in stored ast_frame and codec
+-       core (Reported by Matt Jordan)
+-  * ASTERISK-24614 - Deadlock when DEBUG_THREADS compiler flag
+-       enabled (Reported by Richard Mudgett)
+-  * ASTERISK-24449 - Reinvite for T.38 UDPTL fails if SRTP is
+-       enabled (Reported by Andreas Steinmetz)
+-  * ASTERISK-24619 - [patch]Gcc 4.10 fixes in r413589 (1.8) wrongly
+-       casts char to unsigned int (Reported by Walter Doekes)
+-  * ASTERISK-24536 - AMI redirect with PJSIP fails to move extra
+-       channel (Reported by Niklas Larsson)
+-  * ASTERISK-24459 - bridge_native_rtp: Native RTP bridging is
+-       chosen for RTP compatible channels when the DTMF mode is not
+-       compatible (Reported by Yaniv Simhi)
+-  * ASTERISK-24337 - Spammy DEBUG message needs to be at a higher
+-       level - 'Remote address is null, most likely RTP has been
+-       stopped' (Reported by Rusty Newton)
+-  * ASTERISK-24513 - Local channel apparently leaked in off-nominal
+-       DTMF attended transfer (Reported by Mark Michelson)
+-  * ASTERISK-23733 - 'reload acl' fails if acl.conf is not present
+-       on startup (Reported by Richard Kenner)
+-  * ASTERISK-24628 - [patch] chan_sip - CANCEL is sent to wrong
+-       destination when 'sendrpid=yes' (in proxy environment) (Reported
+-       by Karsten Wemheuer)
+-  * ASTERISK-23841 - DTMF atxfer doesn't set CallerID for the recall
+-       calls to the transferrer. (Reported by Richard Mudgett)
+-  * ASTERISK-24376 - res_pjsip_refer: REFER request for remote
+-       session attempts to direct channel to external_replaces
+-       extension instead of context, without providing for the
+-       Referred-To SIP URI (Reported by Matt Jordan)
+-  * ASTERISK-24591 - Stasis() side of an ARI originated channel
+-       cannot be Redirected (Reported by Kinsey Moore)
+-  * ASTERISK-24049 - Asterisk Manager Interface: A number of list
+-       type responses aren't using astman_send_listack (Reported by
+-       Jonathan Rose)
+-  * ASTERISK-24637 - Channel re-enters Stasis() when it should not
+-       (Reported by John Bigelow)
+-  * ASTERISK-24474 - sip_to_pjsip.py lacks documentation and does
+-       not function (Reported by John Kiniston)
+-  * ASTERISK-24672 - [PATCH] Memory leak in func_curl CURLOPT
+-       (Reported by Kristian Høgh)
+-  * ASTERISK-20744 - [patch] Security event logging does not work
+-       over syslog (Reported by Michael Keuter)
+-  * ASTERISK-24665 - Configure check required for
+-       pjsip_get_dest_info() (Reported by Mark Michelson)
+-  * ASTERISK-23850 - Park Application does not respect Return
+-       Context Priority (Reported by Andrew Nagy)
+-  * ASTERISK-23991 - [patch]asterisk.pc file contains a small error
+-       in the CFlags returned (Reported by Diederik de Groot)
+-  * ASTERISK-24655 - res_pjsip_outbound_publish: Hang on shutdown
+-       while attempting to publish (Reported by Kevin Harwell)
+-  * ASTERISK-24485 - res_pjsip cannot be unloaded or shutdown
+-       (Reported by Corey Farrell)
+-  * ASTERISK-24663 - [patch] Unnamed semaphore autoconf check fails
+-       on cross compilation (Reported by abelbeck)
+-  * ASTERISK-24624 - Transfer to invalid extension results in hung
+-       channel. (Reported by Zane Conkle)
+-  * ASTERISK-24615 - When Multiple Transports Exist in pjsip.conf,
+-       Incorrect External Addresses is Used in SIP Packets When
+-       Responding to INVITE (Reported by David Justl)
+-  * ASTERISK-24288 - [patch] - ODBC usage with app_voicemail -
+-       voicemail is not deleted after review, hangup (Reported by LEI
+-       FU)
+-  * ASTERISK-24048 - [patch] contrib/scripts/install_prereq selects
+-       32-bit packages on 64-bit hosts (Reported by Ben Klang)
+-  * ASTERISK-24600 - Stuck IAX channels, Asterisk stops responding
+-       to most traffic, potential deadlock (Reported by Jeff Collell)
+-  * ASTERISK-24560 - Creating a named ARI bridge twice causes a
+-       crash (Reported by Kinsey Moore)
+-  * ASTERISK-24682 - app_dial: Multiple DialEnd events emitted when
+-       MACRO_RESULT or GOSUB_RESULT are an unexpected value (Reported
+-       by Matt Jordan)
+-  * ASTERISK-24640 - Registration pending stays forever after sip
+-       reload (Reported by Max Man)
+-  * ASTERISK-24673 - outgoing sip registers cannot be removed or
+-       modified without doing restart (or doing module unload
+-       chan_sip.so) (Reported by Stefan Engström)
+-  * ASTERISK-24709 - [patch] msg_create_from_file used by MixMonitor
+-       m() option does not queue an MWI event (Reported by Gareth
+-       Palmer)
+-  * ASTERISK-24649 - Pushing of channel into bridge fails; Stasis
+-       fails to get app name (Reported by John Bigelow)
+-  * ASTERISK-24355 - [patch] chan_sip realtime uses case sensitive
+-       column comparison for 'defaultuser' (Reported by
+-       HZMI8gkCvPpom0tM)
+-  * ASTERISK-24693 - Investigate and fix memory leaks in Asterisk
+-       (Reported by Kevin Harwell)
+-  * ASTERISK-24626 - Voicemail passwords not being stored in ARA
+-       (Reported by Paddy Grice)
+-  * ASTERISK-24539 - Compile fails on OSX because of sem_timedwait
+-       in bridge_channel.c (Reported by George Joseph)
+-  * ASTERISK-24544 - Compile fails on OSX Yosemite because of
+-       incorrect detection of htonll and ntohll (Reported by George
+-       Joseph)
+-  * ASTERISK-24723 - confbridge: CLI command 'confbridge list XXXX'
+-       no longer displays user menus (Reported by Matt Jordan)
+-  * ASTERISK-24721 - manager: ModuleLoad action incorrectly reports
+-       'module not found' during a Reload operation (Reported by Matt
+-       Jordan)
+-  * ASTERISK-24719 - ConfBridge recording channels get stuck when
+-       recording started/stopped more than once (Reported by Richard
+-       Mudgett)
+-  * ASTERISK-24715 - chan_sip: stale nonce causes failure (Reported
+-       by Kevin Harwell)
+-  * ASTERISK-24728 - tcptls: Bad file descriptor error when
+-       reloading chan_sip (Reported by Kevin Harwell)
+-  * ASTERISK-24729 - Outbound registration not occuring on new
+-       registrations after reload. (Reported by Richard Mudgett)
+-  * ASTERISK-24676 - Security Vulnerability: URL request injection
+-       in libCURL (CVE-2014-8150) (Reported by Matt Jordan)
+-  * ASTERISK-24666 - Security Vulnerability: RTP not closed after
+-       sip call using unsupported codec (Reported by Y Ateya)
+-  * ASTERISK-24711 - DTLS handshake broken with latest OpenSSL
+-       versions (Reported by Jared Biel)
+-  * ASTERISK-24646 - PJSIP changeset 4899 breaks TLS (Reported by
+-       Stephan Eisvogel)
+-  * ASTERISK-24736 - Memory Leak Fixes (Reported by Mark Michelson)
+-  * ASTERISK-24635 - PJSIP outbound PUBLISH crashes when no response
+-       is ever received (Reported by Marco Paland)
+-  * ASTERISK-24737 - When agent not logged in, agent status shows
+-       unavailable, queue status shows agent invalid (Reported by
+-       Richard Mudgett)
+-
+- Improvements made in this release:
+- -----------------------------------
+-  * ASTERISK-24552 - ARI: Allow associating a channel as an
+-       initiator of an Origination for record keeping purposes
+-       (Reported by Matt Jordan)
+-  * ASTERISK-24553 - ARI/AMI: Include language in standard channel
+-       snapshot output (Reported by Matt Jordan)
+-  * ASTERISK-24643 - res_pjsip: Add user=phone option (Reported by
+-       Matt Jordan)
+-  * ASTERISK-24644 - res_pjsip_keepalive: Add keepalive module for
+-       connection-oriented transports. (Reported by Matt Jordan)
+-  * ASTERISK-24412 - [patch]Incomplete channel originate/continue
+-       handling with ARI (Reported by Nir Simionovich (GreenfieldTech -
+-       Israel))
+-  * ASTERISK-24678 - [PATCH] Added atxfer* settings to
+-       features.conf.sample (Reported by Niklas Larsson)
+-  * ASTERISK-24575 - [patch]Make capath work for res_pjsip (Reported
+-       by cloos)
+-  * ASTERISK-24671 - Missing docs for the CDR AMI Event (Reported by
+-       Dan Jenkins)
+-  * ASTERISK-24316 - For httpd server, need option to define server
+-       name for security purposes (Reported by Andrew Nagy)
+-
+- For a full list of changes in this release, please see the ChangeLog:
+-
+- http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-13.2.0
+
 * Fri Jan 30 2015 Jeffrey C. Ollie <jeff@ocjtech.us> - 13.1.1-1:
 - The Asterisk Development Team has announced security releases for Certified
 - Asterisk 1.8.28 and 11.6 and Asterisk 1.8, 11, 12, and 13. The available
