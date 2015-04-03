@@ -62,6 +62,8 @@ Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
 
+Patch0:           gcc5.rc2.patch
+
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 BuildRequires:    autoconf
@@ -619,6 +621,7 @@ Jabber/XMPP resources for Asterisk.
 
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
+%patch0 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1459,12 +1462,16 @@ fi
 %defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_notify.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_wizard.conf
 %{_libdir}/asterisk/modules/chan_pjsip.so
+%{_libdir}/asterisk/modules/func_pjsip_aor.so
+%{_libdir}/asterisk/modules/func_pjsip_contact.so
 %{_libdir}/asterisk/modules/func_pjsip_endpoint.so
 %{_libdir}/asterisk/modules/res_pjsip.so
 %{_libdir}/asterisk/modules/res_pjsip_acl.so
 %{_libdir}/asterisk/modules/res_pjsip_authenticator_digest.so
 %{_libdir}/asterisk/modules/res_pjsip_caller_id.so
+%{_libdir}/asterisk/modules/res_pjsip_config_wizard.so
 %{_libdir}/asterisk/modules/res_pjsip_dialog_info_body_generator.so
 %{_libdir}/asterisk/modules/res_pjsip_diversion.so
 %{_libdir}/asterisk/modules/res_pjsip_dtmf_info.so
@@ -1473,6 +1480,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_user.so
 %{_libdir}/asterisk/modules/res_pjsip_exten_state.so
 %{_libdir}/asterisk/modules/res_pjsip_header_funcs.so
+%{_libdir}/asterisk/modules/res_pjsip_keepalive.so
 %{_libdir}/asterisk/modules/res_pjsip_log_forwarder.so
 %{_libdir}/asterisk/modules/res_pjsip_logger.so
 %{_libdir}/asterisk/modules/res_pjsip_messaging.so
@@ -1499,6 +1507,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_sdp_rtp.so
 %{_libdir}/asterisk/modules/res_pjsip_send_to_voicemail.so
 %{_libdir}/asterisk/modules/res_pjsip_session.so
+%{_libdir}/asterisk/modules/res_pjsip_sips_contact.so
 %{_libdir}/asterisk/modules/res_pjsip_t38.so
 %{_libdir}/asterisk/modules/res_pjsip_transport_websocket.so
 %{_libdir}/asterisk/modules/res_pjsip_xpidf_body_generator.so
