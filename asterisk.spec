@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.3.2
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -919,7 +919,6 @@ fi
 %endif
 
 %files
-%defattr(-,root,root,-)
 %doc README* *.txt ChangeLog BUGS CREDITS configs
 
 %doc doc/asterisk.sgml
@@ -1264,7 +1263,6 @@ fi
 %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 
 %files ael
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
 %{_sbindir}/aelparse
 %{_sbindir}/conf2ael
@@ -1272,18 +1270,15 @@ fi
 %{_libdir}/asterisk/modules/res_ael_share.so
 
 %files alsa
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
 %{_libdir}/asterisk/modules/chan_alsa.so
 
 %if %{?apidoc}
 %files apidoc
-%defattr(-,root,root,-)
 %doc doc/api/html/*
 %endif
 
 %files calendar
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/calendar.conf
 %{_libdir}/asterisk/modules/res_calendar.so
 %{_libdir}/asterisk/modules/res_calendar_caldav.so
@@ -1293,13 +1288,11 @@ fi
 
 %if 0%{?corosync}
 %files corosync
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_corosync.conf
 %{_libdir}/asterisk/modules/res_corosync.so
 %endif
 
 %files curl
-%defattr(-,root,root,-)
 %doc contrib/scripts/dbsep.cgi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/dbsep.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_curl.conf
@@ -1308,7 +1301,6 @@ fi
 %{_libdir}/asterisk/modules/res_curl.so
 
 %files dahdi
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/meetme.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_dahdi.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ss7.timers
@@ -1322,7 +1314,6 @@ fi
 %{_datadir}/dahdi/span_config.d/40-asterisk
 
 %files devel
-%defattr(-,root,root,-)
 %dir %{_includedir}/asterisk
 %dir %{_includedir}/asterisk/doxygen
 %{_includedir}/asterisk.h
@@ -1332,19 +1323,16 @@ fi
 %{_libdir}/libasteriskssl.so
 
 %files fax
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_fax.conf
 %{_libdir}/asterisk/modules/res_fax.so
 %{_libdir}/asterisk/modules/res_fax_spandsp.so
 
 %files festival
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/festival.conf
 %attr(0750,asterisk,asterisk) %dir %{_localstatedir}/spool/asterisk/festival
 %{_libdir}/asterisk/modules/app_festival.so
 
 %files iax2
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iax.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/iaxprov.conf
 %dir %{_datadir}/asterisk/firmware
@@ -1352,7 +1340,6 @@ fi
 %{_libdir}/asterisk/modules/chan_iax2.so
 
 %files hep
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/hep.conf
 %{_libdir}/asterisk/modules/res_hep.so
 %{_libdir}/asterisk/modules/res_hep_rtcp.so
@@ -1360,58 +1347,49 @@ fi
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
 %files ices
-%defattr(-,root,root,-)
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
 %endif
 
 %if 0%{?jack}
 %files jack
-%defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/app_jack.so
 %endif
 
 %files lua
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.lua
 %{_libdir}/asterisk/modules/pbx_lua.so
 
 %if 0%{?ldap}
 %files ldap
-%defattr(-,root,root,-)
 #doc doc/ldap.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_ldap.conf
 %{_libdir}/asterisk/modules/res_config_ldap.so
 %endif
 
 %files minivm
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions_minivm.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/minivm.conf
 %{_libdir}/asterisk/modules/app_minivm.so
 
 %if %{misdn}
 %files misdn
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
 %{_libdir}/asterisk/modules/chan_misdn.so
 %endif
 
 %files mgcp
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/mgcp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pktccops.conf
 %{_libdir}/asterisk/modules/chan_mgcp.so
 %{_libdir}/asterisk/modules/res_pktccops.so
 
 %files mobile
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_mobile.conf
 %{_libdir}/asterisk/modules/chan_mobile.so
 
 %if %{mysql}
 %files mysql
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/app_mysql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_mysql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_mysql.conf
@@ -1422,14 +1400,12 @@ fi
 %endif
 
 %files mwi-external
-%defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/res_mwi_external.so
 %{_libdir}/asterisk/modules/res_mwi_external_ami.so
 %{_libdir}/asterisk/modules/res_stasis_mailbox.so
 
 %if %{odbc}
 %files odbc
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_odbc.conf
@@ -1444,22 +1420,18 @@ fi
 %endif
 
 %files ooh323
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ooh323.conf
 %{_libdir}/asterisk/modules/chan_ooh323.so
 
 %files oss
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/oss.conf
 %{_libdir}/asterisk/modules/chan_oss.so
 
 %files phone
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phone.conf
 %{_libdir}/asterisk/modules/chan_phone.so
 
 %files pjsip
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_notify.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_wizard.conf
@@ -1513,13 +1485,11 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_xpidf_body_generator.so
 
 %files portaudio
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/console.conf
 %{_libdir}/asterisk/modules/chan_console.so
 
 %if %{postgresql}
 %files postgresql
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_pgsql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_pgsql.conf
@@ -1531,25 +1501,21 @@ fi
 
 %if %{radius}
 %files radius
-%defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/cdr_radius.so
 %{_libdir}/asterisk/modules/cel_radius.so
 %endif
 
 %files sip
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sip_notify.conf
 %{_libdir}/asterisk/modules/chan_sip.so
 
 %files skinny
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/skinny.conf
 %{_libdir}/asterisk/modules/chan_skinny.so
 
 %if %{snmp}
 %files snmp
-%defattr(-,root,root,-)
 #doc doc/asterisk-mib.txt
 #doc doc/digium-mib.txt
 #doc doc/snmp.txt
@@ -1560,7 +1526,6 @@ fi
 %endif
 
 %files sqlite
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_sqlite3_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_sqlite3_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_sqlite.conf
@@ -1570,48 +1535,44 @@ fi
 %{_libdir}/asterisk/modules/res_config_sqlite3.so
 
 %files tds
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_tds.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_tds.conf
 %{_libdir}/asterisk/modules/cdr_tds.so
 %{_libdir}/asterisk/modules/cel_tds.so
 
 %files unistim
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/unistim.conf
 %{_libdir}/asterisk/modules/chan_unistim.so
 
 %files voicemail
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
 %if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %files voicemail-imap
-%defattr(-,root,root,)
 %{_libdir}/asterisk/modules/app_directory_imap.so
 %{_libdir}/asterisk/modules/app_voicemail_imap.so
 %endif
 
 %files voicemail-odbc
-%defattr(-,root,root,-)
 #doc doc/voicemail_odbc_postgresql.txt
 %{_libdir}/asterisk/modules/app_directory_odbc.so
 %{_libdir}/asterisk/modules/app_voicemail_odbc.so
 
 %files voicemail-plain
-%defattr(-,root,root,-)
 %{_libdir}/asterisk/modules/app_directory_plain.so
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
 %files xmpp
-%defattr(-,root,root,-)
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/motif.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/xmpp.conf
 %{_libdir}/asterisk/modules/chan_motif.so
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Mon Jan 25 2016 Jared Smith <jsmith@fedoraproject.org> - 13.3.2-3
+- Remove %%defattr macro invocations, as they are no longer needed
+
 * Sat Jan 23 2016 Robert Scheck <robert@fedoraproject.org> - 13.3.2-2
 - Rebuild for libical 2.0.0
 
