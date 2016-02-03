@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.3.2
-Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1570,6 +1570,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 13.3.2-3.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Mon Jan 25 2016 Jared Smith <jsmith@fedoraproject.org> - 13.3.2-3
 - Remove %%defattr macro invocations, as they are no longer needed
 
