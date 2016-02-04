@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.3.2
-Release:          3%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Version:          13.7.1
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -61,8 +61,6 @@ Source3:          menuselect.makedeps
 Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
-
-Patch0:           gcc5.rc2.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -173,7 +171,7 @@ BuildRequires:    postgresql-devel
 %endif
 
 %if 0%{?radius}
-BuildRequires:    radiusclient-ng-devel
+BuildRequires:    freeradius-client-devel
 %endif
 
 %if 0%{?snmp}
@@ -621,7 +619,6 @@ Jabber/XMPP resources for Asterisk.
 
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
-%patch0 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -721,14 +718,20 @@ autoheader --force
 make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
 
+# Build with plain voicemail and directory
+echo "### Building with plain voicemail and directory"
 make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
+# Now build with IMAP storage for voicemail and directory
+
 %if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
+
+echo "### Building with IMAP voicemail and directory"
 make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
@@ -736,7 +739,10 @@ mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
 %endif
 
+# Now build with ODBC storage for voicemail and directory
+
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
+echo "### Building with ODBC voicemail and directory"
 make %{?_smp_mflags} %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
@@ -750,6 +756,7 @@ touch apps/app_voicemail.so apps/app_directory.so
 sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_mwi_external\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
 sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_mwi_external_ami\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
 sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_stasis_mailbox\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
+sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_ari_mailboxes\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
 sed -i -e 's/^MENUSELECT_APP=\(.*\)$/MENUSELECT_RES=\1 app_voicemail/g' menuselect.makeopts
 
 make %{?_smp_mflags} %{makeargs}
@@ -919,7 +926,7 @@ fi
 %endif
 
 %files
-%doc README* *.txt ChangeLog BUGS CREDITS configs
+%doc README *.txt ChangeLog BUGS CREDITS configs
 
 %doc doc/asterisk.sgml
 
@@ -966,17 +973,17 @@ fi
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
 %{_libdir}/asterisk/modules/app_originate.so
-#%{_libdir}/asterisk/modules/app_parkandannounce.so
+#%%{_libdir}/asterisk/modules/app_parkandannounce.so
 %{_libdir}/asterisk/modules/app_playback.so
 %{_libdir}/asterisk/modules/app_playtones.so
 %{_libdir}/asterisk/modules/app_privacy.so
 %{_libdir}/asterisk/modules/app_queue.so
 %{_libdir}/asterisk/modules/app_readexten.so
-#%{_libdir}/asterisk/modules/app_readfile.so
+#%%{_libdir}/asterisk/modules/app_readfile.so
 %{_libdir}/asterisk/modules/app_read.so
 %{_libdir}/asterisk/modules/app_record.so
 %{_libdir}/asterisk/modules/app_saycounted.so
-#%{_libdir}/asterisk/modules/app_saycountpl.so
+#%%{_libdir}/asterisk/modules/app_saycountpl.so
 %{_libdir}/asterisk/modules/app_sayunixtime.so
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
@@ -1061,6 +1068,7 @@ fi
 %{_libdir}/asterisk/modules/func_global.so
 %{_libdir}/asterisk/modules/func_groupcount.so
 %{_libdir}/asterisk/modules/func_hangupcause.so
+%{_libdir}/asterisk/modules/func_holdintercept.so
 %{_libdir}/asterisk/modules/func_iconv.so
 %{_libdir}/asterisk/modules/func_jitterbuffer.so
 %{_libdir}/asterisk/modules/func_lock.so
@@ -1111,11 +1119,13 @@ fi
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
+%{_libdir}/asterisk/modules/res_endpoint_stats.so
 %{_libdir}/asterisk/modules/res_format_attr_celt.so
 %{_libdir}/asterisk/modules/res_format_attr_h263.so
 %{_libdir}/asterisk/modules/res_format_attr_h264.so
 %{_libdir}/asterisk/modules/res_format_attr_opus.so
 %{_libdir}/asterisk/modules/res_format_attr_silk.so
+%{_libdir}/asterisk/modules/res_format_attr_vp8.so
 %if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
@@ -1136,6 +1146,7 @@ fi
 %{_libdir}/asterisk/modules/res_sorcery_astdb.so
 %{_libdir}/asterisk/modules/res_sorcery_config.so
 %{_libdir}/asterisk/modules/res_sorcery_memory.so
+%{_libdir}/asterisk/modules/res_sorcery_memory_cache.so
 %{_libdir}/asterisk/modules/res_sorcery_realtime.so
 %{_libdir}/asterisk/modules/res_speech.so
 %{_libdir}/asterisk/modules/res_srtp.so
@@ -1157,12 +1168,13 @@ fi
 %{_sbindir}/asterisk
 %{_sbindir}/astgenkey
 %{_sbindir}/astman
+%{_sbindir}/astversion
 %{_sbindir}/autosupport
 %{_sbindir}/check_expr
 %{_sbindir}/check_expr2
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
-#%{_sbindir}/refcounter
+#%%{_sbindir}/refcounter
 %if ! %{systemd}
 %{_sbindir}/safe_asterisk
 %endif
@@ -1372,7 +1384,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/minivm.conf
 %{_libdir}/asterisk/modules/app_minivm.so
 
-%if %{misdn}
+%if 0%{misdn}
 %files misdn
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/misdn.conf
 %{_libdir}/asterisk/modules/chan_misdn.so
@@ -1388,7 +1400,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_mobile.conf
 %{_libdir}/asterisk/modules/chan_mobile.so
 
-%if %{mysql}
+%if 0%{mysql}
 %files mysql
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/app_mysql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_mysql.conf
@@ -1404,7 +1416,7 @@ fi
 %{_libdir}/asterisk/modules/res_mwi_external_ami.so
 %{_libdir}/asterisk/modules/res_stasis_mailbox.so
 
-%if %{odbc}
+%if 0%{odbc}
 %files odbc
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_adaptive_odbc.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_odbc.conf
@@ -1445,6 +1457,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_caller_id.so
 %{_libdir}/asterisk/modules/res_pjsip_config_wizard.so
 %{_libdir}/asterisk/modules/res_pjsip_dialog_info_body_generator.so
+%{_libdir}/asterisk/modules/res_pjsip_dlg_options.so
 %{_libdir}/asterisk/modules/res_pjsip_diversion.so
 %{_libdir}/asterisk/modules/res_pjsip_dtmf_info.so
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_anonymous.so
@@ -1488,7 +1501,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/console.conf
 %{_libdir}/asterisk/modules/chan_console.so
 
-%if %{postgresql}
+%if 0%{postgresql}
 %files postgresql
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_pgsql.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_pgsql.conf
@@ -1499,7 +1512,7 @@ fi
 %{_libdir}/asterisk/modules/res_config_pgsql.so
 %endif
 
-%if %{radius}
+%if 0%{radius}
 %files radius
 %{_libdir}/asterisk/modules/cdr_radius.so
 %{_libdir}/asterisk/modules/cel_radius.so
@@ -1514,14 +1527,14 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/skinny.conf
 %{_libdir}/asterisk/modules/chan_skinny.so
 
-%if %{snmp}
+%if 0%{snmp}
 %files snmp
 #doc doc/asterisk-mib.txt
 #doc doc/digium-mib.txt
 #doc doc/snmp.txt
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_snmp.conf
-#%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
-#%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
+#%%{_datadir}/snmp/mibs/ASTERISK-MIB.txt
+#%%{_datadir}/snmp/mibs/DIGIUM-MIB.txt
 %{_libdir}/asterisk/modules/res_snmp.so
 %endif
 
@@ -1570,6 +1583,15 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Feb 04 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.1-1
+- Update to upstream 13.7.1 release for security fixes
+- Resolves AST-2016-001: BEAST vulnerability in HTTP server
+- Resolves AST-2016-002: File descriptor exhaustion in chan_sip
+- Resolves AST-2016-003: Remote crash vulnerability receiving UDPTL FAX data
+- Full changelog at http://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-13.7.1
+- Also build the 'radius' sub-package against freeradius-client-devel, as the
+ radiusclient-ng project is dead
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 13.3.2-3.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
