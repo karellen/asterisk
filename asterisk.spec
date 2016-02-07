@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.7.1
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -227,6 +227,16 @@ AEL (Asterisk Extension Logic) mdoules for Asterisk
 Summary: Modules for Asterisk that use Alsa sound drivers
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
+
+%package alembic
+Summary: Alembic scripts for the Asterisk DB (realtime)
+Group: Applications/Internet
+Requires: asterisk = %{version}-%{release}
+Requires: alembic
+
+%description alembic
+Alembic scripts for the Asterisk DB
+
 
 %description alsa
 Modules for Asterisk that use Alsa sound drivers.
@@ -803,6 +813,7 @@ install -D -p -m 0755 apps/app_voicemail_plain.so %{buildroot}%{_libdir}/asteris
 # create some directories that need to be packaged
 mkdir -p %{buildroot}%{_datadir}/asterisk/moh
 mkdir -p %{buildroot}%{_datadir}/asterisk/sounds
+mkdir -p %{buildroot}%{_datadir}/asterisk/ast-db-manage
 mkdir -p %{buildroot}%{_localstatedir}/lib/asterisk
 mkdir -p %{buildroot}%{_localstatedir}/log/asterisk/cdr-custom
 mkdir -p %{buildroot}%{_localstatedir}/spool/asterisk/festival
@@ -834,6 +845,9 @@ ln -s libasterisk.so.1 %{buildroot}%{_libdir}/libasteriskssl.so
 %if 0%{?apidoc}
 find doc/api/html -name \*.map -size 0 -delete
 %endif
+
+# copy the alembic scripts
+cp -rp contrib/ast-db-manage %{buildroot}%{_datadir}/asterisk/ast-db-manage
 
 #rhel6 doesnt have 389 available, nor ices
 %if 0%{?rhel} == 6
@@ -1285,6 +1299,9 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alsa.conf
 %{_libdir}/asterisk/modules/chan_alsa.so
 
+%files alembic
+%{_datadir}/asterisk/ast-db-manage/
+
 %if %{?apidoc}
 %files apidoc
 %doc doc/api/html/*
@@ -1583,6 +1600,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Fri Feb 05 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.1-2
+- Create sub-package for alembic scripts
+
 * Thu Feb 04 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.1-1
 - Update to upstream 13.7.1 release for security fixes
 - Resolves AST-2016-001: BEAST vulnerability in HTTP server
