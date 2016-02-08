@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.7.1
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Version:          13.7.2
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1600,6 +1600,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Sun Feb 07 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.2-1
+- Update to upstream release 13.7.2 to fix ASTERISK-25702
+
 * Fri Feb 05 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.1-2
 - Create sub-package for alembic scripts
 
