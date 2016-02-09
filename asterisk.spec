@@ -4,7 +4,7 @@
 %global           _smp_mflags     -j1
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
-%ifarch s390 %{arm} aarch64
+%ifarch s390 %{arm} aarch64 %{mips}
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %else
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.7.2
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
+Release:          2%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1600,6 +1600,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Tue Feb 09 2016 Michal Toman <mtoman@fedoraproject.org> - 13.7.2-2
+- Do not use -m32/-m64 on MIPS
+
 * Sun Feb 07 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.2-1
 - Update to upstream release 13.7.2 to fix ASTERISK-25702
 
