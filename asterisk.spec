@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.7.2
-Release:          2%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
+Release:          3%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -232,7 +232,6 @@ Requires: asterisk = %{version}-%{release}
 Summary: Alembic scripts for the Asterisk DB (realtime)
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-Requires: alembic
 
 %description alembic
 Alembic scripts for the Asterisk DB
@@ -1600,6 +1599,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Tue Feb 16 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.2-2.1
+- Fix alembic requirement
+
 * Tue Feb 09 2016 Michal Toman <mtoman@fedoraproject.org> - 13.7.2-2
 - Do not use -m32/-m64 on MIPS
 
