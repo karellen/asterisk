@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.7.2
-Release:          3%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
+Version:          13.9.1
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -102,7 +102,10 @@ BuildRequires:    libxml2-devel
 
 # for codec_speex
 BuildRequires:    speex-devel >= 1.2
+%if (0%{?fedora} > 21 || 0%{?rhel} > 7)
 BuildRequires:    speexdsp-devel >= 1.2
+%endif
+
 
 # for format_ogg_vorbis
 BuildRequires:    libogg-devel
@@ -706,22 +709,24 @@ export ASTCFLAGS=" "
 
 pushd menuselect
 
-aclocal -I ../autoconf --force
-autoconf --force
-autoheader --force
+#aclocal -I ../autoconf --force
+#autoconf --force
+#autoheader --force
+./bootstrap.sh
 
 %configure
 
 popd
 
-aclocal -I autoconf --force
-autoconf --force
-autoheader --force
+#aclocal -I autoconf --force
+#autoconf --force
+#autoheader --force
+./bootstrap.sh
 
 %if 0%{?fedora} > 0 || 0%{?rhel} >= 7
-%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp LDFLAGS="%{ldflags}"
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr LDFLAGS="%{ldflags}"
 %else
-%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp LDFLAGS="%{ldflags}"
+%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp --with-pjproject=/usr LDFLAGS="%{ldflags}"
 %endif
 
 make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
@@ -1445,6 +1450,7 @@ fi
 %{_libdir}/asterisk/modules/func_odbc.so
 %{_libdir}/asterisk/modules/res_config_odbc.so
 %{_libdir}/asterisk/modules/res_odbc.so
+%{_libdir}/asterisk/modules/res_odbc_transaction.so
 %endif
 
 %files ooh323
@@ -1461,12 +1467,14 @@ fi
 
 %files pjsip
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjproject.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_notify.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip_wizard.conf
 %{_libdir}/asterisk/modules/chan_pjsip.so
 %{_libdir}/asterisk/modules/func_pjsip_aor.so
 %{_libdir}/asterisk/modules/func_pjsip_contact.so
 %{_libdir}/asterisk/modules/func_pjsip_endpoint.so
+%{_libdir}/asterisk/modules/res_pjproject.so
 %{_libdir}/asterisk/modules/res_pjsip.so
 %{_libdir}/asterisk/modules/res_pjsip_acl.so
 %{_libdir}/asterisk/modules/res_pjsip_authenticator_digest.so
@@ -1481,8 +1489,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_user.so
 %{_libdir}/asterisk/modules/res_pjsip_exten_state.so
 %{_libdir}/asterisk/modules/res_pjsip_header_funcs.so
-%{_libdir}/asterisk/modules/res_pjsip_keepalive.so
-%{_libdir}/asterisk/modules/res_pjsip_log_forwarder.so
+%{_libdir}/asterisk/modules/res_pjsip_history.so
 %{_libdir}/asterisk/modules/res_pjsip_logger.so
 %{_libdir}/asterisk/modules/res_pjsip_messaging.so
 %{_libdir}/asterisk/modules/res_pjsip_multihomed.so
@@ -1510,6 +1517,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_session.so
 %{_libdir}/asterisk/modules/res_pjsip_sips_contact.so
 %{_libdir}/asterisk/modules/res_pjsip_t38.so
+%{_libdir}/asterisk/modules/res_pjsip_transport_management.so
 %{_libdir}/asterisk/modules/res_pjsip_transport_websocket.so
 %{_libdir}/asterisk/modules/res_pjsip_xpidf_body_generator.so
 
@@ -1599,6 +1607,12 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Sat May 14 2016 Jared Smith <jsmith@fedoraproject.org> - 13.9.1-1
+- Update to upstream 13.9.1 release
+- Use bootstrap.sh instead of calling autoconf tools manually
+- Fix up shifting pjproject submodules
+- Fix up requires on speexdsp-devel for EPEL7 (RHBZ#1310444)
+
 * Tue Feb 16 2016 Jared Smith <jsmith@fedoraproject.org> - 13.7.2-2.1
 - Fix alembic requirement
 
