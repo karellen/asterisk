@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          13.9.1
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}.1
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1607,6 +1607,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Tue May 17 2016 Jitka Plesnikova <jplesnik@redhat.com> - 13.9.1-1.1
+- Perl 5.24 rebuild
+
 * Sat May 14 2016 Jared Smith <jsmith@fedoraproject.org> - 13.9.1-1
 - Update to upstream 13.9.1 release
 - Use bootstrap.sh instead of calling autoconf tools manually
