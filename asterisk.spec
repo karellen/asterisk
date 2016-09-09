@@ -28,7 +28,7 @@
 %global           mysql      1
 %global           odbc       1
 %global           postgresql 1
-%global           radius     1
+%global           radius     0
 %global           snmp       1
 %if 0%{?fedora} >= 21
 %global           misdn      0
@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.9.1
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}.1
+Version:          13.11.1
+Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1608,6 +1608,10 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Fri Sep 09 2016 Jared Smith <jsmith@fedoraproject.org> - 13.11.1-1
+- Stop building the -radius subpackage, due to orphaned dependencies
+- Update to upstream 13.11.1 security release for AST-2016-006 and AST-2016-007
+
 * Tue May 17 2016 Jitka Plesnikova <jplesnik@redhat.com> - 13.9.1-1.1
 - Perl 5.24 rebuild
 
