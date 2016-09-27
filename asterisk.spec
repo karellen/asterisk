@@ -28,7 +28,7 @@
 %global           mysql      1
 %global           odbc       1
 %global           postgresql 1
-%global           radius     0
+%global           radius     1
 %global           snmp       1
 %if 0%{?fedora} >= 21
 %global           misdn      0
@@ -43,12 +43,15 @@
 %else
 %global           jack       1
 %endif
+%if 0%{?fedora} >= 25
+%global           radius     0
+%endif
 
 %global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.11.1
+Version:          13.11.2
 Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -1038,6 +1041,7 @@ fi
 %{_libdir}/asterisk/modules/cel_manager.so
 %{_libdir}/asterisk/modules/chan_bridge_media.so
 %{_libdir}/asterisk/modules/chan_multicast_rtp.so
+%{_libdir}/asterisk/modules/chan_rtp.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
 %{_libdir}/asterisk/modules/codec_alaw.so
 %{_libdir}/asterisk/modules/codec_a_mu.so
@@ -1144,6 +1148,8 @@ fi
 %{_libdir}/asterisk/modules/res_format_attr_h264.so
 %{_libdir}/asterisk/modules/res_format_attr_opus.so
 %{_libdir}/asterisk/modules/res_format_attr_silk.so
+%{_libdir}/asterisk/modules/res_format_attr_siren14.so
+%{_libdir}/asterisk/modules/res_format_attr_siren7.so
 %{_libdir}/asterisk/modules/res_format_attr_vp8.so
 %if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
@@ -1485,6 +1491,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_dlg_options.so
 %{_libdir}/asterisk/modules/res_pjsip_diversion.so
 %{_libdir}/asterisk/modules/res_pjsip_dtmf_info.so
+%{_libdir}/asterisk/modules/res_pjsip_empty_info.so
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_anonymous.so
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_ip.so
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_user.so
@@ -1608,8 +1615,11 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Tue Sep 27 2016 Jared Smith <jsmith@fedoraproject.org> - 13.11.2-1
+- Update to upstream 13.11.2 bug-fix release
+
 * Fri Sep 09 2016 Jared Smith <jsmith@fedoraproject.org> - 13.11.1-1
-- Stop building the -radius subpackage, due to orphaned dependencies
+- Stop building the -radius subpackage, due to orphaned freeradius-client dependency
 - Update to upstream 13.11.1 security release for AST-2016-006 and AST-2016-007
 
 * Tue May 17 2016 Jitka Plesnikova <jplesnik@redhat.com> - 13.9.1-1.1
