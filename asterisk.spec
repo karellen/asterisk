@@ -82,6 +82,7 @@ BuildRequires:    libcap-devel
 BuildRequires:    gtk2-devel
 %endif
 BuildRequires:    libsrtp-devel
+BuildRequires:    perl
 BuildRequires:    perl-generators
 BuildRequires:    popt-devel
 %if %{systemd}
