@@ -51,8 +51,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          13.11.2
-Release:          1%{?_rc:.rc%{_rc}}%{?_beta:1}%{?dist}.2
+Version:          14.5.0
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -64,6 +64,8 @@ Source3:          menuselect.makedeps
 Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
+
+Patch0:           asterisk-openssl.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
@@ -166,7 +168,7 @@ BuildRequires:    openldap-devel
 %endif
 
 %if 0%{?mysql}
-BuildRequires:    mysql-devel
+BuildRequires:    mariadb-devel
 %endif
 
 %if 0%{?odbc}
@@ -637,6 +639,8 @@ Jabber/XMPP resources for Asterisk.
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
+#%patch0 -p1
+
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
@@ -969,6 +973,7 @@ fi
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_authenticate.so
+%{_libdir}/asterisk/modules/app_bridgeaddchan.so
 %{_libdir}/asterisk/modules/app_bridgewait.so
 %{_libdir}/asterisk/modules/app_cdr.so
 %{_libdir}/asterisk/modules/app_celgenuserevent.so
@@ -1016,6 +1021,7 @@ fi
 %{_libdir}/asterisk/modules/app_speech_utils.so
 %{_libdir}/asterisk/modules/app_stack.so
 %{_libdir}/asterisk/modules/app_stasis.so
+%{_libdir}/asterisk/modules/app_statsd.so
 %{_libdir}/asterisk/modules/app_system.so
 %{_libdir}/asterisk/modules/app_talkdetect.so
 %{_libdir}/asterisk/modules/app_test.so
@@ -1041,7 +1047,7 @@ fi
 %{_libdir}/asterisk/modules/cel_custom.so
 %{_libdir}/asterisk/modules/cel_manager.so
 %{_libdir}/asterisk/modules/chan_bridge_media.so
-%{_libdir}/asterisk/modules/chan_multicast_rtp.so
+#%{_libdir}/asterisk/modules/chan_multicast_rtp.so
 %{_libdir}/asterisk/modules/chan_rtp.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
 %{_libdir}/asterisk/modules/codec_alaw.so
@@ -1063,6 +1069,7 @@ fi
 %{_libdir}/asterisk/modules/format_h264.so
 %{_libdir}/asterisk/modules/format_ilbc.so
 %{_libdir}/asterisk/modules/format_jpeg.so
+%{_libdir}/asterisk/modules/format_ogg_speex.so
 %{_libdir}/asterisk/modules/format_ogg_vorbis.so
 %{_libdir}/asterisk/modules/format_pcm.so
 %{_libdir}/asterisk/modules/format_siren14.so
@@ -1145,13 +1152,16 @@ fi
 %{_libdir}/asterisk/modules/res_crypto.so
 %{_libdir}/asterisk/modules/res_endpoint_stats.so
 %{_libdir}/asterisk/modules/res_format_attr_celt.so
+%{_libdir}/asterisk/modules/res_format_attr_g729.so
 %{_libdir}/asterisk/modules/res_format_attr_h263.so
 %{_libdir}/asterisk/modules/res_format_attr_h264.so
+%{_libdir}/asterisk/modules/res_format_attr_ilbc.so
 %{_libdir}/asterisk/modules/res_format_attr_opus.so
 %{_libdir}/asterisk/modules/res_format_attr_silk.so
 %{_libdir}/asterisk/modules/res_format_attr_siren14.so
 %{_libdir}/asterisk/modules/res_format_attr_siren7.so
 %{_libdir}/asterisk/modules/res_format_attr_vp8.so
+%{_libdir}/asterisk/modules/res_http_media_cache.so
 %if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
@@ -1222,6 +1232,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/amd.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ari.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ast_debug_tools.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.adsi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ccss.conf
@@ -1257,6 +1268,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_parking.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_stun_monitor.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/resolver_unbound.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/rtp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/say.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sla.conf
@@ -1299,6 +1311,8 @@ fi
 %attr(0644,root,root) /usr/lib/tmpfiles.d/asterisk.conf
 %endif
 %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
+
+%{_datarootdir}/asterisk/scripts/
 
 %files ael
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
@@ -1501,7 +1515,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_history.so
 %{_libdir}/asterisk/modules/res_pjsip_logger.so
 %{_libdir}/asterisk/modules/res_pjsip_messaging.so
-%{_libdir}/asterisk/modules/res_pjsip_multihomed.so
+#%{_libdir}/asterisk/modules/res_pjsip_multihomed.so
 %{_libdir}/asterisk/modules/res_pjsip_mwi.so
 %{_libdir}/asterisk/modules/res_pjsip_mwi_body_generator.so
 %{_libdir}/asterisk/modules/res_pjsip_nat.so
@@ -1616,6 +1630,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Sat Jun 10 2017 Jared Smith <jsmith@fedoraproject.org> - 14.5.0-1
+- Update to upstream 14.5.0 release
+
 * Sun Jun 04 2017 Jitka Plesnikova <jplesnik@redhat.com> - 13.11.2-1.2
 - Perl 5.26 rebuild
 
