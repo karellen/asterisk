@@ -1,0 +1,83 @@
+commit b9b82f067dd2372dda3ecd83411c7b58800b80a2
+Author: Tom Hughes <tom@compton.nu>
+Date:   Fri Mar 10 22:46:33 2017 +0000
+
+    Fixes for OpenSSL 1.1.x support
+
+diff --git a/main/libasteriskssl.c b/main/libasteriskssl.c
+index 4e6ea1a..9f6b98c 100644
+--- a/main/libasteriskssl.c
++++ b/main/libasteriskssl.c
+@@ -74,7 +74,7 @@ static void ssl_lock(int mode, int n, const char *file, int line)
+ 	}
+ }
+ 
+-#if !defined(OPENSSL_API_COMPAT) || OPENSSL_API_COMPAT < 0x10100000L
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ int SSL_library_init(void)
+ {
+ #if defined(AST_DEVMODE)
+@@ -116,7 +116,7 @@ void ERR_free_strings(void)
+ {
+ 	/* we can't allow this to be called, ever */
+ }
+-#endif /* !defined(OPENSSL_API_COMPAT) || OPENSSL_API_COMPAT < 0x10100000L */
++#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
+ 
+ #endif /* HAVE_OPENSSL */
+ 
+diff --git a/main/tcptls.c b/main/tcptls.c
+index 513676c..4e131f2 100644
+--- a/main/tcptls.c
++++ b/main/tcptls.c
+@@ -40,6 +40,8 @@ ASTERISK_REGISTER_FILE()
+ #include <signal.h>
+ #include <sys/stat.h>
+ 
++#include <openssl/dh.h>
++
+ #include "asterisk/compat.h"
+ #include "asterisk/tcptls.h"
+ #include "asterisk/http.h"
+@@ -399,19 +401,17 @@ static int tcptls_stream_close(void *cookie)
+ 					SSL_get_error(stream->ssl, res));
+ 			}
+ 
+-#if defined(OPENSSL_API_COMPAT) && OPENSSL_API_COMPAT >= 0x10100000L
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+ 			if (!SSL_is_server(stream->ssl)) {
+ #else
+ 			if (!stream->ssl->server) {
+ #endif
+ 				/* For client threads, ensure that the error stack is cleared */
+-#if !defined(OPENSSL_API_COMPAT) || OPENSSL_API_COMPAT < 0x10100000L
+-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+-				ERR_remove_thread_state(NULL);
+-#else
++#if OPENSSL_VERSION_NUMBER < 0x10000000L
+ 				ERR_remove_state(0);
+-#endif	/* OPENSSL_VERSION_NUMBER >= 0x10000000L */
+-#endif  /* !defined(OPENSSL_API_COMPAT) || OPENSSL_API_COMPAT < 0x10100000L */
++#elif OPENSSL_VERSION_NUMBER < 0x10100000L
++				ERR_remove_thread_state(NULL);
++#endif
+ 			}
+ 
+ 			SSL_free(stream->ssl);
+@@ -850,12 +850,16 @@ static int __ssl_setup(struct ast_tls_config *cfg, int client)
+ 			cfg->ssl_ctx = SSL_CTX_new(SSLv3_client_method());
+ 		} else
+ #endif
++#if defined(OPENSSL_VERSION_NUMBER) && (OPENSSL_VERSION_NUMBER  >= 0x10100000L)
++		cfg->ssl_ctx = SSL_CTX_new(TLS_client_method());
++#else
+ 		if (ast_test_flag(&cfg->flags, AST_SSL_TLSV1_CLIENT)) {
+ 			cfg->ssl_ctx = SSL_CTX_new(TLSv1_client_method());
+ 		} else {
+ 			disable_ssl = 1;
+ 			cfg->ssl_ctx = SSL_CTX_new(SSLv23_client_method());
+ 		}
++#endif
+ 	} else {
+ 		disable_ssl = 1;
+ 		cfg->ssl_ctx = SSL_CTX_new(SSLv23_server_method());
