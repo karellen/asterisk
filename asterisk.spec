@@ -52,7 +52,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          14.5.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -68,6 +68,8 @@ Source6:          asterisk-tmpfiles
 Patch0:           asterisk-openssl.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
+# Does not build on s390: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
+ExcludeArch:      s390
 
 BuildRequires:    autoconf
 BuildRequires:    automake
@@ -1630,6 +1632,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Mon Jun 26 2017 Till Maas <opensource@till.name> - 14.5.0-2
+- Excludearch s390
+
 * Sat Jun 10 2017 Jared Smith <jsmith@fedoraproject.org> - 14.5.0-1
 - Update to upstream 14.5.0 release
 
