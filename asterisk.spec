@@ -68,8 +68,8 @@ Source6:          asterisk-tmpfiles
 Patch0:           asterisk-openssl.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
-# Does not build on s390: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
-ExcludeArch:      s390
+# Does not build on s390x: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
+ExcludeArch:      s390x
 
 BuildRequires:    autoconf
 BuildRequires:    automake
@@ -1633,7 +1633,7 @@ fi
 
 %changelog
 * Mon Jun 26 2017 Till Maas <opensource@till.name> - 14.5.0-2
-- Excludearch s390
+- Excludearch s390x
 
 * Sat Jun 10 2017 Jared Smith <jsmith@fedoraproject.org> - 14.5.0-1
 - Update to upstream 14.5.0 release
