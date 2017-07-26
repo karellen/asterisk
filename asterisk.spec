@@ -52,7 +52,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          14.5.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1632,6 +1632,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 14.5.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Mon Jun 26 2017 Till Maas <opensource@till.name> - 14.5.0-2
 - Excludearch s390x
 
