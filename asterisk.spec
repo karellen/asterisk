@@ -43,16 +43,13 @@
 %else
 %global           jack       1
 %endif
-%if 0%{?fedora} >= 25
-%global           radius     0
-%endif
 
 %global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          14.5.0
-Release:          4%{?dist}
+Version:          14.6.0
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1632,6 +1629,10 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Aug 31 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.0-1
+- Update to upstream 14.6.0 release
+- Re-enable radius sub-packages
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 14.5.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
