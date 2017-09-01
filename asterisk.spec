@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          14.6.0
+Version:          14.6.1
 Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -70,6 +70,7 @@ ExcludeArch:      s390x
 
 BuildRequires:    autoconf
 BuildRequires:    automake
+BuildRequires:    perl
 
 # core build requirements
 BuildRequires:    openssl-devel
@@ -1629,6 +1630,13 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Fri Sep 01 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-1
+- Update to upstream 14.6.1 release
+- Solves AST-2017-005, AST-2017-006, and AST-2017-007 security issues
+
+* Fri Sep 01 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.0-2
+- Add perl to BuildRequires
+
 * Thu Aug 31 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.0-1
 - Update to upstream 14.6.0 release
 - Re-enable radius sub-packages
