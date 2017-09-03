@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          14.6.1
-Release:          4%{?dist}
+Release:          5%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -133,6 +133,9 @@ BuildRequires:    ilbc-devel
 
 # res_rtp_asterisk
 BuildRequires:    libuuid-devel
+
+# res_resolver_unbound
+BuildRequires:    unbound-devel
 
 %if 0%{?corosync}
 BuildRequires:    corosynclib-devel
@@ -1179,6 +1182,7 @@ fi
 %{_libdir}/asterisk/modules/res_parking.so
 %{_libdir}/asterisk/modules/res_phoneprov.so
 %{_libdir}/asterisk/modules/res_realtime.so
+%{_libdir}/asterisk/modules/res_resolver_unbound.so
 %{_libdir}/asterisk/modules/res_rtp_asterisk.so
 %{_libdir}/asterisk/modules/res_rtp_multicast.so
 %{_libdir}/asterisk/modules/res_security_log.so
@@ -1634,6 +1638,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Sun Sep 03 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-5
+- Add dependency on unbound-devel for res_resolver_unbound
+
 * Fri Sep 01 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-4
 - Disable corosync modules until corosync works in ppc64le again
 
