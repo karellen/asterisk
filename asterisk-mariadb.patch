@@ -1,0 +1,19 @@
+commit 7e0d36fd61c244f292a5cf646fff1daf6963278c
+Author: Tom Hughes <tom@compton.nu>
+Date:   Fri Sep 1 21:47:55 2017 +0100
+
+    Include mariadb_version.h instead of mysql_version.h
+
+diff --git a/addons/res_config_mysql.c b/addons/res_config_mysql.c
+index 259650d4f3..a7e433ff52 100644
+--- a/addons/res_config_mysql.c
++++ b/addons/res_config_mysql.c
+@@ -35,7 +35,7 @@ ASTERISK_REGISTER_FILE()
+ #include <sys/stat.h>
+ 
+ #include <mysql/mysql.h>
+-#include <mysql/mysql_version.h>
++#include <mysql/mariadb_version.h>
+ #include <mysql/errmsg.h>
+ 
+ #include "asterisk/channel.h"

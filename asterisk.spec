@@ -37,7 +37,7 @@
 %endif
 %global           ldap       1
 %global           gmime      1
-%global           corosync   1
+%global           corosync   0
 %if 0%{?fedora} >= 21
 %global           jack       0
 %else
@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          14.6.1
-Release:          1%{?dist}
+Release:          4%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -62,11 +62,11 @@ Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
 
-Patch0:           asterisk-openssl.patch
+Patch0:           asterisk-mariadb.patch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 # Does not build on s390x: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
-ExcludeArch:      s390x
+#ExcludeArch:      s390x
 
 BuildRequires:    autoconf
 BuildRequires:    automake
@@ -639,7 +639,7 @@ Jabber/XMPP resources for Asterisk.
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
-#%patch0 -p1
+%patch0 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -891,6 +891,10 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_snmp.conf
 
 %if ! 0%{?ldap}
 rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
+%endif
+
+%if ! 0%{?corosync}
+rm -f %{buildroot}%{_sysconfdir}/asterisk/res_corosync.conf
 %endif
 
 %clean
@@ -1630,6 +1634,12 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Fri Sep 01 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-4
+- Disable corosync modules until corosync works in ppc64le again
+
+* Fri Sep 01 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-3
+- Fix MySQL header path (due to change in mariadb-devel patckage)
+
 * Fri Sep 01 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-1
 - Update to upstream 14.6.1 release
 - Solves AST-2017-005, AST-2017-006, and AST-2017-007 security issues
