@@ -37,7 +37,7 @@
 %endif
 %global           ldap       1
 %global           gmime      1
-%global           corosync   0
+%global           corosync   1
 %if 0%{?fedora} >= 21
 %global           jack       0
 %else
@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          14.6.1
-Release:          5%{?dist}
+Release:          6%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1638,6 +1638,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Wed Sep 13 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-6
+- Re-enable corosync, see RHBZ#1478089
+
 * Sun Sep 03 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-5
 - Add dependency on unbound-devel for res_resolver_unbound
 
