@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          14.6.1
-Release:          6%{?dist}
+Version:          14.6.2
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1638,6 +1638,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Sep 21 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.2-1
+- Update to upstream 14.6.2 release
+
 * Wed Sep 13 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.1-6
 - Re-enable corosync, see RHBZ#1478089
 
