@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          14.6.2
+Version:          15.0.0
 Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -736,9 +736,9 @@ popd
 ./bootstrap.sh
 
 %if 0%{?fedora} > 0 || 0%{?rhel} >= 7
-%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr LDFLAGS="%{ldflags}"
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
 %else
-%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp --with-pjproject=/usr LDFLAGS="%{ldflags}"
+%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
 %endif
 
 make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
@@ -1029,6 +1029,8 @@ fi
 %{_libdir}/asterisk/modules/app_stack.so
 %{_libdir}/asterisk/modules/app_stasis.so
 %{_libdir}/asterisk/modules/app_statsd.so
+%{_libdir}/asterisk/modules/app_statsd.so
+%{_libdir}/asterisk/modules/app_stream_echo.so
 %{_libdir}/asterisk/modules/app_system.so
 %{_libdir}/asterisk/modules/app_talkdetect.so
 %{_libdir}/asterisk/modules/app_test.so
@@ -1185,6 +1187,7 @@ fi
 %{_libdir}/asterisk/modules/res_resolver_unbound.so
 %{_libdir}/asterisk/modules/res_rtp_asterisk.so
 %{_libdir}/asterisk/modules/res_rtp_multicast.so
+%{_libdir}/asterisk/modules/res_sdp_translator_pjmedia.so
 %{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_sorcery_astdb.so
@@ -1638,6 +1641,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Oct 05 2017 Jared Smith <jsmith@fedoraproject.org> - 15.0.0-1
+- Update to upstream 15.0.0 release
+
 * Thu Sep 21 2017 Jared Smith <jsmith@fedoraproject.org> - 14.6.2-1
 - Update to upstream 14.6.2 release
 
