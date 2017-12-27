@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          15.1.4
-Release:          2%{?dist}
+Version:          15.1.5
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1056,7 +1056,7 @@ fi
 %{_libdir}/asterisk/modules/cel_custom.so
 %{_libdir}/asterisk/modules/cel_manager.so
 %{_libdir}/asterisk/modules/chan_bridge_media.so
-#%{_libdir}/asterisk/modules/chan_multicast_rtp.so
+#%%{_libdir}/asterisk/modules/chan_multicast_rtp.so
 %{_libdir}/asterisk/modules/chan_rtp.so
 %{_libdir}/asterisk/modules/codec_adpcm.so
 %{_libdir}/asterisk/modules/codec_alaw.so
@@ -1526,7 +1526,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_history.so
 %{_libdir}/asterisk/modules/res_pjsip_logger.so
 %{_libdir}/asterisk/modules/res_pjsip_messaging.so
-#%{_libdir}/asterisk/modules/res_pjsip_multihomed.so
+#%%{_libdir}/asterisk/modules/res_pjsip_multihomed.so
 %{_libdir}/asterisk/modules/res_pjsip_mwi.so
 %{_libdir}/asterisk/modules/res_pjsip_mwi_body_generator.so
 %{_libdir}/asterisk/modules/res_pjsip_nat.so
@@ -1641,6 +1641,10 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Wed Dec 27 2017 Jared Smith - 15.1.5-1
+- Update to upstream 15.1.5 release for AST-2017-014/CVE-2017-17850 security
+  issue
+
 * Thu Dec 14 2017 Jared Smith <jsmith@fedoraproject.org> - 15.1.4-2
 - Require mariadb-connector-c-devel, see RHBZ#1488483
 
