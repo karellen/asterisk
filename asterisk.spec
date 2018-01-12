@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          15.1.5
+Version:          15.2.0
 Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -960,7 +960,8 @@ fi
 %endif
 
 %files
-%doc README *.txt ChangeLog BUGS CREDITS configs
+%doc *.txt ChangeLog BUGS CREDITS configs
+%license LICENSE
 
 %doc doc/asterisk.sgml
 
@@ -1641,6 +1642,10 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Jan 11 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.0-1
+- Update to upstream 15.2.0 release
+- Upstream changelog at http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-15.2.0
+
 * Wed Dec 27 2017 Jared Smith - 15.1.5-1
 - Update to upstream 15.1.5 release for AST-2017-014/CVE-2017-17850 security
   issue
