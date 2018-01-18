@@ -62,7 +62,9 @@ Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
 
+%if 0%{?fedora}
 Patch0:           asterisk-mariadb.patch
+%endif
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 # Does not build on s390x: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
@@ -642,7 +644,9 @@ Jabber/XMPP resources for Asterisk.
 %prep
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
+%if 0%{?fedora}
 %patch0 -p1
+%endif
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
