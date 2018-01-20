@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          15.2.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1646,6 +1646,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 15.2.0-2
+- Rebuilt for switch to libxcrypt
+
 * Thu Jan 11 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.0-1
 - Update to upstream 15.2.0 release
 - Upstream changelog at http://downloads.asterisk.org/pub/telephony/asterisk/ChangeLog-15.2.0
