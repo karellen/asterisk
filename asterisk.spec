@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          15.2.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -90,7 +90,8 @@ BuildRequires:    perl-interpreter
 BuildRequires:    perl-generators
 BuildRequires:    popt-devel
 %if %{systemd}
-BuildRequires:    systemd-units
+%{?systemd_requires}
+BuildRequires:    systemd
 %endif
 
 # for res_http_post
@@ -1646,6 +1647,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Mon Jan 29 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.0-3
+- Update requirements for systemd
+
 * Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 15.2.0-2
 - Rebuilt for switch to libxcrypt
 
