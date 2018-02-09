@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          15.2.0
-Release:          4%{?dist}
+Release:          5%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1647,6 +1647,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 15.2.0-5
+- Escape macros in %%changelog
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 15.2.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
@@ -2001,7 +2004,7 @@ fi
 -  * ASTERISK-24811 - asterisk-publication sorcery object does not
 -       use realtime (Reported by Matt Hoskins)
 -  * ASTERISK-24790 - Reduce spurious noise in logs from voicemail -
--       Couldn't find mailbox %s in context (Reported by Graham Barnett)
+-       Couldn't find mailbox %%s in context (Reported by Graham Barnett)
 -
 - For a full list of changes in this release, please see the ChangeLog:
 -
