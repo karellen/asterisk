@@ -66,7 +66,6 @@ Source6:          asterisk-tmpfiles
 Patch0:           asterisk-mariadb.patch
 %endif
 
-BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 # Does not build on s390x: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
 #ExcludeArch:      s390x
 
