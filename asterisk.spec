@@ -904,9 +904,6 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
 rm -f %{buildroot}%{_sysconfdir}/asterisk/res_corosync.conf
 %endif
 
-%clean
-rm -rf %{buildroot}
-
 %pre
 %{_sbindir}/groupadd -r asterisk &>/dev/null || :
 %{_sbindir}/useradd  -r -s /sbin/nologin -d /var/lib/asterisk -M \
