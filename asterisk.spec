@@ -66,7 +66,6 @@ Source6:          asterisk-tmpfiles
 Patch0:           asterisk-mariadb.patch
 %endif
 
-BuildRoot:        %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 # Does not build on s390x: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
 #ExcludeArch:      s390x
 
@@ -905,9 +904,6 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
 rm -f %{buildroot}%{_sysconfdir}/asterisk/res_corosync.conf
 %endif
 
-%clean
-rm -rf %{buildroot}
-
 %pre
 %{_sbindir}/groupadd -r asterisk &>/dev/null || :
 %{_sbindir}/useradd  -r -s /sbin/nologin -d /var/lib/asterisk -M \
@@ -1650,6 +1646,12 @@ fi
 * Tue Feb 13 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.1-1
 - Update to upstream 15.2.1 release
 
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 15.2.0-5
+- Escape macros in %%changelog
+
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 15.2.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
 * Mon Jan 29 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.0-3
 - Update requirements for systemd
 
@@ -2001,7 +2003,7 @@ fi
 -  * ASTERISK-24811 - asterisk-publication sorcery object does not
 -       use realtime (Reported by Matt Hoskins)
 -  * ASTERISK-24790 - Reduce spurious noise in logs from voicemail -
--       Couldn't find mailbox %s in context (Reported by Graham Barnett)
+-       Couldn't find mailbox %%s in context (Reported by Graham Barnett)
 -
 - For a full list of changes in this release, please see the ChangeLog:
 -
