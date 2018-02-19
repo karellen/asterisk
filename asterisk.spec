@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          15.2.1
-Release:          1%{?dist}
+Release:          2%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -71,6 +71,8 @@ Patch0:           asterisk-mariadb.patch
 
 BuildRequires:    autoconf
 BuildRequires:    automake
+BuildRequires:    gcc
+BuildRequires:    gcc-c++
 BuildRequires:    perl
 
 # core build requirements
@@ -1643,6 +1645,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Mon Feb 19 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.1-2
+- Add missing BuildRequires on gcc/gcc-c++
+
 * Tue Feb 13 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.1-1
 - Update to upstream 15.2.1 release
 
