@@ -49,7 +49,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          15.2.1
-Release:          2%{?dist}
+Release:          3%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -61,6 +61,14 @@ Source3:          menuselect.makedeps
 Source4:          menuselect.makeopts
 Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
+# GPG keyring with Asterisk developer signatures
+# Created by running:
+#gpg --export --export-options export-minimal \
+#"21A9 1EB1 F012 2529 93E9  BF4A 368A B332 B599 75F3" \
+#"80CE BC34 5EC9 FF52 9B4B  7B80 8438 CBA1 8D0C AA72" \
+#"CDBE E4CC 699E 200E B4D4  6BB7 9E76 E3A4 2341 CE04" \
+#"57E7 69BC 3790 6C09 1E7F  641F 6CB4 4E55 7BD9 82D8" > asterisk-gpgkeys.gpg
+Source7:          asterisk-gpgkeys.gpg
 
 %if 0%{?fedora}
 Patch0:           asterisk-mariadb.patch
@@ -644,6 +652,7 @@ Conflicts: asterisk-jabber < 13.0.0
 Jabber/XMPP resources for Asterisk.
 
 %prep
+gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
 %if 0%{?fedora}
@@ -1645,6 +1654,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Tue Feb 20 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.1-3
+- Verify GPG signatures on source packages
+
 * Mon Feb 19 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.1-2
 - Add missing BuildRequires on gcc/gcc-c++
 
