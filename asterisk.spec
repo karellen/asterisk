@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          15.2.1
-Release:          3%{?dist}
+Version:          15.2.2
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -67,6 +67,8 @@ Source6:          asterisk-tmpfiles
 #"21A9 1EB1 F012 2529 93E9  BF4A 368A B332 B599 75F3" \
 #"80CE BC34 5EC9 FF52 9B4B  7B80 8438 CBA1 8D0C AA72" \
 #"CDBE E4CC 699E 200E B4D4  6BB7 9E76 E3A4 2341 CE04" \
+#"639D 932D 5170 532F 8C20  0CCD 9C59 F000 777D CC45" \
+#"551F 2910 4B21 0608 0C6C  2851 073B 0C1F C9B2 E352" \
 #"57E7 69BC 3790 6C09 1E7F  641F 6CB4 4E55 7BD9 82D8" > asterisk-gpgkeys.gpg
 Source7:          asterisk-gpgkeys.gpg
 
@@ -1564,7 +1566,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_session.so
 %{_libdir}/asterisk/modules/res_pjsip_sips_contact.so
 %{_libdir}/asterisk/modules/res_pjsip_t38.so
-%{_libdir}/asterisk/modules/res_pjsip_transport_management.so
+#%%{_libdir}/asterisk/modules/res_pjsip_transport_management.so
 %{_libdir}/asterisk/modules/res_pjsip_transport_websocket.so
 %{_libdir}/asterisk/modules/res_pjsip_xpidf_body_generator.so
 
@@ -1654,6 +1656,11 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Feb 22 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.2-1
+- Update to upstream 15.2.2 release for security updates
+- This update addresses security alerts AST-2018-001 through AST-2018-006
+- Upstream changelog at https://downloads.asterisk.org/pub/telephony/asterisk/releases/ChangeLog-15.2.2
+
 * Tue Feb 20 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.1-3
 - Verify GPG signatures on source packages
 
