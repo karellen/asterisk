@@ -48,8 +48,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          15.2.2
-Release:          2%{?dist}
+Version:          15.3.0
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -736,21 +736,15 @@ export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
 export ASTCFLAGS=" "
 
-pushd menuselect
-
-#aclocal -I ../autoconf --force
-#autoconf --force
-#autoheader --force
-./bootstrap.sh
-
-%configure
-
-popd
-
 #aclocal -I autoconf --force
 #autoconf --force
 #autoheader --force
 ./bootstrap.sh
+
+pushd menuselect
+%configure
+popd
+
 
 %if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
@@ -1202,7 +1196,7 @@ fi
 %{_libdir}/asterisk/modules/res_resolver_unbound.so
 %{_libdir}/asterisk/modules/res_rtp_asterisk.so
 %{_libdir}/asterisk/modules/res_rtp_multicast.so
-%{_libdir}/asterisk/modules/res_sdp_translator_pjmedia.so
+#%{_libdir}/asterisk/modules/res_sdp_translator_pjmedia.so
 %{_libdir}/asterisk/modules/res_security_log.so
 %{_libdir}/asterisk/modules/res_smdi.so
 %{_libdir}/asterisk/modules/res_sorcery_astdb.so
@@ -1656,6 +1650,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Thu Mar 15 2018 jsmith <jsmith.fedora@gmail.com> - 15.3.0-1
+- Update to upstream 15.3.0 release
+
 * Mon Mar 05 2018 Jared Smith <jsmith@fedoraproject.org> - 15.2.2-2
 - Update asterisk.service to wait for the network to come up
 

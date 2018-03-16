@@ -1,18 +1,32 @@
-commit 7e0d36fd61c244f292a5cf646fff1daf6963278c
-Author: Tom Hughes <tom@compton.nu>
-Date:   Fri Sep 1 21:47:55 2017 +0100
-
-    Include mariadb_version.h instead of mysql_version.h
-
+diff --git a/addons/cdr_mysql.c b/addons/cdr_mysql.c
+index 00c75dd..bc405bb 100644
+--- a/addons/cdr_mysql.c
++++ b/addons/cdr_mysql.c
+@@ -43,6 +43,7 @@
+ #include "asterisk.h"
+ 
+ #include <mysql/mysql.h>
++#include <mysql/mariadb_version.h>
+ #include <mysql/errmsg.h>
+ 
+ #include "asterisk/config.h"
+@@ -501,7 +502,7 @@ static int my_load_module(int reload)
+ 	res |= my_load_config_string(cfg, "global", "ssl_cert", &ssl_cert, "");
+ 	res |= my_load_config_string(cfg, "global", "ssl_key", &ssl_key, "");
+ 
+-	res |= my_load_config_number(cfg, "global", "port", &dbport, MYSQL_PORT);
++	res |= my_load_config_number(cfg, "global", "port", &dbport, MARIADB_PORT);
+ 	res |= my_load_config_number(cfg, "global", "timeout", &timeout, 0);
+ 	res |= my_load_config_string(cfg, "global", "compat", &compat, "no");
+ 	res |= my_load_config_string(cfg, "global", "cdrzone", &cdrzone, "");
 diff --git a/addons/res_config_mysql.c b/addons/res_config_mysql.c
-index 259650d4f3..a7e433ff52 100644
+index ae43485..94d3b35 100644
 --- a/addons/res_config_mysql.c
 +++ b/addons/res_config_mysql.c
-@@ -35,7 +35,7 @@ ASTERISK_REGISTER_FILE()
+@@ -33,6 +33,7 @@
  #include <sys/stat.h>
  
  #include <mysql/mysql.h>
--#include <mysql/mysql_version.h>
 +#include <mysql/mariadb_version.h>
  #include <mysql/errmsg.h>
  
