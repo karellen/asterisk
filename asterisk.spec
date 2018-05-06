@@ -48,7 +48,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          15.3.0
+Version:          15.4.0
 Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -1649,6 +1649,9 @@ fi
 %{_libdir}/asterisk/modules/res_xmpp.so
 
 %changelog
+* Sun May 06 2018 Jared K. Smith <jsmith@fedoraproject.org> - 15.4.0-1
+- Update to upstream 15.4.0 release
+
 * Thu Mar 15 2018 jsmith <jsmith.fedora@gmail.com> - 15.3.0-1
 - Update to upstream 15.3.0 release
 
