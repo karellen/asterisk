@@ -43,6 +43,11 @@
 %else
 %global           jack       1
 %endif
+%if 0%{?fedora} >= 28
+%global           phone      0
+%else
+%global           phone      1
+%endif
 
 %global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
@@ -104,6 +109,7 @@ BuildRequires:    popt-devel
 %{?systemd_requires}
 BuildRequires:    systemd
 %endif
+BuildRequires:    kernel-headers
 
 # for res_http_post
 %if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
@@ -234,6 +240,9 @@ Obsoletes:        asterisk-firmware <= 1.6.2.0-0.2.rc1
 
 # chan_usbradio was been removed in 10.4.0
 Obsoletes:        asterisk-usbradio <= 10.3.1-1
+
+# chan_phone headers no longer in kernel headers
+Obsoletes:        asterisk-phone < %{version}
 
 %description
 Asterisk is a complete PBX in software. It runs on Linux and provides
@@ -911,6 +920,10 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_ldap.conf
 rm -f %{buildroot}%{_sysconfdir}/asterisk/res_corosync.conf
 %endif
 
+%if ! 0%{?phone}
+rm -f %{buildroot}%{_sysconfdir}/asterisk/phone.conf
+%endif
+
 %pre
 %{_sbindir}/groupadd -r asterisk &>/dev/null || :
 %{_sbindir}/useradd  -r -s /sbin/nologin -d /var/lib/asterisk -M \
@@ -1504,9 +1517,11 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/oss.conf
 %{_libdir}/asterisk/modules/chan_oss.so
 
+%if 0%{phone}
 %files phone
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phone.conf
 %{_libdir}/asterisk/modules/chan_phone.so
+%endif
 
 %files pjsip
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/pjsip.conf
