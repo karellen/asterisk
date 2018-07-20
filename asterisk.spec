@@ -54,7 +54,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          15.5.0
-Release:          1%{?dist}1%{?dist}
+Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -170,7 +170,6 @@ BuildRequires:    libss7-devel >= 1.0.1
 BuildRequires:    spandsp-devel >= 0.0.5-0.1.pre4
 BuildRequires:    libtiff-devel
 BuildRequires:    libjpeg-devel
-BuildRequires:    iksemel-devel
 BuildRequires:    lua-devel
 %if 0%{?jack}
 BuildRequires:    jack-audio-connection-kit-devel
@@ -652,6 +651,7 @@ Conflicts: asterisk-voicemail-odbc <= %{version}-%{release}
 Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
+%if 0%{?fedora} <= 28 || 0%{?rhel} <= 7
 %package xmpp
 Summary: Jabber/XMPP resources for Asterisk
 Group: Applications/Internet
@@ -661,6 +661,7 @@ Conflicts: asterisk-jabber < 13.0.0
 
 %description xmpp
 Jabber/XMPP resources for Asterisk.
+%endif
 
 %prep
 gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
@@ -922,6 +923,11 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_corosync.conf
 
 %if ! 0%{?phone}
 rm -f %{buildroot}%{_sysconfdir}/asterisk/phone.conf
+%endif
+
+%if ! 0%{fedora}<=28
+rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
+rm -f %{buildroot}%{_sysconfdir}/asterisk/xmpp.conf
 %endif
 
 %pre
@@ -1372,7 +1378,6 @@ fi
 %{_libdir}/asterisk/modules/res_calendar.so
 %{_libdir}/asterisk/modules/res_calendar_caldav.so
 %{_libdir}/asterisk/modules/res_calendar_ews.so
-%{_libdir}/asterisk/modules/res_calendar_exchange.so
 %{_libdir}/asterisk/modules/res_calendar_icalendar.so
 
 %if 0%{?corosync}
@@ -1658,14 +1663,16 @@ fi
 %{_libdir}/asterisk/modules/app_directory_plain.so
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
+%if 0%{?fedora} <= 28
 %files xmpp
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/motif.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/xmpp.conf
 %{_libdir}/asterisk/modules/chan_motif.so
 %{_libdir}/asterisk/modules/res_xmpp.so
+%endif
 
 %changelog
-* Thu Jul 12 2018 Jared K. Smith <jsmith@fedoraproject.org> - 15.5.015.5.0-11
+* Thu Jul 12 2018 Jared K. Smith <jsmith@fedoraproject.org> - 15.5.0-1
 - Update to upstream 15.5.0 release for security and bug fixes
 
 * Fri Jun 29 2018 Jitka Plesnikova <jplesnik@redhat.com> - 15.4.1-2
