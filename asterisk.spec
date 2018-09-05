@@ -199,7 +199,7 @@ BuildRequires:    unixODBC-devel
 %endif
 
 %if 0%{?postgresql}
-BuildRequires:    postgresql-devel
+BuildRequires:    libpq-devel
 %endif
 
 %if 0%{?radius}
