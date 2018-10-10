@@ -43,17 +43,19 @@
 %else
 %global           jack       1
 %endif
-%if 0%{?fedora} >= 28
+%if 0%{?fedora} >= 28 || 0%{?rhel} <= 7
 %global           phone      0
+%global           xmpp       0
 %else
 %global           phone      1
+%global           xmpp       1
 %endif
 
 %global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          15.5.0
+Version:          16.0.0
 Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -169,7 +171,7 @@ BuildRequires:    libpri-devel >= 1.4.12
 BuildRequires:    libss7-devel >= 1.0.1
 BuildRequires:    spandsp-devel >= 0.0.5-0.1.pre4
 BuildRequires:    libtiff-devel
-BuildRequires:    libjpeg-devel
+BuildRequires:    libjpeg-turbo-devel
 BuildRequires:    lua-devel
 %if 0%{?jack}
 BuildRequires:    jack-audio-connection-kit-devel
@@ -651,7 +653,7 @@ Conflicts: asterisk-voicemail-odbc <= %{version}-%{release}
 Voicemail implementation for Asterisk that stores voicemail on the
 local filesystem.
 
-%if 0%{?fedora} <= 28 || 0%{?rhel} <= 7
+%if 0%{?xmpp}
 %package xmpp
 Summary: Jabber/XMPP resources for Asterisk
 Group: Applications/Internet
@@ -674,6 +676,11 @@ gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
+%if ! 0%{xmpp}
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_xmpp/g' menuselect.makeopts
+%{__perl} -pi -e 's/^MENUSELECT_CHANNELS=(.*)$/MENUSELECT_CHANNELS=\1 chan_motif/g' menuselect.makeopts
+%endif
+
 # Fixup makefile so sound archives aren't downloaded/installed
 %{__perl} -pi -e 's/^all:.*$/all:/' sounds/Makefile
 %{__perl} -pi -e 's/^install:.*$/install:/' sounds/Makefile
@@ -695,8 +702,6 @@ chmod -x contrib/scripts/dbsep.cgi
 %{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
 %{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
 %{__perl} -pi -e 's/AST_PROG_SED/SED=sed/g' autoconf/ast_prog_ld.m4
-# kernel/glibc in RHEL5 does not support the timerfd
-%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_timing_timerfd/g' menuselect.makeopts
 %endif
 
 %if ! 0%{?corosync}
@@ -745,6 +750,8 @@ export CXXFLAGS="%{optflags}"
 export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
 export ASTCFLAGS=" "
+
+sed -i '1s/env python/python2/' contrib/scripts/refcounter.py
 
 #aclocal -I autoconf --force
 #autoconf --force
@@ -925,9 +932,9 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/res_corosync.conf
 rm -f %{buildroot}%{_sysconfdir}/asterisk/phone.conf
 %endif
 
-%if ! 0%{fedora}<=28
-rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
+%if ! 0%{xmpp}
 rm -f %{buildroot}%{_sysconfdir}/asterisk/xmpp.conf
+rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
 %endif
 
 %pre
@@ -1050,7 +1057,7 @@ fi
 %{_libdir}/asterisk/modules/app_sayunixtime.so
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
-%{_libdir}/asterisk/modules/app_setcallerid.so
+#%%{_libdir}/asterisk/modules/app_setcallerid.so
 %{_libdir}/asterisk/modules/app_sms.so
 %{_libdir}/asterisk/modules/app_softhangup.so
 %{_libdir}/asterisk/modules/app_speech_utils.so
@@ -1104,7 +1111,7 @@ fi
 %{_libdir}/asterisk/modules/format_h263.so
 %{_libdir}/asterisk/modules/format_h264.so
 %{_libdir}/asterisk/modules/format_ilbc.so
-%{_libdir}/asterisk/modules/format_jpeg.so
+#%%{_libdir}/asterisk/modules/format_jpeg.so
 %{_libdir}/asterisk/modules/format_ogg_speex.so
 %{_libdir}/asterisk/modules/format_ogg_vorbis.so
 %{_libdir}/asterisk/modules/format_pcm.so
@@ -1115,7 +1122,7 @@ fi
 %{_libdir}/asterisk/modules/format_wav_gsm.so
 %{_libdir}/asterisk/modules/format_wav.so
 %{_libdir}/asterisk/modules/func_aes.so
-%{_libdir}/asterisk/modules/func_audiohookinherit.so
+#%%{_libdir}/asterisk/modules/func_audiohookinherit.so
 %{_libdir}/asterisk/modules/func_base64.so
 %{_libdir}/asterisk/modules/func_blacklist.so
 %{_libdir}/asterisk/modules/func_callcompletion.so
@@ -1277,10 +1284,12 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/asterisk.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ccss.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_beanstalkd.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_manager.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cdr_syslog.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_beanstalkd.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cel_custom.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/cli_aliases.conf
@@ -1573,7 +1582,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_pubsub.so
 %{_libdir}/asterisk/modules/res_pjsip_refer.so
 %{_libdir}/asterisk/modules/res_pjsip_registrar.so
-%{_libdir}/asterisk/modules/res_pjsip_registrar_expire.so
+#%%{_libdir}/asterisk/modules/res_pjsip_registrar_expire.so
 %{_libdir}/asterisk/modules/res_pjsip_rfc3326.so
 %{_libdir}/asterisk/modules/res_pjsip_sdp_rtp.so
 %{_libdir}/asterisk/modules/res_pjsip_send_to_voicemail.so
@@ -1663,7 +1672,7 @@ fi
 %{_libdir}/asterisk/modules/app_directory_plain.so
 %{_libdir}/asterisk/modules/app_voicemail_plain.so
 
-%if 0%{?fedora} <= 28
+%if 0%{?xmpp}
 %files xmpp
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/motif.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/xmpp.conf
@@ -1672,6 +1681,9 @@ fi
 %endif
 
 %changelog
+* Tue Oct 09 2018 Jared Smith - 16.0.0-1
+- Update to upstream 16.0.0 release
+
 * Thu Jul 12 2018 Jared K. Smith <jsmith@fedoraproject.org> - 15.5.0-1
 - Update to upstream 15.5.0 release for security and bug fixes
 
