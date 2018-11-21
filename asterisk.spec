@@ -16,12 +16,6 @@
 %global           tmpfilesd        0
 %endif
 
-%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
-%global           systemd    1
-%else
-%global           systemd    0
-%endif
-
 %global           apidoc     0
 %global           mysql      1
 %global           odbc       1
@@ -105,10 +99,8 @@ BuildRequires:    libsrtp-devel
 BuildRequires:    perl-interpreter
 BuildRequires:    perl-generators
 BuildRequires:    popt-devel
-%if %{systemd}
 %{?systemd_requires}
 BuildRequires:    systemd
-%endif
 BuildRequires:    kernel-headers
 
 # for res_http_post
@@ -221,16 +213,11 @@ BuildRequires:    jansson-devel
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
 
-%if 0%{?systemd}
 Requires(post):   systemd-units
 Requires(post):   systemd-sysv
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-Requires(post):   /sbin/chkconfig
-Requires(preun):  /sbin/chkconfig
-Requires(preun):  /sbin/service
-%endif
+
 
 # asterisk-conference package removed since patch no longer compiles
 Obsoletes:        asterisk-conference <= 1.6.0-0.14.beta9
@@ -832,12 +819,8 @@ export ASTCFLAGS="%{optflags}"
 make install %{makeargs}
 make samples %{makeargs}
 
-%if 0%{?systemd}
 install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
 rm -f %{buildroot}%{_sbindir}/safe_asterisk
-%else
-install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
-%endif
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
@@ -941,30 +924,19 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
                                -c 'Asterisk User' -g asterisk asterisk &>/dev/null || :
 
 %post
-%if %{systemd}
 if [ $1 -eq 1 ] ; then
 	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
-%else
-/sbin/chkconfig --add asterisk
-%endif
+
 
 %preun
-%if %{systemd}
 if [ "$1" -eq "0" ]; then
 	# Package removal, not upgrade
 	/bin/systemctl --no-reload disable asterisk.service > /dev/null 2>&1 || :
 	/bin/systemctl stop asterisk.service > /dev/null 2>&1 || :
 fi
-%else
-if [ "$1" -eq "0" ]; then
-	# Package removal, not upgrade
-        /sbin/service asterisk stop > /dev/null 2>&1 || :
-        /sbin/chkconfig --del asterisk
-fi
-%endif
 
-%if %{systemd}
+
 %postun
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
@@ -981,7 +953,6 @@ fi
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del asterisk >/dev/null 2>&1 || :
 /bin/systemctl try-restart asterisk.service >/dev/null 2>&1 || :
-%endif
 
 %pre dahdi
 %{_sbindir}/usermod -a -G dahdi asterisk
@@ -997,11 +968,7 @@ fi
 
 %doc doc/asterisk.sgml
 
-%if %{systemd}
 %{_unitdir}/asterisk.service
-%else
-%{_initrddir}/asterisk
-%endif
 
 %{_libdir}/libasteriskssl.so.1
 
@@ -1256,9 +1223,6 @@ fi
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
 #%%{_sbindir}/refcounter
-%if ! %{systemd}
-%{_sbindir}/safe_asterisk
-%endif
 %{_sbindir}/smsq
 %{_sbindir}/stereorize
 %{_sbindir}/streamplayer
