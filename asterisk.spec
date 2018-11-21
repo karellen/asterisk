@@ -8,13 +8,8 @@
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %endif
 
-%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 %global           astvarrundir     /run/asterisk
 %global           tmpfilesd        1
-%else
-%global           astvarrundir     %{_localstatedir}/run/asterisk
-%global           tmpfilesd        0
-%endif
 
 %global           apidoc     0
 %global           mysql      1
@@ -22,11 +17,7 @@
 %global           postgresql 1
 %global           radius     1
 %global           snmp       1
-%if 0%{?fedora} >= 21
-%global           misdn      0
-%else
 %global           misdn      1
-%endif
 %global           ldap       1
 %global           gmime      1
 %global           corosync   1
@@ -87,9 +78,6 @@ BuildRequires:    perl
 # core build requirements
 BuildRequires:    openssl-devel
 BuildRequires:    newt-devel
-%if 0%{?fedora} <= 8
-BuildRequires:    libtermcap-devel
-%endif
 BuildRequires:    ncurses-devel
 BuildRequires:    libcap-devel
 %if 0%{?gmime}
@@ -104,7 +92,7 @@ BuildRequires:    systemd
 BuildRequires:    kernel-headers
 
 # for res_http_post
-%if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
+%if 0%{?gmime}
 BuildRequires:    gmime-devel
 %endif
 
@@ -203,9 +191,7 @@ BuildRequires:    net-snmp-devel
 BuildRequires:    lm_sensors-devel
 %endif
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 BuildRequires:    uw-imap-devel
-%endif
 
 BuildRequires:    pjproject-devel
 BuildRequires:    jansson-devel
@@ -217,15 +203,6 @@ Requires(post):   systemd-units
 Requires(post):   systemd-sysv
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-
-
-# asterisk-conference package removed since patch no longer compiles
-Obsoletes:        asterisk-conference <= 1.6.0-0.14.beta9
-Obsoletes:        asterisk-mobile <= 1.6.1-0.23.rc1
-Obsoletes:        asterisk-firmware <= 1.6.2.0-0.2.rc1
-
-# chan_usbradio was been removed in 10.4.0
-Obsoletes:        asterisk-usbradio <= 10.3.1-1
 
 # chan_phone headers no longer in kernel headers
 Obsoletes:        asterisk-phone < %{version}
@@ -304,7 +281,6 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
-Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
 Provides: asterisk-zaptel = %{version}-%{release}
 
 %description dahdi
@@ -351,7 +327,6 @@ Requires: asterisk = %{version}-%{release}
 %description hep
 Modules for capturing SIP traffic using Homer (HEPv3)
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
@@ -360,7 +335,6 @@ Requires: ices
 
 %description ices
 Stream audio from Asterisk to an IceCast server.
-%endif
 
 %if 0%{?jack}
 %package jack
@@ -582,7 +556,6 @@ Conflicts: asterisk-mwi-external <= %{version}-%{release}
 %description voicemail
 Common Voicemail Modules for Asterisk.
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Group: Applications/Internet
@@ -595,7 +568,6 @@ Conflicts: asterisk-voicemail-plain <= %{version}-%{release}
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
 server.
-%endif
 
 %package voicemail-odbc
 Summary: Store voicemail in a database using ODBC
@@ -628,8 +600,6 @@ local filesystem.
 Summary: Jabber/XMPP resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-Obsoletes: asterisk-jabber < 13.0.0
-Conflicts: asterisk-jabber < 13.0.0
 
 %description xmpp
 Jabber/XMPP resources for Asterisk.
@@ -662,17 +632,6 @@ touch -r main/fskmodem.c.old main/fskmodem.c
 rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
-
-%if 0%{?rhel} == 6
-%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_http_post/g' menuselect.makeopts
-%endif
-
-%if 0%{?rhel} == 5
-# Get the autoconf scripts working with 2.59
-%{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
-%{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
-%{__perl} -pi -e 's/AST_PROG_SED/SED=sed/g' autoconf/ast_prog_ld.m4
-%endif
 
 %if ! 0%{?corosync}
 %{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_corosync/g' menuselect.makeopts
@@ -732,12 +691,7 @@ pushd menuselect
 %configure
 popd
 
-
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
-%else
-%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
-%endif
 
 %make_build menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
@@ -751,8 +705,6 @@ mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
 # Now build with IMAP storage for voicemail and directory
-
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 
 echo "### Building with IMAP voicemail and directory"
@@ -761,7 +713,6 @@ echo "### Building with IMAP voicemail and directory"
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
-%endif
 
 # Now build with ODBC storage for voicemail and directory
 
@@ -811,10 +762,8 @@ install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_imap.so
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_imap.so
-%endif
 install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_odbc.so
 install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_odbc.so
 install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_plain.so
@@ -858,12 +807,6 @@ find doc/api/html -name \*.map -size 0 -delete
 
 # copy the alembic scripts
 cp -rp contrib/ast-db-manage %{buildroot}%{_datadir}/asterisk/ast-db-manage
-
-#rhel6 doesnt have 389 available, nor ices
-%if 0%{?rhel} == 6
-rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
-rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
-%endif
 
 %if %{tmpfilesd}
 install -D -p -m 0644 %{SOURCE6} %{buildroot}/usr/lib/tmpfiles.d/asterisk.conf
@@ -1155,7 +1098,7 @@ fi
 %{_libdir}/asterisk/modules/res_format_attr_siren7.so
 %{_libdir}/asterisk/modules/res_format_attr_vp8.so
 %{_libdir}/asterisk/modules/res_http_media_cache.so
-%if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
+%if 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
 %{_libdir}/asterisk/modules/res_http_websocket.so
@@ -1192,9 +1135,7 @@ fi
 %{_libdir}/asterisk/modules/res_statsd.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 6
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
-%endif
 
 %{_sbindir}/astcanary
 %{_sbindir}/astdb2sqlite3
@@ -1395,11 +1336,9 @@ fi
 %{_libdir}/asterisk/modules/res_hep_rtcp.so
 %{_libdir}/asterisk/modules/res_hep_pjsip.so
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %files ices
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
-%endif
 
 %if 0%{?jack}
 %files jack
@@ -1604,11 +1543,9 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %files voicemail-imap
 %{_libdir}/asterisk/modules/app_directory_imap.so
 %{_libdir}/asterisk/modules/app_voicemail_imap.so
-%endif
 
 %files voicemail-odbc
 #doc doc/voicemail_odbc_postgresql.txt
