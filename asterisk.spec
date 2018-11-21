@@ -1,8 +1,6 @@
 #global _rc 2
 #global _beta 3
 
-%global           _smp_mflags     -j1
-
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
 %ifarch s390 %{arm} aarch64 %{mips}
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -769,12 +767,12 @@ popd
 %configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
 %endif
 
-make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
+%make_build menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
 
 # Build with plain voicemail and directory
 echo "### Building with plain voicemail and directory"
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
@@ -786,7 +784,7 @@ mv apps/app_directory.so apps/app_directory_plain.so
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 
 echo "### Building with IMAP voicemail and directory"
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
@@ -797,7 +795,7 @@ mv apps/app_directory.so apps/app_directory_imap.so
 
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
 echo "### Building with ODBC voicemail and directory"
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_odbc.so
@@ -813,10 +811,10 @@ sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_stasis_mailbox\b\(.*\)$/MENUSELECT_RES=
 sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_ari_mailboxes\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
 sed -i -e 's/^MENUSELECT_APP=\(.*\)$/MENUSELECT_RES=\1 app_voicemail/g' menuselect.makeopts
 
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 %if 0%{?apidoc}
-make %{?_smp_mflags} progdocs %{makeargs}
+%make_build progdocs %{makeargs}
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
