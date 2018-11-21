@@ -280,21 +280,6 @@ Requires: asterisk = %{version}-%{release}
 %description calendar
 Calendar applications for Asterisk.
 
-%package compat
-Summary: Metapackage to help transition Asterisk users to the new package split
-Obsoletes: asterisk < 13.0.0
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-ael = %{version}-%{release}
-Requires: asterisk-iax2 = %{version}-%{release}
-Requires: asterisk-mgcp = %{version}-%{release}
-Requires: asterisk-phone = %{version}-%{release}
-Requires: asterisk-sip = %{version}-%{release}
-
-%description compat
-This package only exists to help transition Asterisk users to the new
-package split. It will be removed after one distribution release
-cycle, please do not reference it or depend on it in any way.
-
 %if 0%{?corosync}
 %package corosync
 Summary: Modules for Asterisk that use Corosync
