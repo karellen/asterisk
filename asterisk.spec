@@ -1,8 +1,6 @@
 #global _rc 2
 #global _beta 3
 
-%global           _smp_mflags     -j1
-
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
 %ifarch s390 %{arm} aarch64 %{mips}
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -10,19 +8,8 @@
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %endif
 
-%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 %global           astvarrundir     /run/asterisk
 %global           tmpfilesd        1
-%else
-%global           astvarrundir     %{_localstatedir}/run/asterisk
-%global           tmpfilesd        0
-%endif
-
-%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7
-%global           systemd    1
-%else
-%global           systemd    0
-%endif
 
 %global           apidoc     0
 %global           mysql      1
@@ -30,11 +17,7 @@
 %global           postgresql 1
 %global           radius     1
 %global           snmp       1
-%if 0%{?fedora} >= 21
-%global           misdn      0
-%else
 %global           misdn      1
-%endif
 %global           ldap       1
 %global           gmime      1
 %global           corosync   1
@@ -95,9 +78,6 @@ BuildRequires:    perl
 # core build requirements
 BuildRequires:    openssl-devel
 BuildRequires:    newt-devel
-%if 0%{?fedora} <= 8
-BuildRequires:    libtermcap-devel
-%endif
 BuildRequires:    ncurses-devel
 BuildRequires:    libcap-devel
 %if 0%{?gmime}
@@ -107,14 +87,12 @@ BuildRequires:    libsrtp-devel
 BuildRequires:    perl-interpreter
 BuildRequires:    perl-generators
 BuildRequires:    popt-devel
-%if %{systemd}
 %{?systemd_requires}
 BuildRequires:    systemd
-%endif
 BuildRequires:    kernel-headers
 
 # for res_http_post
-%if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
+%if 0%{?gmime}
 BuildRequires:    gmime-devel
 %endif
 
@@ -213,9 +191,7 @@ BuildRequires:    net-snmp-devel
 BuildRequires:    lm_sensors-devel
 %endif
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 BuildRequires:    uw-imap-devel
-%endif
 
 BuildRequires:    pjproject-devel
 BuildRequires:    jansson-devel
@@ -223,24 +199,10 @@ BuildRequires:    jansson-devel
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
 
-%if 0%{?systemd}
 Requires(post):   systemd-units
 Requires(post):   systemd-sysv
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-Requires(post):   /sbin/chkconfig
-Requires(preun):  /sbin/chkconfig
-Requires(preun):  /sbin/service
-%endif
-
-# asterisk-conference package removed since patch no longer compiles
-Obsoletes:        asterisk-conference <= 1.6.0-0.14.beta9
-Obsoletes:        asterisk-mobile <= 1.6.1-0.23.rc1
-Obsoletes:        asterisk-firmware <= 1.6.2.0-0.2.rc1
-
-# chan_usbradio was been removed in 10.4.0
-Obsoletes:        asterisk-usbradio <= 10.3.1-1
 
 # chan_phone headers no longer in kernel headers
 Obsoletes:        asterisk-phone < %{version}
@@ -295,21 +257,6 @@ Requires: asterisk = %{version}-%{release}
 %description calendar
 Calendar applications for Asterisk.
 
-%package compat
-Summary: Metapackage to help transition Asterisk users to the new package split
-Obsoletes: asterisk < 13.0.0
-Requires: asterisk = %{version}-%{release}
-Requires: asterisk-ael = %{version}-%{release}
-Requires: asterisk-iax2 = %{version}-%{release}
-Requires: asterisk-mgcp = %{version}-%{release}
-Requires: asterisk-phone = %{version}-%{release}
-Requires: asterisk-sip = %{version}-%{release}
-
-%description compat
-This package only exists to help transition Asterisk users to the new
-package split. It will be removed after one distribution release
-cycle, please do not reference it or depend on it in any way.
-
 %if 0%{?corosync}
 %package corosync
 Summary: Modules for Asterisk that use Corosync
@@ -334,7 +281,6 @@ Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
 Requires: dahdi-tools >= 2.0.0
 Requires(pre): %{_sbindir}/usermod
-Obsoletes: asterisk-zaptel <= 1.6.0-0.22.beta9
 Provides: asterisk-zaptel = %{version}-%{release}
 
 %description dahdi
@@ -381,7 +327,6 @@ Requires: asterisk = %{version}-%{release}
 %description hep
 Modules for capturing SIP traffic using Homer (HEPv3)
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Group: Applications/Internet
@@ -390,7 +335,6 @@ Requires: ices
 
 %description ices
 Stream audio from Asterisk to an IceCast server.
-%endif
 
 %if 0%{?jack}
 %package jack
@@ -612,7 +556,6 @@ Conflicts: asterisk-mwi-external <= %{version}-%{release}
 %description voicemail
 Common Voicemail Modules for Asterisk.
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Group: Applications/Internet
@@ -625,7 +568,6 @@ Conflicts: asterisk-voicemail-plain <= %{version}-%{release}
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
 server.
-%endif
 
 %package voicemail-odbc
 Summary: Store voicemail in a database using ODBC
@@ -658,8 +600,6 @@ local filesystem.
 Summary: Jabber/XMPP resources for Asterisk
 Group: Applications/Internet
 Requires: asterisk = %{version}-%{release}
-Obsoletes: asterisk-jabber < 13.0.0
-Conflicts: asterisk-jabber < 13.0.0
 
 %description xmpp
 Jabber/XMPP resources for Asterisk.
@@ -692,17 +632,6 @@ touch -r main/fskmodem.c.old main/fskmodem.c
 rm main/fskmodem.c.old
 
 chmod -x contrib/scripts/dbsep.cgi
-
-%if 0%{?rhel} == 6
-%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_http_post/g' menuselect.makeopts
-%endif
-
-%if 0%{?rhel} == 5
-# Get the autoconf scripts working with 2.59
-%{__perl} -pi -e 's/AC_PREREQ\(2\.60\)/AC_PREREQ\(2\.59\)/g' configure.ac
-%{__perl} -pi -e 's/AC_USE_SYSTEM_EXTENSIONS/AC_GNU_SOURCE/g' configure.ac
-%{__perl} -pi -e 's/AST_PROG_SED/SED=sed/g' autoconf/ast_prog_ld.m4
-%endif
 
 %if ! 0%{?corosync}
 %{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_corosync/g' menuselect.makeopts
@@ -762,42 +691,34 @@ pushd menuselect
 %configure
 popd
 
-
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
-%else
-%configure  --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-gmime=no --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
-%endif
 
-make %{?_smp_mflags} menuselect-tree NOISY_BUILD=1
+%make_build menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
 
 # Build with plain voicemail and directory
 echo "### Building with plain voicemail and directory"
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
 # Now build with IMAP storage for voicemail and directory
-
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 
 echo "### Building with IMAP voicemail and directory"
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
-%endif
 
 # Now build with ODBC storage for voicemail and directory
 
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=ODBC_STORAGE/' menuselect.makeopts
 echo "### Building with ODBC voicemail and directory"
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_odbc.so
@@ -813,10 +734,10 @@ sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_stasis_mailbox\b\(.*\)$/MENUSELECT_RES=
 sed -i -e 's/^MENUSELECT_RES=\(.*\)\bres_ari_mailboxes\b\(.*\)$/MENUSELECT_RES=\1 \2/g' menuselect.makeopts
 sed -i -e 's/^MENUSELECT_APP=\(.*\)$/MENUSELECT_RES=\1 app_voicemail/g' menuselect.makeopts
 
-make %{?_smp_mflags} %{makeargs}
+%make_build %{makeargs}
 
 %if 0%{?apidoc}
-make %{?_smp_mflags} progdocs %{makeargs}
+%make_build progdocs %{makeargs}
 
 # fix dates so that we don't get multilib conflicts
 find doc/api/html -type f -print0 | xargs --null touch -r ChangeLog
@@ -834,21 +755,15 @@ export ASTCFLAGS="%{optflags}"
 make install %{makeargs}
 make samples %{makeargs}
 
-%if 0%{?systemd}
 install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
 rm -f %{buildroot}%{_sbindir}/safe_asterisk
-%else
-install -D -p -m 0755 contrib/init.d/rc.redhat.asterisk %{buildroot}%{_initrddir}/asterisk
-%endif
 install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_imap.so
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_imap.so
-%endif
 install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_odbc.so
 install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_odbc.so
 install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_plain.so
@@ -892,12 +807,6 @@ find doc/api/html -name \*.map -size 0 -delete
 
 # copy the alembic scripts
 cp -rp contrib/ast-db-manage %{buildroot}%{_datadir}/asterisk/ast-db-manage
-
-#rhel6 doesnt have 389 available, nor ices
-%if 0%{?rhel} == 6
-rm -rf %{buildroot}%{_sysconfdir}/dirsrv/schema/99asterisk.ldif
-rm -rf %{buildroot}%{_libdir}/asterisk/modules/app_ices.so
-%endif
 
 %if %{tmpfilesd}
 install -D -p -m 0644 %{SOURCE6} %{buildroot}/usr/lib/tmpfiles.d/asterisk.conf
@@ -943,30 +852,19 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
                                -c 'Asterisk User' -g asterisk asterisk &>/dev/null || :
 
 %post
-%if %{systemd}
 if [ $1 -eq 1 ] ; then
 	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
-%else
-/sbin/chkconfig --add asterisk
-%endif
+
 
 %preun
-%if %{systemd}
 if [ "$1" -eq "0" ]; then
 	# Package removal, not upgrade
 	/bin/systemctl --no-reload disable asterisk.service > /dev/null 2>&1 || :
 	/bin/systemctl stop asterisk.service > /dev/null 2>&1 || :
 fi
-%else
-if [ "$1" -eq "0" ]; then
-	# Package removal, not upgrade
-        /sbin/service asterisk stop > /dev/null 2>&1 || :
-        /sbin/chkconfig --del asterisk
-fi
-%endif
 
-%if %{systemd}
+
 %postun
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
@@ -983,7 +881,6 @@ fi
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del asterisk >/dev/null 2>&1 || :
 /bin/systemctl try-restart asterisk.service >/dev/null 2>&1 || :
-%endif
 
 %pre dahdi
 %{_sbindir}/usermod -a -G dahdi asterisk
@@ -999,11 +896,7 @@ fi
 
 %doc doc/asterisk.sgml
 
-%if %{systemd}
 %{_unitdir}/asterisk.service
-%else
-%{_initrddir}/asterisk
-%endif
 
 %{_libdir}/libasteriskssl.so.1
 
@@ -1205,7 +1098,7 @@ fi
 %{_libdir}/asterisk/modules/res_format_attr_siren7.so
 %{_libdir}/asterisk/modules/res_format_attr_vp8.so
 %{_libdir}/asterisk/modules/res_http_media_cache.so
-%if (0%{?fedora} > 0 || 0%{?rhel} >= 7) && 0%{?gmime}
+%if 0%{?gmime}
 %{_libdir}/asterisk/modules/res_http_post.so
 %endif
 %{_libdir}/asterisk/modules/res_http_websocket.so
@@ -1242,9 +1135,7 @@ fi
 %{_libdir}/asterisk/modules/res_statsd.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 6
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
-%endif
 
 %{_sbindir}/astcanary
 %{_sbindir}/astdb2sqlite3
@@ -1258,9 +1149,6 @@ fi
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
 #%%{_sbindir}/refcounter
-%if ! %{systemd}
-%{_sbindir}/safe_asterisk
-%endif
 %{_sbindir}/smsq
 %{_sbindir}/stereorize
 %{_sbindir}/streamplayer
@@ -1448,11 +1336,9 @@ fi
 %{_libdir}/asterisk/modules/res_hep_rtcp.so
 %{_libdir}/asterisk/modules/res_hep_pjsip.so
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %files ices
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
-%endif
 
 %if 0%{?jack}
 %files jack
@@ -1657,11 +1543,9 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
-%if 0%{?fedora} > 0 || 0%{?rhel} >= 7
 %files voicemail-imap
 %{_libdir}/asterisk/modules/app_directory_imap.so
 %{_libdir}/asterisk/modules/app_voicemail_imap.so
-%endif
 
 %files voicemail-odbc
 #doc doc/voicemail_odbc_postgresql.txt
