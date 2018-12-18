@@ -1,6 +1,8 @@
 #global _rc 2
 #global _beta 3
 
+%global           pjsip_version   2.8
+
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
 %ifarch s390 %{arm} aarch64 %{mips}
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -38,7 +40,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.0.1
+Version:          16.1.0
 Release:          1%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
@@ -62,9 +64,16 @@ Source6:          asterisk-tmpfiles
 #"57E7 69BC 3790 6C09 1E7F  641F 6CB4 4E55 7BD9 82D8" > asterisk-gpgkeys.gpg
 Source7:          asterisk-gpgkeys.gpg
 
+# Now building Asterisk with bundled pjproject, because they apply custom patches to it
+Source8:          https://raw.githubusercontent.com/asterisk/third-party/master/pjproject/%{pjsip_version}/pjproject-%{pjsip_version}.tar.bz2
+
 %if 0%{?fedora}
 Patch0:           asterisk-mariadb.patch
 %endif
+
+# Asterisk now builds against a bundled copy of pjproject, as they apply some patches
+# directly to pjproject before the build against it
+Provides:         bundled(pjproject) = %{pjsip_version}
 
 # Does not build on s390x: https://bugzilla.redhat.com/show_bug.cgi?id=1465162
 #ExcludeArch:      s390x
@@ -613,6 +622,11 @@ Jabber/XMPP resources for Asterisk.
 gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
+# copy the pjproject tarball to the cache/ directory
+mkdir cache
+cp %{SOURCE8} cache/
+ls -altr cache/
+
 %if 0%{?fedora}
 %patch0 -p1
 %endif
@@ -1117,6 +1131,7 @@ fi
 # res_pjproject is required by res_rtp_asterisk
 %{_libdir}/asterisk/modules/res_pjproject.so
 %{_libdir}/asterisk/modules/res_realtime.so
+%{_libdir}/asterisk/modules/res_remb_modifier.so
 %{_libdir}/asterisk/modules/res_resolver_unbound.so
 %{_libdir}/asterisk/modules/res_rtp_asterisk.so
 %{_libdir}/asterisk/modules/res_rtp_multicast.so
@@ -1148,8 +1163,8 @@ fi
 %{_sbindir}/astman
 %{_sbindir}/astversion
 %{_sbindir}/autosupport
-%{_sbindir}/check_expr
-%{_sbindir}/check_expr2
+#%%{_sbindir}/check_expr
+#%%{_sbindir}/check_expr2
 %{_sbindir}/muted
 %{_sbindir}/rasterisk
 #%%{_sbindir}/refcounter
@@ -1258,7 +1273,7 @@ fi
 %files ael
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
 %{_sbindir}/aelparse
-%{_sbindir}/conf2ael
+#%%{_sbindir}/conf2ael
 %{_libdir}/asterisk/modules/pbx_ael.so
 %{_libdir}/asterisk/modules/res_ael_share.so
 
@@ -1569,6 +1584,9 @@ fi
 %endif
 
 %changelog
+* Wed Dec 12 2018 Jared Smith <jsmith@fedoraproject.org> - 16.1.0-1
+- Update to upstream 16.1.0 security release
+
 * Wed Nov 14 2018 Jared Smith <jsmith@fedoraproject.org> - 16.0.1-1
 - Update to upstream 16.0.1 security release
 
