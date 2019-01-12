@@ -41,7 +41,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          16.1.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -69,6 +69,7 @@ Source8:          https://raw.githubusercontent.com/asterisk/third-party/master/
 
 %if 0%{?fedora}
 Patch0:           asterisk-mariadb.patch
+Patch1:           asterisk-16.1.0-explicit-python2.patch
 %endif
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
@@ -629,6 +630,7 @@ ls -altr cache/
 
 %if 0%{?fedora}
 %patch0 -p1
+%patch1 -p1
 %endif
 
 cp %{S:3} menuselect.makedeps
@@ -1584,6 +1586,9 @@ fi
 %endif
 
 %changelog
+* Sat Jan 12 2019 Björn Esser <besser82@fedoraproject.org> - 16.1.0-2
+- Add patch to explicitly use python2 shebangs
+
 * Wed Dec 12 2018 Jared Smith <jsmith@fedoraproject.org> - 16.1.0-1
 - Update to upstream 16.1.0 security release
 
