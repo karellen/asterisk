@@ -41,7 +41,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          16.1.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 License:          GPLv2
 Group:            Applications/Internet
 URL:              http://www.asterisk.org/
@@ -1586,6 +1586,9 @@ fi
 %endif
 
 %changelog
+* Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 16.1.0-3
+- Rebuilt for libcrypt.so.2 (#1666033)
+
 * Sat Jan 12 2019 Björn Esser <besser82@fedoraproject.org> - 16.1.0-2
 - Add patch to explicitly use python2 shebangs
 
