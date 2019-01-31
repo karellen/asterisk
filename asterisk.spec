@@ -41,7 +41,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          16.1.0
-Release:          3%{?dist}
+Release:          4%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1543,6 +1543,9 @@ fi
 %endif
 
 %changelog
+* Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 16.1.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 16.1.0-3
 - Rebuilt for libcrypt.so.2 (#1666033)
 
