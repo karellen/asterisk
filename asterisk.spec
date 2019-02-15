@@ -40,8 +40,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.1.0
-Release:          4%{?dist}
+Version:          16.2.0
+Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -54,13 +54,15 @@ Source5:          asterisk.service
 Source6:          asterisk-tmpfiles
 # GPG keyring with Asterisk developer signatures
 # Created by running:
-#gpg --export --export-options export-minimal \
-#"21A9 1EB1 F012 2529 93E9  BF4A 368A B332 B599 75F3" \
-#"80CE BC34 5EC9 FF52 9B4B  7B80 8438 CBA1 8D0C AA72" \
-#"CDBE E4CC 699E 200E B4D4  6BB7 9E76 E3A4 2341 CE04" \
-#"639D 932D 5170 532F 8C20  0CCD 9C59 F000 777D CC45" \
-#"551F 2910 4B21 0608 0C6C  2851 073B 0C1F C9B2 E352" \
-#"57E7 69BC 3790 6C09 1E7F  641F 6CB4 4E55 7BD9 82D8" > asterisk-gpgkeys.gpg
+#gpg2 --no-default-keyring --keyring ./asterisk-gpgkeys.gpg \
+#--keyserver=hkp://pool.sks-keyservers.net --recv-keys \
+#0x21A91EB1F012252993E9BF4A368AB332B59975F3 \
+#0x80CEBC345EC9FF529B4B7B808438CBA18D0CAA72 \
+#0xCDBEE4CC699E200EB4D46BB79E76E3A42341CE04 \
+#0x639D932D5170532F8C200CCD9C59F000777DCC45 \
+#0x551F29104B2106080C6C2851073B0C1FC9B2E352 \
+#0x57E769BC37906C091E7F641F6CB44E557BD982D8 \
+#0x7C2C8A8BCB3F61BD
 Source7:          asterisk-gpgkeys.gpg
 
 # Now building Asterisk with bundled pjproject, because they apply custom patches to it
@@ -1543,6 +1545,9 @@ fi
 %endif
 
 %changelog
+* Fri Feb 15 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.2.0-1
+- Update to upstream 16.2.0 release for bug fixes
+
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 16.1.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
