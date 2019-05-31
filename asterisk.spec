@@ -40,7 +40,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.2.1
+Version:          16.4.0
 Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -1087,6 +1087,7 @@ fi
 %{_libdir}/asterisk/modules/res_monitor.so
 %{_libdir}/asterisk/modules/res_musiconhold.so
 %{_libdir}/asterisk/modules/res_mutestream.so
+%{_libdir}/asterisk/modules/res_mwi_devstate.so
 %{_libdir}/asterisk/modules/res_parking.so
 %{_libdir}/asterisk/modules/res_phoneprov.so
 # res_pjproject is required by res_rtp_asterisk
@@ -1545,6 +1546,9 @@ fi
 %endif
 
 %changelog
+* Fri May 31 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.4.0-1
+- Update to upstream 16.4.0 release for bug fixes
+
 * Fri Mar 01 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.2.1-1
 - Update to upstream 16.2.1 release for security / CVE-2019-7251 / AST-2019-001
 
