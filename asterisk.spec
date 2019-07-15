@@ -40,8 +40,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.4.0
-Release:          2%{?dist}
+Version:          16.4.1
+Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1546,6 +1546,10 @@ fi
 %endif
 
 %changelog
+* Mon Jul 15 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.4.1-1
+- Update to upstream 16.4.1 release for security updates AST-2019-002 and
+  AST-2019-003 related to remote crash vulnerabilities
+
 * Sat Jun 01 2019 Jitka Plesnikova <jplesnik@redhat.com> - 16.4.0-2
 - Perl 5.30 rebuild
 
