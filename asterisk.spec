@@ -40,8 +40,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.4.1
-Release:          2%{?dist}
+Version:          16.5.0
+Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -886,7 +886,9 @@ fi
 %{_libdir}/asterisk/modules/app_adsiprog.so
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
 %{_libdir}/asterisk/modules/app_amd.so
+%{_libdir}/asterisk/modules/app_attended_transfer.so
 %{_libdir}/asterisk/modules/app_authenticate.so
+%{_libdir}/asterisk/modules/app_blind_transfer.so
 %{_libdir}/asterisk/modules/app_bridgeaddchan.so
 %{_libdir}/asterisk/modules/app_bridgewait.so
 %{_libdir}/asterisk/modules/app_cdr.so
@@ -1546,6 +1548,9 @@ fi
 %endif
 
 %changelog
+* Thu Jul 25 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.5.0-1
+- Update to upstream 16.5.0 release for security and bug fixes
+
 * Wed Jul 24 2019 Fedora Release Engineering <releng@fedoraproject.org> - 16.4.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
