@@ -1,7 +1,7 @@
 #global _rc 2
 #global _beta 3
 
-%global           pjsip_version   2.8
+%global           pjsip_version   2.9
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
 %ifarch s390 %{arm} aarch64 %{mips}
@@ -40,7 +40,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.5.1
+Version:          16.6.0
 Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -586,7 +586,6 @@ gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 # copy the pjproject tarball to the cache/ directory
 mkdir cache
 cp %{SOURCE8} cache/
-ls -altr cache/
 
 %if 0%{?fedora}
 %patch0 -p1
@@ -671,7 +670,7 @@ pushd menuselect
 %configure
 popd
 
-%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject=/usr --without-pjproject-bundled LDFLAGS="%{ldflags}"
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}"
 
 %make_build menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
@@ -880,9 +879,10 @@ fi
 
 %{_libdir}/libasteriskssl.so.1
 
+%{_libdir}/libasteriskpj.so
+%{_libdir}/libasteriskpj.so.2
 %dir %{_libdir}/asterisk
 %dir %{_libdir}/asterisk/modules
-
 %{_libdir}/asterisk/modules/app_agent_pool.so
 %{_libdir}/asterisk/modules/app_adsiprog.so
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
@@ -1549,6 +1549,10 @@ fi
 %endif
 
 %changelog
+* Wed Oct 09 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.6.0-1
+- Update to upstream 16.6.0 for security and bug fixes
+- Update to using bundled pjproject release 2.9
+
 * Fri Sep 06 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.5.1-1
 - Update for upstream security release 16.5.1, with AST-2019-004 and
   AST-2019-005
