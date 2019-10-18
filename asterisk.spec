@@ -2,8 +2,9 @@
 #global _beta 3
 
 %global           pjsip_version   2.9
+%global           jansson_version 2.12
 
-%global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE
+%global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
 %ifarch s390 %{arm} aarch64 %{mips}
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %else
@@ -19,16 +20,16 @@
 %global           postgresql 1
 %global           radius     1
 %global           snmp       1
-%global           misdn      1
+%global           misdn      0
 %global           ldap       1
 %global           gmime      1
 %global           corosync   1
-%if 0%{?fedora} >= 21
+%if 0%{?fedora} >= 21 || 0%{?rhel} >=7
 %global           jack       0
 %else
 %global           jack       1
 %endif
-%if 0%{?fedora} >= 28 || 0%{?rhel} <= 7
+%if 0%{?fedora} >= 28 || 0%{?rhel} >= 7
 %global           phone      0
 %global           xmpp       0
 %else
@@ -40,7 +41,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.6.0
+Version:          16.6.1
 Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -69,8 +70,14 @@ Source7:          asterisk-gpgkeys.gpg
 # Now building Asterisk with bundled pjproject, because they apply custom patches to it
 Source8:          https://raw.githubusercontent.com/asterisk/third-party/master/pjproject/%{pjsip_version}/pjproject-%{pjsip_version}.tar.bz2
 
-%if 0%{?fedora}
+# Bundling jansson on EL7 and EL8, because the version in CentOS is too old
+Source9:          http://www.digip.org/jansson/releases/jansson-%{jansson_version}.tar.bz2
+
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Patch0:           asterisk-mariadb.patch
+%endif
+
+%if 0%{?fedora} || 0%{?rhel} >=7
 Patch1:           asterisk-16.1.0-explicit-python2.patch
 %endif
 
@@ -85,6 +92,7 @@ BuildRequires:    autoconf
 BuildRequires:    automake
 BuildRequires:    gcc
 BuildRequires:    gcc-c++
+BuildRequires:    ncurses
 BuildRequires:    perl
 
 # core build requirements
@@ -182,7 +190,11 @@ BuildRequires:    openldap-devel
 %endif
 
 %if 0%{?mysql}
+%if 0%{?rhel} >= 7
+BuildRequires:    mariadb-devel
+%else
 BuildRequires:    mariadb-connector-c-devel
+%endif
 %endif
 
 %if 0%{?odbc}
@@ -199,7 +211,11 @@ BuildRequires:    libpq-devel
 %endif
 
 %if 0%{?radius}
+%if 0%{?fedora} || 0%{?rhel} < 7
 BuildRequires:    freeradius-client-devel
+%else
+BuildRequires:    radcli-compat-devel
+%endif
 %endif
 
 %if 0%{?snmp}
@@ -209,8 +225,11 @@ BuildRequires:    lm_sensors-devel
 
 BuildRequires:    uw-imap-devel
 
-BuildRequires:    pjproject-devel
+%if 0%{?fedora}
 BuildRequires:    jansson-devel
+%else
+Provides:         bundled(jansson) = 2.11
+%endif
 
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
@@ -580,20 +599,37 @@ Jabber/XMPP resources for Asterisk.
 %endif
 
 %prep
+%if 0%{?fedora} || 0%{?rhel} >=8
+# only verifying on Fedora and RHEL >=8 due to version of gpg
 gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
+%endif
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
 # copy the pjproject tarball to the cache/ directory
 mkdir cache
 cp %{SOURCE8} cache/
 
-%if 0%{?fedora}
+%if 0%{?rhel} >= 7
+cp %{SOURCE9} cache/
+%endif
+
+echo '*************************************************************************'
+ls -altr cache/
+pwd
+echo '*************************************************************************'
+
+
+%if 0%{?fedora} || 0%{?rhel} >=8
 %patch0 -p1
+%endif
+
+%if 0%{?fedora} || 0%{?rhel} >=7
 %patch1 -p1
 %endif
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
+
 
 %if ! 0%{xmpp}
 %{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_xmpp/g' menuselect.makeopts
@@ -670,7 +706,11 @@ pushd menuselect
 %configure
 popd
 
-%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}"
+%if 0%{?fedora}
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%else
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-jansson-bundled --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%endif
 
 %make_build menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
@@ -1549,6 +1589,10 @@ fi
 %endif
 
 %changelog
+* Fri Oct 18 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.6.1-1
+- Update to upstream 16.6.1 for bug fixes
+- Work on building in EPEL-7 and EPEL-8
+
 * Wed Oct 09 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.6.0-1
 - Update to upstream 16.6.0 for security and bug fixes
 - Update to using bundled pjproject release 2.9
