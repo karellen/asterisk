@@ -36,12 +36,14 @@
 %global           phone      1
 %global           xmpp       1
 %endif
+%global           meetme     0
+%global           ooh323     0
 
 %global           makeargs        DEBUG= OPTIMIZE= DESTDIR=%{buildroot} ASTVARRUNDIR=%{astvarrundir} ASTDATADIR=%{_datadir}/asterisk ASTVARLIBDIR=%{_datadir}/asterisk ASTDBDIR=%{_localstatedir}/spool/asterisk NOISY_BUILD=1
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          16.6.1
+Version:          17.0.0
 Release:          1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -441,12 +443,14 @@ Requires: asterisk = %{version}-%{release}
 Applications for Asterisk that use ODBC (except voicemail)
 %endif
 
+%if 0%{?ooh323}
 %package ooh323
 Summary: H.323 channel for Asterisk using the Objective Systems Open H.323 for C library
 Requires: asterisk = %{version}-%{release}
 
 %description ooh323
 H.323 channel for Asterisk using the Objective Systems Open H.323 for C library.
+%endif
 
 %package oss
 Summary: Modules for Asterisk that use OSS sound drivers
@@ -631,10 +635,6 @@ cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
 
-%if ! 0%{xmpp}
-%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_xmpp/g' menuselect.makeopts
-%{__perl} -pi -e 's/^MENUSELECT_CHANNELS=(.*)$/MENUSELECT_CHANNELS=\1 chan_motif/g' menuselect.makeopts
-%endif
 
 # Fixup makefile so sound archives aren't downloaded/installed
 %{__perl} -pi -e 's/^all:.*$/all:/' sounds/Makefile
@@ -687,6 +687,20 @@ chmod -x contrib/scripts/dbsep.cgi
 %{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_http_post/g' menuselect.makeopts
 %endif
 
+%if ! 0%{xmpp}
+%{__perl} -pi -e 's/^MENUSELECT_RES=(.*)$/MENUSELECT_RES=\1 res_xmpp/g' menuselect.makeopts
+%{__perl} -pi -e 's/^MENUSELECT_CHANNELS=(.*)$/MENUSELECT_CHANNELS=\1 chan_motif/g' menuselect.makeopts
+%endif
+
+%if ! 0%{meetme}
+%{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_meetme/g' menuselect.makeopts
+%{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_page/g' menuselect.makeopts
+%endif
+
+%if ! 0%{ooh323}
+%{__perl} -pi -e 's/^MENUSELECT_ADDONS=(.*)$/MENUSELECT_ADDONS=\1 chan_ooh323/g' menuselect.makeopts
+%endif
+
 %build
 
 export CFLAGS="%{optflags}"
@@ -706,6 +720,7 @@ pushd menuselect
 %configure
 popd
 
+
 %if 0%{?fedora}
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
 %else
@@ -714,6 +729,7 @@ popd
 
 %make_build menuselect-tree NOISY_BUILD=1
 %{__perl} -n -i -e 'print unless /openr2/i' menuselect-tree
+
 
 # Build with plain voicemail and directory
 echo "### Building with plain voicemail and directory"
@@ -863,6 +879,10 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/phone.conf
 %if ! 0%{xmpp}
 rm -f %{buildroot}%{_sysconfdir}/asterisk/xmpp.conf
 rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
+%endif
+
+%if ! 0%{ooh323}
+rm -f %{buildroot}%{_sysconfdir}/asterisk/ooh323.conf
 %endif
 
 %pre
@@ -1135,6 +1155,7 @@ fi
 %{_libdir}/asterisk/modules/res_phoneprov.so
 # res_pjproject is required by res_rtp_asterisk
 %{_libdir}/asterisk/modules/res_pjproject.so
+%{_libdir}/asterisk/modules/res_prometheus.so
 %{_libdir}/asterisk/modules/res_realtime.so
 %{_libdir}/asterisk/modules/res_remb_modifier.so
 %{_libdir}/asterisk/modules/res_resolver_unbound.so
@@ -1225,6 +1246,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/muted.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/osp.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/phoneprov.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/prometheus.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_parking.conf
@@ -1320,8 +1342,10 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/chan_dahdi.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ss7.timers
 %{_libdir}/asterisk/modules/app_flash.so
+%if 0%{?meetme} 
 %{_libdir}/asterisk/modules/app_meetme.so
 %{_libdir}/asterisk/modules/app_page.so
+%endif
 %{_libdir}/asterisk/modules/app_dahdiras.so
 %{_libdir}/asterisk/modules/chan_dahdi.so
 %{_libdir}/asterisk/modules/codec_dahdi.so
@@ -1329,12 +1353,6 @@ fi
 %{_datadir}/dahdi/span_config.d/40-asterisk
 
 %files devel
-%dir %{_includedir}/asterisk
-%dir %{_includedir}/asterisk/doxygen
-%{_includedir}/asterisk.h
-%{_includedir}/asterisk/*.h
-%{_includedir}/asterisk/doxygen/*.h
-
 %{_libdir}/libasteriskssl.so
 
 %files fax
@@ -1433,9 +1451,11 @@ fi
 %{_libdir}/asterisk/modules/res_odbc_transaction.so
 %endif
 
+%if 0%{?ooh323}
 %files ooh323
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/ooh323.conf
 %{_libdir}/asterisk/modules/chan_ooh323.so
+%endif
 
 %files oss
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/oss.conf
@@ -1589,6 +1609,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 28 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.0.0-1
+- Update to upstream 17.0.0 release for new features
+
 * Fri Oct 18 2019 Jared K. Smith <jsmith@fedoraproject.org> - 16.6.1-1
 - Update to upstream 16.6.1 for bug fixes
 - Work on building in EPEL-7 and EPEL-8
