@@ -44,7 +44,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          17.0.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -80,7 +80,7 @@ Patch0:           asterisk-mariadb.patch
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} >=7
-Patch1:           asterisk-16.1.0-explicit-python2.patch
+Patch1:           asterisk-16.1.0-explicit-python3.patch
 %endif
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
@@ -709,7 +709,7 @@ export FFLAGS="%{optflags}"
 export LDFLAGS="%{ldflags}"
 export ASTCFLAGS=" "
 
-sed -i '1s/env python/python2/' contrib/scripts/refcounter.py
+sed -i '1s/env python/python3/' contrib/scripts/refcounter.py
 
 #aclocal -I autoconf --force
 #autoconf --force
@@ -1609,6 +1609,9 @@ fi
 %endif
 
 %changelog
+* Fri Nov 15 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.0.0-2
+- Move from python2 to python3
+
 * Mon Oct 28 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.0.0-1
 - Update to upstream 17.0.0 release for new features
 

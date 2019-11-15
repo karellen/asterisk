@@ -4,7 +4,7 @@ Index: asterisk-16.1.0/build_tools/get_documentation.py
 +++ asterisk-16.1.0/build_tools/get_documentation.py
 @@ -1,4 +1,4 @@
 -#! /usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  # vin: sw=3 et:
  '''
  Copyright (C) 2012, Digium, Inc.
@@ -14,7 +14,7 @@ Index: asterisk-16.1.0/build_tools/post_process_documentation.py
 +++ asterisk-16.1.0/build_tools/post_process_documentation.py
 @@ -1,4 +1,4 @@
 -#! /usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  # vin: sw=3 et:
  '''
  Copyright (C) 2012, Digium, Inc.
@@ -24,7 +24,7 @@ Index: asterisk-16.1.0/contrib/scripts/refcounter.py
 +++ asterisk-16.1.0/contrib/scripts/refcounter.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  """Process a ref debug log
  
   This file will process a log file created by enabling
@@ -34,7 +34,7 @@ Index: asterisk-16.1.0/contrib/scripts/reflocks.py
 +++ asterisk-16.1.0/contrib/scripts/reflocks.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  """Process a ref debug log for lock usage
  
   This file will process a log file created by Asterisk
@@ -44,7 +44,7 @@ Index: asterisk-16.1.0/contrib/scripts/refstats.py
 +++ asterisk-16.1.0/contrib/scripts/refstats.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  """Process a ref debug log for memory usage
  
   This will provide information about total and peak
@@ -54,7 +54,7 @@ Index: asterisk-16.1.0/contrib/scripts/sip_to_pjsip/sip_to_pjsip.py
 +++ asterisk-16.1.0/contrib/scripts/sip_to_pjsip/sip_to_pjsip.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  
  from __future__ import print_function
  
@@ -64,7 +64,7 @@ Index: asterisk-16.1.0/contrib/scripts/sip_to_pjsip/sip_to_pjsql.py
 +++ asterisk-16.1.0/contrib/scripts/sip_to_pjsip/sip_to_pjsql.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  
  from sip_to_pjsip import convert
  import sip_to_pjsip
@@ -74,7 +74,7 @@ Index: asterisk-16.1.0/contrib/scripts/spandspflow2pcap.py
 +++ asterisk-16.1.0/contrib/scripts/spandspflow2pcap.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  # vim: set ts=8 sw=4 sts=4 et ai tw=79:
  '''
  Usage: ./spandspflow2pcap.py SPANDSP_LOG SENDFAX_PCAP
@@ -84,7 +84,7 @@ Index: asterisk-16.1.0/contrib/scripts/voicemailpwcheck.py
 +++ asterisk-16.1.0/contrib/scripts/voicemailpwcheck.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  ''' Sample externpasscheck script for use with voicemail.conf
  
  Copyright (C) 2010, Digium, Inc.
@@ -94,7 +94,7 @@ Index: asterisk-16.1.0/rest-api-templates/make_ari_stubs.py
 +++ asterisk-16.1.0/rest-api-templates/make_ari_stubs.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  # Asterisk -- An open source telephony toolkit.
  #
  # Copyright (C) 2013, Digium, Inc.
