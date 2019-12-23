@@ -1,5 +1,5 @@
-#global _rc 2
-#global _beta 3
+#%%global _rc 2
+#%%global _beta 3
 
 %global           pjsip_version   2.9
 %global           jansson_version 2.12
@@ -43,8 +43,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          17.0.1
-Release:          1%{?dist}
+Version:          17.1.0
+Release:          %{?_rc:.0.rc%{_rc}.}%{?_beta:.0.beta%{_beta}.}1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -609,6 +609,7 @@ gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 %endif
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
+
 # copy the pjproject tarball to the cache/ directory
 mkdir cache
 cp %{SOURCE8} cache/
@@ -621,7 +622,6 @@ echo '*************************************************************************'
 ls -altr cache/
 pwd
 echo '*************************************************************************'
-
 
 %if 0%{?fedora} || 0%{?rhel} >=8
 %patch0 -p1
@@ -722,9 +722,9 @@ popd
 
 
 %if 0%{?fedora}
-%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
 %else
-%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-jansson-bundled --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-jansson-bundled --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
 %endif
 
 %make_build menuselect-tree NOISY_BUILD=1
@@ -1609,6 +1609,12 @@ fi
 %endif
 
 %changelog
+* Mon Dec 23 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.1.0-1
+- Update to upstream 17.1.0 release for security and bug fixes
+
+* Thu Dec 12 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.1.0-0.rc1.1
+- Update to upstream 17.1.0 pre-release for security and bug fixes
+
 * Fri Nov 22 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.0.1-1
 - Update to upstream 17.0.1 release for AST-2019-006, AST-2019-007, AST-2019-008
   security updates
