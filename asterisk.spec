@@ -44,7 +44,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          17.1.0
-Release:          %{?_rc:.0.rc%{_rc}.}%{?_beta:.0.beta%{_beta}.}1%{?dist}
+Release:          %{?_rc:.0.rc%{_rc}.}%{?_beta:.0.beta%{_beta}.}2%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1609,6 +1609,9 @@ fi
 %endif
 
 %changelog
+* Tue Jan  7 2020 Tom Callaway <spot@fdoraproject.org> - 17.1.0-2
+- rebuild for libsrtp2
+
 * Mon Dec 23 2019 Jared K. Smith <jsmith@fedoraproject.org> - 17.1.0-1
 - Update to upstream 17.1.0 release for security and bug fixes
 
