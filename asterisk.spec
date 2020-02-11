@@ -1,4 +1,4 @@
-%global _rc 1
+#%%global _rc 1
 #%%global _beta 3
 
 %global           pjsip_version   2.9
@@ -44,7 +44,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          17.2.0
-Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}.1
+Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1609,6 +1609,9 @@ fi
 %endif
 
 %changelog
+* Tue Feb 11 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.2.0-1
+- Update to upstream 7.2.0 release for bug fixes
+
 * Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 17.2.0-0.rc1.2.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
