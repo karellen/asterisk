@@ -1,4 +1,4 @@
-#%%global _rc 1
+%global _rc 1
 #%%global _beta 3
 
 %global           pjsip_version   2.9
@@ -43,7 +43,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          17.2.0
+Version:          17.3.0
 Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
