@@ -1,4 +1,4 @@
-#%%global _rc 1
+%global _rc 1
 #%%global _beta 3
 
 %global           pjsip_version   2.9
@@ -43,7 +43,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          17.3.0
+Version:          17.4.0
 Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}1%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -233,6 +233,9 @@ BuildRequires:    jansson-devel
 Provides:         bundled(jansson) = 2.11
 %endif
 
+# for gpg to be able to verify the signature
+BuildRequires:    libgcrypt
+
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
 
@@ -240,6 +243,7 @@ Requires(post):   systemd-units
 Requires(post):   systemd-sysv
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
+
 
 # chan_phone headers no longer in kernel headers
 Obsoletes:        asterisk-phone < %{version}
@@ -605,6 +609,7 @@ Jabber/XMPP resources for Asterisk.
 %prep
 %if 0%{?fedora} || 0%{?rhel} >=8
 # only verifying on Fedora and RHEL >=8 due to version of gpg
+rpm -q libgcrypt
 gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 %endif
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
@@ -1609,6 +1614,9 @@ fi
 %endif
 
 %changelog
+* Sat Apr 25 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-0.rc1.1
+- Update to upstream 7.4.0 RC 1 
+
 * Thu Mar 12 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.3.0-1
 - Update to upstream 7.3.0 release for bug fixes
 
