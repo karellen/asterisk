@@ -1,4 +1,4 @@
-%global _rc 1
+#%%global _rc 2
 #%%global _beta 3
 
 %global           pjsip_version   2.9
@@ -1614,6 +1614,12 @@ fi
 %endif
 
 %changelog
+* Thu Apr 30 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-1
+- Update to upstream 7.4.0 release for bug fixes
+
+* Tue Apr 28 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-0.rc2.1
+- Update to upstream 7.4.0-rc2
+
 * Sat Apr 25 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-0.rc1.1
 - Update to upstream 7.4.0 RC 1 
 
