@@ -44,7 +44,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          17.4.0
-Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}1%{?dist}
+Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -699,7 +699,6 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %if ! 0%{meetme}
 %{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_meetme/g' menuselect.makeopts
-%{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_page/g' menuselect.makeopts
 %endif
 
 %if ! 0%{ooh323}
@@ -983,6 +982,7 @@ fi
 %{_libdir}/asterisk/modules/app_morsecode.so
 %{_libdir}/asterisk/modules/app_nbscat.so
 %{_libdir}/asterisk/modules/app_originate.so
+%{_libdir}/asterisk/modules/app_page.so
 #%%{_libdir}/asterisk/modules/app_parkandannounce.so
 %{_libdir}/asterisk/modules/app_playback.so
 %{_libdir}/asterisk/modules/app_playtones.so
@@ -1349,7 +1349,6 @@ fi
 %{_libdir}/asterisk/modules/app_flash.so
 %if 0%{?meetme} 
 %{_libdir}/asterisk/modules/app_meetme.so
-%{_libdir}/asterisk/modules/app_page.so
 %endif
 %{_libdir}/asterisk/modules/app_dahdiras.so
 %{_libdir}/asterisk/modules/chan_dahdi.so
@@ -1614,6 +1613,9 @@ fi
 %endif
 
 %changelog
+* Fri May 08 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-2
+- app_page no longer depends on app_meetme
+
 * Thu Apr 30 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-1
 - Update to upstream 7.4.0 release for bug fixes
 
