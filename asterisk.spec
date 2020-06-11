@@ -32,9 +32,11 @@
 %if 0%{?fedora} >= 28 || 0%{?rhel} >= 7
 %global           phone      0
 %global           xmpp       0
+%global           ices       0
 %else
 %global           phone      1
 %global           xmpp       1
+%global           ices       1
 %endif
 %global           meetme     0
 %global           ooh323     0
@@ -43,7 +45,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          17.4.0
+Version:          17.5.0
 Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -355,6 +357,7 @@ Requires: asterisk = %{version}-%{release}
 %description hep
 Modules for capturing SIP traffic using Homer (HEPv3)
 
+%if 0%{?ices}
 %package ices
 Summary: Stream audio from Asterisk to an IceCast server
 Requires: asterisk = %{version}-%{release}
@@ -362,6 +365,7 @@ Requires: ices
 
 %description ices
 Stream audio from Asterisk to an IceCast server.
+%endif
 
 %if 0%{?jack}
 %package jack
@@ -678,6 +682,10 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %if ! 0%{?misdn}
 %{__perl} -pi -e 's/^MENUSELECT_CHANNELS=(.*)$/MENUSELECT_CHANNELS=\1 chan_misdn/g' menuselect.makeopts
+%endif
+
+%if ! 0%{?ices}
+%{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_ices/g' menuselect.makeopts
 %endif
 
 %if ! 0%{?jack}
@@ -1382,9 +1390,11 @@ fi
 %{_libdir}/asterisk/modules/res_hep_rtcp.so
 %{_libdir}/asterisk/modules/res_hep_pjsip.so
 
+%if 0%{?ices}
 %files ices
 %doc contrib/asterisk-ices.xml
 %{_libdir}/asterisk/modules/app_ices.so
+%endif
 
 %if 0%{?jack}
 %files jack
@@ -1613,6 +1623,9 @@ fi
 %endif
 
 %changelog
+* Thu May 28 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.5.0-0.rc1.1
+- Update to upststream 7.5.0-rc1 release for testing
+
 * Fri May 08 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.4.0-2
 - app_page no longer depends on app_meetme
 
