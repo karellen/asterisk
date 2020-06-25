@@ -46,7 +46,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          17.5.0
-Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}
+Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}.1
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1623,6 +1623,9 @@ fi
 %endif
 
 %changelog
+* Thu Jun 25 2020 Jitka Plesnikova <jplesnik@redhat.com> - 17.5.0-2.1
+- Perl 5.32 rebuild
+
 * Thu May 28 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.5.0-0.rc1.1
 - Update to upststream 7.5.0-rc1 release for testing
 
