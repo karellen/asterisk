@@ -1625,6 +1625,7 @@ fi
 %changelog
 * Thu Jun 25 2020 Jitka Plesnikova <jplesnik@redhat.com> - 17.5.0-2.1
 - Perl 5.32 rebuild
+- Add missing source files
 
 * Thu May 28 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.5.0-0.rc1.1
 - Update to upststream 7.5.0-rc1 release for testing
