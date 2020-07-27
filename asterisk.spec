@@ -46,7 +46,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          17.5.0
-Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}.1
+Release:          %{?_rc:0.rc%{_rc}.}%{?_beta:0.beta%{_beta}.}2%{?dist}.2
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1623,6 +1623,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 17.5.0-2.2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Thu Jun 25 2020 Jitka Plesnikova <jplesnik@redhat.com> - 17.5.0-2.1
 - Perl 5.32 rebuild
 - Add missing source files
