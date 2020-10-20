@@ -1,4 +1,4 @@
-#%%global _rc 2
+#%%global _rc 1
 #%%global _beta 3
 
 %global           pjsip_version   2.10
@@ -45,8 +45,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          17.7.0
-Release:          1%{?dist}
+Version:          18.0.0
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -960,6 +960,7 @@ fi
 %{_libdir}/asterisk/modules/app_alarmreceiver.so
 %{_libdir}/asterisk/modules/app_amd.so
 %{_libdir}/asterisk/modules/app_attended_transfer.so
+%{_libdir}/asterisk/modules/app_audiosocket.so
 %{_libdir}/asterisk/modules/app_authenticate.so
 %{_libdir}/asterisk/modules/app_blind_transfer.so
 %{_libdir}/asterisk/modules/app_bridgeaddchan.so
@@ -1037,6 +1038,7 @@ fi
 %{_libdir}/asterisk/modules/cdr_syslog.so
 %{_libdir}/asterisk/modules/cel_custom.so
 %{_libdir}/asterisk/modules/cel_manager.so
+%{_libdir}/asterisk/modules/chan_audiosocket.so
 %{_libdir}/asterisk/modules/chan_bridge_media.so
 #%%{_libdir}/asterisk/modules/chan_multicast_rtp.so
 %{_libdir}/asterisk/modules/chan_rtp.so
@@ -1136,6 +1138,7 @@ fi
 %{_libdir}/asterisk/modules/res_ari_playbacks.so
 %{_libdir}/asterisk/modules/res_ari_recordings.so
 %{_libdir}/asterisk/modules/res_ari_sounds.so
+%{_libdir}/asterisk/modules/res_audiosocket.so
 %{_libdir}/asterisk/modules/res_chan_stats.so
 %{_libdir}/asterisk/modules/res_clialiases.so
 %{_libdir}/asterisk/modules/res_clioriginate.so
@@ -1191,6 +1194,7 @@ fi
 %{_libdir}/asterisk/modules/res_stasis_recording.so
 %{_libdir}/asterisk/modules/res_stasis_snoop.so
 %{_libdir}/asterisk/modules/res_statsd.so
+%{_libdir}/asterisk/modules/res_stir_shaken.so
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
@@ -1272,6 +1276,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/sorcery.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/stasis.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/statsd.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/stir_shaken.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/telcordia-1.adsi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/udptl.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/users.conf
@@ -1532,6 +1537,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_send_to_voicemail.so
 %{_libdir}/asterisk/modules/res_pjsip_session.so
 %{_libdir}/asterisk/modules/res_pjsip_sips_contact.so
+%{_libdir}/asterisk/modules/res_pjsip_stir_shaken.so
 %{_libdir}/asterisk/modules/res_pjsip_t38.so
 #%%{_libdir}/asterisk/modules/res_pjsip_transport_management.so
 %{_libdir}/asterisk/modules/res_pjsip_transport_websocket.so
@@ -1623,6 +1629,9 @@ fi
 %endif
 
 %changelog
+* Thu Sep 10 2020 Jared K. Smith <jsmith@fedoraproject.org> - 18.0.0-1
+- Update to upstream 18.0.0-rc1 release
+
 * Thu Sep 03 2020 Jared K. Smith <jsmith@fedoraproject.org> - 17.7.0-1
 - Update to upstream 17.7.0 release
 
