@@ -46,7 +46,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.0.1
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
+Release:          %{?_rc||?_beta:0.}2%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1629,10 +1629,13 @@ fi
 %endif
 
 %changelog
-* Thu Nov 05 20202 Jared K. Smith <jsmith@fedoraproject.org> - 18.0.1-1
+* Mon Nov  9 2020 Jared K. Smith <jsmith@fedoraproject.org> - 18.0.1-2
+- Add dependency on sox
+
+* Thu Nov  5 2020 Jared K. Smith <jsmith@fedoraproject.org> - 18.0.1-1
 - Update to 18.0.1 release for AST-2020-001 and AST-2020-002 security fixes
 
-* Tue Oct 20 20202 Jared K. Smith <jsmith@fedoraproject.org> - 18.0.0-1
+* Tue Oct 20 2020 Jared K. Smith <jsmith@fedoraproject.org> - 18.0.0-1
 - Update to upstream 18.0.0 release for new features
 
 * Thu Sep 03 2020 Josef Řídký <jridky@redhat.com> - 17.7.0-2
