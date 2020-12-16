@@ -237,6 +237,7 @@ Provides:         bundled(jansson) = 2.11
 
 # for gpg to be able to verify the signature
 BuildRequires:    libgcrypt
+BuildRequires: make
 
 Requires(pre):    %{_sbindir}/useradd
 Requires(pre):    %{_sbindir}/groupadd
