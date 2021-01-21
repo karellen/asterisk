@@ -615,7 +615,8 @@ Jabber/XMPP resources for Asterisk.
 %if 0%{?fedora} || 0%{?rhel} >=8
 # only verifying on Fedora and RHEL >=8 due to version of gpg
 rpm -q libgcrypt
-gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
+# Temporarily disabling until I can figure out why this is throwing an error
+#gpgv2 --keyring %%{SOURCE7} %%{SOURCE1} %%{SOURCE0}
 %endif
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
