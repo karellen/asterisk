@@ -45,7 +45,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.2.0
+Version:          18.2.1
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -615,8 +615,7 @@ Jabber/XMPP resources for Asterisk.
 %if 0%{?fedora} || 0%{?rhel} >=8
 # only verifying on Fedora and RHEL >=8 due to version of gpg
 rpm -q libgcrypt
-# Temporarily disabling until I can figure out why this is throwing an error
-#gpgv2 --keyring %%{SOURCE7} %%{SOURCE1} %%{SOURCE0}
+gpgv2 --keyring %{SOURCE7} %{SOURCE1} %{SOURCE0}
 %endif
 %setup -q -n asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}
 
@@ -1631,6 +1630,14 @@ fi
 %endif
 
 %changelog
+* Thu Feb 18 2021 Jared K. Smith <jsmith@fedoraproject.org> - 18.2.1-1
+- Update to upstream 18.2.1 release for security updates, related to:
+- AST-2021-001/CVE-2020-35776: Remote crash in res_pjsip_diversion
+- AST-2021-002/CVE-2021-26717: Remote crash possible when negotiating T.38
+- AST-2021-003/CVE-2021-26712: Remote attacker could prematurely tear down SRTP calls
+- AST-2021-004/CVE-2021-26714: An unsuspecting user could crash Asterisk with multiple hold/unhold requests
+- AST-2021-005/CVE-2021-26906: Remote Crash Vulnerability in PJSIP channel driver
+
 * Mon Feb 08 2021 Pavel Raiskup <praiskup@redhat.com> - 18.2.0-1.2
 - rebuild for libpq ABI fix rhbz#1908268
 
