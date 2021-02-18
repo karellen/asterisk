@@ -24,6 +24,11 @@
 %global           ldap       1
 %global           gmime      1
 %global           corosync   1
+%if 0%{?fedora} >= 34 || 0%{?rhel} >8
+%global           imap       0
+else
+%global           imap       1
+%endif
 %if 0%{?fedora} >= 21 || 0%{?rhel} >=7
 %global           jack       0
 %else
@@ -227,7 +232,9 @@ BuildRequires:    net-snmp-devel
 BuildRequires:    lm_sensors-devel
 %endif
 
+%if 0%{?imap}
 BuildRequires:    uw-imap-devel
+%endif
 
 %if 0%{?fedora}
 BuildRequires:    jansson-devel
@@ -566,6 +573,7 @@ Conflicts: asterisk-mwi-external <= %{version}-%{release}
 %description voicemail
 Common Voicemail Modules for Asterisk.
 
+%if 0%{?imap}
 %package voicemail-imap
 Summary: Store voicemail on an IMAP server
 Requires: asterisk = %{version}-%{release}
@@ -577,6 +585,7 @@ Conflicts: asterisk-voicemail-plain <= %{version}-%{release}
 %description voicemail-imap
 Voicemail implementation for Asterisk that stores voicemail on an IMAP
 server.
+%endif
 
 %package voicemail-odbc
 Summary: Store voicemail in a database using ODBC
@@ -735,9 +744,17 @@ popd
 
 
 %if 0%{?fedora}
+%if 0%{?imap}
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
 %else
+%configure --without-imap --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%endif
+%else
+%if 0%{?imap}
 %configure --with-imap=system --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-jansson-bundled --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%else
+%configure --without-imap --with-gsm=/usr --with-ilbc=/usr --with-libedit=yes --with-srtp --with-jansson-bundled --with-pjproject-bundled --with-externals-cache=%{_builddir}/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}/cache LDFLAGS="%{ldflags}" NOISY_BUILD=1 CPPFLAGS="-fPIC"
+%endif
 %endif
 
 %make_build menuselect-tree NOISY_BUILD=1
@@ -752,6 +769,7 @@ rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_plain.so
 mv apps/app_directory.so apps/app_directory_plain.so
 
+%if 0%{?imap}
 # Now build with IMAP storage for voicemail and directory
 sed -i -e 's/^MENUSELECT_OPTS_app_voicemail=.*$/MENUSELECT_OPTS_app_voicemail=IMAP_STORAGE/' menuselect.makeopts
 
@@ -761,6 +779,7 @@ echo "### Building with IMAP voicemail and directory"
 rm apps/app_voicemail.o apps/app_directory.o
 mv apps/app_voicemail.so apps/app_voicemail_imap.so
 mv apps/app_directory.so apps/app_directory_imap.so
+%endif
 
 # Now build with ODBC storage for voicemail and directory
 
@@ -810,8 +829,10 @@ install -D -p -m 0644 %{S:2} %{buildroot}%{_sysconfdir}/logrotate.d/asterisk
 rm %{buildroot}%{_libdir}/asterisk/modules/app_directory.so
 rm %{buildroot}%{_libdir}/asterisk/modules/app_voicemail.so
 
+%if 0%{?imap}
 install -D -p -m 0755 apps/app_directory_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_imap.so
 install -D -p -m 0755 apps/app_voicemail_imap.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_imap.so
+%endif
 install -D -p -m 0755 apps/app_directory_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_odbc.so
 install -D -p -m 0755 apps/app_voicemail_odbc.so %{buildroot}%{_libdir}/asterisk/modules/app_voicemail_odbc.so
 install -D -p -m 0755 apps/app_directory_plain.so %{buildroot}%{_libdir}/asterisk/modules/app_directory_plain.so
@@ -1608,9 +1629,11 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/voicemail.conf
 %{_libdir}/asterisk/modules/func_vmcount.so
 
+%if 0%{?imap}
 %files voicemail-imap
 %{_libdir}/asterisk/modules/app_directory_imap.so
 %{_libdir}/asterisk/modules/app_voicemail_imap.so
+%endif
 
 %files voicemail-odbc
 #doc doc/voicemail_odbc_postgresql.txt
