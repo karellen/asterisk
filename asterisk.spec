@@ -26,7 +26,7 @@
 %global           corosync   1
 %if 0%{?fedora} >= 34 || 0%{?rhel} >8
 %global           imap       0
-else
+%else
 %global           imap       1
 %endif
 %if 0%{?fedora} >= 21 || 0%{?rhel} >=7
