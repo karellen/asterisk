@@ -50,7 +50,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.2.1
+Version:          18.3.0
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -721,6 +721,10 @@ chmod -x contrib/scripts/dbsep.cgi
 
 %if ! 0%{ooh323}
 %{__perl} -pi -e 's/^MENUSELECT_ADDONS=(.*)$/MENUSELECT_ADDONS=\1 chan_ooh323/g' menuselect.makeopts
+%endif
+
+%if ! 0%{imap}
+%{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_voicemail_imap/g' menuselect.makeopts
 %endif
 
 %build
@@ -1653,6 +1657,9 @@ fi
 %endif
 
 %changelog
+* Mon Apr 12 2021 Jared K Smith <jsmith@fedoraproject.org> - 18.3.0-1
+- Update to upstream 18.3.0 release for security updates and bug fixes
+
 * Thu Feb 18 2021 Jared K. Smith <jsmith@fedoraproject.org> - 18.2.1-1
 - Update to upstream 18.2.1 release for security updates, related to:
 - AST-2021-001/CVE-2020-35776: Remote crash in res_pjsip_diversion
