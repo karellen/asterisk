@@ -825,6 +825,7 @@ export ASTCFLAGS="%{optflags}"
 
 make install %{makeargs}
 make samples %{makeargs}
+make install-headers %{makeargs}
 
 install -D -p -m 0644 %{SOURCE5} %{buildroot}%{_unitdir}/asterisk.service
 rm -f %{buildroot}%{_sbindir}/safe_asterisk
@@ -1397,6 +1398,11 @@ fi
 
 %files devel
 %{_libdir}/libasteriskssl.so
+%dir %{_includedir}/asterisk
+%dir %{_includedir}/asterisk/doxygen
+%{_includedir}/asterisk.h
+%{_includedir}/asterisk/*.h
+%{_includedir}/asterisk/doxygen/*.h
 
 %files fax
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_fax.conf
