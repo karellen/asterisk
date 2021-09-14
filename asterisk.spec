@@ -51,7 +51,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.4.0
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.3
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -1663,6 +1663,9 @@ fi
 %endif
 
 %changelog
+* Tue Sep 14 2021 Sahana Prasad <sahana@redhat.com> - 18.4.0-1.3
+- Rebuilt with OpenSSL 3.0.0
+
 * Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 18.4.0-1.2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
