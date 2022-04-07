@@ -1,0 +1,10 @@
+--- a/channels/console_board.c	2022-04-07 16:00:48.018413156 +0200
++++ b/channels/console_board.c	2022-04-07 16:00:38.836359567 +0200
+@@ -41,6 +41,7 @@
+ 	<support_level>extended</support_level>
+  ***/
+ 
++#define ASTMM_LIBC ASTMM_IGNORE
+ #include "asterisk.h"	/* ast_strdupa */
+ #include "asterisk/utils.h"	/* ast_strdupa */
+ #include "console_video.h"	/* ast_strdupa */

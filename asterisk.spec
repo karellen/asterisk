@@ -51,7 +51,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.4.0
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.5
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.6
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -89,6 +89,9 @@ Patch0:           asterisk-mariadb.patch
 %if 0%{?fedora} || 0%{?rhel} >=7
 Patch1:           asterisk-16.1.0-explicit-python3.patch
 %endif
+
+Patch2:           asterisk-18.4.0-astmm_ignore_for_console_board.patch
+Patch3:           asterisk-18.4.0-res_snmp_fpic.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -649,6 +652,9 @@ echo '*************************************************************************'
 %if 0%{?fedora} || 0%{?rhel} >=7
 %patch1 -p1
 %endif
+
+%patch2 -p1
+%patch3 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1663,6 +1669,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.4.0-1.6
+- Fix build (#1977579)
+
 * Wed Jun 01 2022 Jitka Plesnikova <jplesnik@redhat.com> - 18.4.0-1.5
 - Perl 5.36 rebuild
 
