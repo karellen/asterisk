@@ -50,7 +50,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.6.0
+Version:          18.7.1
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -91,7 +91,6 @@ Patch1:           asterisk-16.1.0-explicit-python3.patch
 %endif
 
 Patch2:           asterisk-18.4.0-astmm_ignore_for_console_board.patch
-Patch3:           asterisk-18.4.0-res_snmp_fpic.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -654,7 +653,6 @@ echo '*************************************************************************'
 %endif
 
 %patch2 -p1
-%patch3 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
@@ -1020,6 +1018,7 @@ fi
 %{_libdir}/asterisk/modules/app_getcpeid.so
 %{_libdir}/asterisk/modules/app_image.so
 %{_libdir}/asterisk/modules/app_macro.so
+%{_libdir}/asterisk/modules/app_mf.so
 %{_libdir}/asterisk/modules/app_milliwatt.so
 %{_libdir}/asterisk/modules/app_mixmonitor.so
 %{_libdir}/asterisk/modules/app_morsecode.so
@@ -1124,6 +1123,7 @@ fi
 %{_libdir}/asterisk/modules/func_enum.so
 %{_libdir}/asterisk/modules/func_env.so
 %{_libdir}/asterisk/modules/func_extstate.so
+%{_libdir}/asterisk/modules/func_frame_drop.so
 %{_libdir}/asterisk/modules/func_frame_trace.so
 %{_libdir}/asterisk/modules/func_global.so
 %{_libdir}/asterisk/modules/func_groupcount.so
@@ -1141,6 +1141,8 @@ fi
 %{_libdir}/asterisk/modules/func_presencestate.so
 %{_libdir}/asterisk/modules/func_rand.so
 %{_libdir}/asterisk/modules/func_realtime.so
+%{_libdir}/asterisk/modules/func_sayfiles.so
+%{_libdir}/asterisk/modules/func_scramble.so
 %{_libdir}/asterisk/modules/func_sha1.so
 %{_libdir}/asterisk/modules/func_shell.so
 %{_libdir}/asterisk/modules/func_sorcery.so
@@ -1234,6 +1236,7 @@ fi
 %{_libdir}/asterisk/modules/res_stun_monitor.so
 %{_libdir}/asterisk/modules/res_timing_pthread.so
 %{_libdir}/asterisk/modules/res_timing_timerfd.so
+%{_libdir}/asterisk/modules/res_tonedetect.so
 
 %{_sbindir}/astcanary
 %{_sbindir}/astdb2sqlite3
@@ -1672,6 +1675,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.7.1-1
+- Update to upstream 18.7.1 release.
+
 * Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.6.0-1
 - Update to upstream 18.6.0 release.
 
