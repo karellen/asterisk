@@ -50,7 +50,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.9.0
+Version:          18.10.1
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -1040,6 +1040,7 @@ fi
 %{_libdir}/asterisk/modules/app_sayunixtime.so
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
+%{_libdir}/asterisk/modules/app_sf.so
 #%%{_libdir}/asterisk/modules/app_setcallerid.so
 %{_libdir}/asterisk/modules/app_sms.so
 %{_libdir}/asterisk/modules/app_softhangup.so
@@ -1131,6 +1132,7 @@ fi
 %{_libdir}/asterisk/modules/func_holdintercept.so
 %{_libdir}/asterisk/modules/func_iconv.so
 %{_libdir}/asterisk/modules/func_jitterbuffer.so
+%{_libdir}/asterisk/modules/func_json.so
 %{_libdir}/asterisk/modules/func_lock.so
 %{_libdir}/asterisk/modules/func_logic.so
 %{_libdir}/asterisk/modules/func_math.so
@@ -1675,6 +1677,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.10.1-1
+- Update to upstream 18.10.1 release.
+
 * Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.9.0-1
 - Update to upstream 18.9.0 release.
 
