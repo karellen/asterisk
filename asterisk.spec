@@ -50,7 +50,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.8.0
+Version:          18.9.0
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -1675,6 +1675,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.9.0-1
+- Update to upstream 18.9.0 release.
+
 * Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.8.0-1
 - Update to upstream 18.8.0 release.
 

@@ -102,12 +102,12 @@ Index: asterisk-16.1.0/contrib/scripts/ast_coredumper
 ===================================================================
 --- asterisk-16.1.0.orig/contrib/scripts/ast_coredumper
 +++ asterisk-16.1.0/contrib/scripts/ast_coredumper
-@@ -251,7 +251,7 @@ EOF
- # For *BSD, the preferred gdb may be in /usr/local/bin so we
- # need to search for one that supports python.
- for g in $(which -a gdb) ; do
--	result=$($g --batch --ex "python print('hello')" 2>/dev/null || : )
-+	result=$($g --batch --ex "python2 print('hello')" 2>/dev/null || : )
- 	if [[ "$result" =~ ^hello$ ]] ; then
- 		GDB=$g
- 		break
+@@ -371,7 +371,7 @@
+ 		EOF
+ 	fi
+ 
+-	result=$($GDB --batch --ex "python print('hello')" 2>/dev/null || : )
++	result=$($GDB --batch --ex "python2 print('hello')" 2>/dev/null || : )
+ 	if [[ ! "$result" =~ ^hello$ ]] ; then
+ 		die -2 <<-EOF
+ 		$GDB does not support python.
