@@ -1,8 +1,8 @@
 #%%global _rc 1
 #%%global _beta 3
 
-%global           pjsip_version   2.10
-%global           jansson_version 2.12
+%global           pjsip_version   2.12
+%global           jansson_version 2.14
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
 %ifarch s390 %{arm} aarch64 %{mips}
@@ -50,7 +50,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.11.2
+Version:          18.12.1
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}
 License:          GPLv2
 URL:              http://www.asterisk.org/
@@ -91,6 +91,9 @@ Patch1:           asterisk-16.1.0-explicit-python3.patch
 %endif
 
 Patch2:           asterisk-18.4.0-astmm_ignore_for_console_board.patch
+
+# Removed macros from ilbc library for RFC 3951 compatibility.
+Patch3:           asterisk-18.12.1-ilbc_macros.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -654,6 +657,8 @@ echo '*************************************************************************'
 
 %patch2 -p1
 
+%patch3 -p1
+
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
@@ -1123,6 +1128,7 @@ fi
 %{_libdir}/asterisk/modules/func_dialplan.so
 %{_libdir}/asterisk/modules/func_enum.so
 %{_libdir}/asterisk/modules/func_env.so
+%{_libdir}/asterisk/modules/func_evalexten.so
 %{_libdir}/asterisk/modules/func_extstate.so
 %{_libdir}/asterisk/modules/func_frame_drop.so
 %{_libdir}/asterisk/modules/func_frame_trace.so
@@ -1164,6 +1170,7 @@ fi
 %{_libdir}/asterisk/modules/pbx_realtime.so
 %{_libdir}/asterisk/modules/pbx_spool.so
 %{_libdir}/asterisk/modules/res_adsi.so
+%{_libdir}/asterisk/modules/res_aeap.so
 %{_libdir}/asterisk/modules/res_agi.so
 %{_libdir}/asterisk/modules/res_ari.so
 %{_libdir}/asterisk/modules/res_ari_applications.so
@@ -1226,6 +1233,7 @@ fi
 %{_libdir}/asterisk/modules/res_sorcery_memory_cache.so
 %{_libdir}/asterisk/modules/res_sorcery_realtime.so
 %{_libdir}/asterisk/modules/res_speech.so
+%{_libdir}/asterisk/modules/res_speech_aeap.so
 %{_libdir}/asterisk/modules/res_srtp.so
 %{_libdir}/asterisk/modules/res_stasis.so
 %{_libdir}/asterisk/modules/res_stasis_answer.so
@@ -1266,6 +1274,7 @@ fi
 %attr(0750,asterisk,asterisk) %dir %{_sysconfdir}/asterisk
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/acl.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/adsi.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/aeap.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/agents.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/alarmreceiver.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/amd.conf
@@ -1677,6 +1686,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.12.1-1
+- Update to upstream 18.12.1 release.
+
 * Wed Jun 15 2022 Michal Josef Špaček <mspacek@redhat.com> - 18.11.2-1
 - Update to upstream 18.11.2 release.
 
