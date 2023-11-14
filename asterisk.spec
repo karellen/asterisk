@@ -1,7 +1,9 @@
 #%%global _rc 1
 #%%global _beta 3
 
-%global           pjsip_version   2.12
+%define _disable_source_fetch 0
+
+%global           pjsip_version   2.13.1
 %global           jansson_version 2.14
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
@@ -50,13 +52,13 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          18.12.1
+Version:          18.20.0
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.4
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
-Source0:          http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
-Source1:          http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
+Source0:          https://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
+Source1:          https://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz.asc
 Source2:          asterisk-logrotate
 Source3:          menuselect.makedeps
 Source4:          menuselect.makeopts
@@ -80,7 +82,7 @@ Source7:          asterisk-gpgkeys.gpg
 Source8:          https://raw.githubusercontent.com/asterisk/third-party/master/pjproject/%{pjsip_version}/pjproject-%{pjsip_version}.tar.bz2
 
 # Bundling jansson on EL7 and EL8, because the version in CentOS is too old
-Source9:          http://www.digip.org/jansson/releases/jansson-%{jansson_version}.tar.bz2
+Source9:          https://github.com/akheron/jansson/releases/download/v%{jansson_version}/jansson-%{jansson_version}.tar.gz
 
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Patch0:           asterisk-mariadb.patch
@@ -139,7 +141,10 @@ BuildRequires:    latex2html
 # for building res_calendar_caldav
 BuildRequires:    neon-devel
 BuildRequires:    libical-devel
+
+# for building res_geolocation
 BuildRequires:    libxml2-devel
+BuildRequires:    libxslt-devel
 
 # for codec_speex
 BuildRequires:    speex-devel >= 1.2
@@ -492,6 +497,8 @@ LineJACK, Internet PhoneCARD and SmartCABLE.
 %package pjsip
 Summary: SIP channel based upon the PJSIP library
 Requires: asterisk = %{version}-%{release}
+Requires: libxml2
+Requires: libxslt
 
 %description pjsip
 SIP channel based upon the PJSIP library
@@ -977,7 +984,7 @@ fi
 %endif
 
 %files
-%doc *.txt ChangeLog BUGS CREDITS configs
+%doc *.txt ChangeLogs/* BUGS CREDITS configs
 %license LICENSE
 
 %doc doc/asterisk.sgml
@@ -1000,6 +1007,7 @@ fi
 %{_libdir}/asterisk/modules/app_blind_transfer.so
 %{_libdir}/asterisk/modules/app_bridgeaddchan.so
 %{_libdir}/asterisk/modules/app_bridgewait.so
+%{_libdir}/asterisk/modules/app_broadcast.so
 %{_libdir}/asterisk/modules/app_cdr.so
 %{_libdir}/asterisk/modules/app_celgenuserevent.so
 %{_libdir}/asterisk/modules/app_chanisavail.so
@@ -1020,6 +1028,7 @@ fi
 %{_libdir}/asterisk/modules/app_followme.so
 %{_libdir}/asterisk/modules/app_forkcdr.so
 %{_libdir}/asterisk/modules/app_getcpeid.so
+%{_libdir}/asterisk/modules/app_if.so
 %{_libdir}/asterisk/modules/app_image.so
 %{_libdir}/asterisk/modules/app_macro.so
 %{_libdir}/asterisk/modules/app_mf.so
@@ -1045,6 +1054,7 @@ fi
 %{_libdir}/asterisk/modules/app_senddtmf.so
 %{_libdir}/asterisk/modules/app_sendtext.so
 %{_libdir}/asterisk/modules/app_sf.so
+%{_libdir}/asterisk/modules/app_signal.so
 #%%{_libdir}/asterisk/modules/app_setcallerid.so
 %{_libdir}/asterisk/modules/app_sms.so
 %{_libdir}/asterisk/modules/app_softhangup.so
@@ -1128,6 +1138,7 @@ fi
 %{_libdir}/asterisk/modules/func_enum.so
 %{_libdir}/asterisk/modules/func_env.so
 %{_libdir}/asterisk/modules/func_evalexten.so
+%{_libdir}/asterisk/modules/func_export.so
 %{_libdir}/asterisk/modules/func_extstate.so
 %{_libdir}/asterisk/modules/func_frame_drop.so
 %{_libdir}/asterisk/modules/func_frame_trace.so
@@ -1187,10 +1198,12 @@ fi
 %{_libdir}/asterisk/modules/res_audiosocket.so
 %{_libdir}/asterisk/modules/res_chan_stats.so
 %{_libdir}/asterisk/modules/res_clialiases.so
+%{_libdir}/asterisk/modules/res_cliexec.so
 %{_libdir}/asterisk/modules/res_clioriginate.so
 %{_libdir}/asterisk/modules/res_convert.so
 %{_libdir}/asterisk/modules/res_crypto.so
 %{_libdir}/asterisk/modules/res_endpoint_stats.so
+%{_libdir}/asterisk/modules/res_geolocation.so
 %{_libdir}/asterisk/modules/res_format_attr_celt.so
 %{_libdir}/asterisk/modules/res_format_attr_g729.so
 %{_libdir}/asterisk/modules/res_format_attr_h263.so
@@ -1217,6 +1230,8 @@ fi
 %{_libdir}/asterisk/modules/res_phoneprov.so
 # res_pjproject is required by res_rtp_asterisk
 %{_libdir}/asterisk/modules/res_pjproject.so
+%{_libdir}/asterisk/modules/res_pjsip_aoc.so
+%{_libdir}/asterisk/modules/res_pjsip_rfc3329.so
 %{_libdir}/asterisk/modules/res_prometheus.so
 %{_libdir}/asterisk/modules/res_realtime.so
 %{_libdir}/asterisk/modules/res_remb_modifier.so
@@ -1303,6 +1318,7 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/features.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/followme.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/geolocation.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/http.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/indications.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/logger.conf
@@ -1315,6 +1331,8 @@ fi
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/prometheus.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queuerules.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/queues.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_config_odbc.conf
+%attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_http_media_cache.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_parking.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/res_stun_monitor.conf
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/resolver_unbound.conf
@@ -1563,6 +1581,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_ip.so
 %{_libdir}/asterisk/modules/res_pjsip_endpoint_identifier_user.so
 %{_libdir}/asterisk/modules/res_pjsip_exten_state.so
+%{_libdir}/asterisk/modules/res_pjsip_geolocation.so
 %{_libdir}/asterisk/modules/res_pjsip_header_funcs.so
 %{_libdir}/asterisk/modules/res_pjsip_history.so
 %{_libdir}/asterisk/modules/res_pjsip_logger.so
@@ -1685,6 +1704,12 @@ fi
 %endif
 
 %changelog
+* Tue Nov 14 2023 Arcadiy Ivanov <arcadiy@karellen.co> - 18.20.0-1.4
+- Upgrade to 18.20.0
+- PJSIP 2.13.1
+- Add build fixes for direct downloads
+- Add new modules and module dependencies
+
 * Wed Jul 19 2023 Fedora Release Engineering <releng@fedoraproject.org> - 18.12.1-1.4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
 
