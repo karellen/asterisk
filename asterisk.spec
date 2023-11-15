@@ -97,6 +97,8 @@ Patch2:           asterisk-18.4.0-astmm_ignore_for_console_board.patch
 # Removed macros from ilbc library for RFC 3951 compatibility.
 Patch3:           asterisk-18.12.1-ilbc_macros.patch
 
+Patch4:           issue_449.patch
+
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
 Provides:         bundled(pjproject) = %{pjsip_version}
@@ -664,6 +666,8 @@ echo '*************************************************************************'
 %patch2 -p1
 
 %patch3 -p1
+
+%patch4 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
