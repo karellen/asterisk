@@ -98,6 +98,7 @@ Patch2:           asterisk-18.4.0-astmm_ignore_for_console_board.patch
 Patch3:           asterisk-18.12.1-ilbc_macros.patch
 
 Patch4:           issue_449.patch
+Patch5:           issue_449_debug.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -668,6 +669,8 @@ echo '*************************************************************************'
 %patch3 -p1
 
 %patch4 -p1
+
+%patch5 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
