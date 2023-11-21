@@ -1,12 +1,15 @@
 diff --git a/res/res_pjsip_session.c b/res/res_pjsip_session.c
-index b5a8b3f54c..a6b01a19f8 100644
+index b5a8b3f54c..7172c6b3c8 100644
 --- a/res/res_pjsip_session.c
 +++ b/res/res_pjsip_session.c
-@@ -3273,6 +3273,11 @@ static pj_bool_t outbound_invite_auth(pjsip_rx_data *rdata)
+@@ -3273,6 +3273,14 @@ static pj_bool_t outbound_invite_auth(pjsip_rx_data *rdata)
  		return PJ_FALSE;
  	}
  
-+                ast_verbose("<--- Transaction Packet %s (%d bytes) --->\n%.*s\n",
++	pjsip_tx_data_invalidate_msg(tsx->last_tx);
++	pjsip_tx_data_encode(tsx->last_tx);
++
++	ast_verbose("<--- Transaction Packet %s (%d bytes) --->\n%.*s\n",
 +                        tsx->last_tx->msg->type == PJSIP_REQUEST_MSG ? "request" : "response",
 +                        (int) (tsx->last_tx->buf.cur - tsx->last_tx->buf.start),
 +                        (int) (tsx->last_tx->buf.end - tsx->last_tx->buf.start), tsx->last_tx->buf.start);
