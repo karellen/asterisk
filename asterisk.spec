@@ -53,7 +53,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.20.0
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.5
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.6
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
