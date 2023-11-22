@@ -53,7 +53,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.20.0
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.6
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.7
 License:          GPLv2
 URL:              http://www.asterisk.org/
 
@@ -668,9 +668,9 @@ echo '*************************************************************************'
 
 %patch3 -p1
 
-# %patch4 -p1
+%patch4 -p1
 
-%patch5 -p1
+# %patch5 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
