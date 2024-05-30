@@ -649,18 +649,18 @@ pwd
 echo '*************************************************************************'
 
 %if 0%{?fedora} || 0%{?rhel} >=8
-%patch0 -p1
+%patch -P0 -p1
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} >=7
-%patch1 -p1
+%patch -P1 -p1
 %endif
 
-%patch2 -p1
+%patch -P2 -p1
 
-%patch3 -p1
+%patch -P3 -p1
 
-%patch4 -p1
+%patch -P4 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
