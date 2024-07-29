@@ -51,8 +51,9 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.12.1
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.8
-License:          GPLv2
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.9
+# Automatically converted from old format: GPLv2 - review is highly recommended.
+License:          GPL-2.0-only
 URL:              http://www.asterisk.org/
 
 Source0:          http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-%{version}%{?_rc:-rc%{_rc}}%{?_beta:-beta%{_beta}}.tar.gz
@@ -1689,6 +1690,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 29 2024 Miroslav Suchý <msuchy@redhat.com> - 18.12.1-1.9
+- convert license to SPDX
+
 * Wed Jul 17 2024 Fedora Release Engineering <releng@fedoraproject.org> - 18.12.1-1.8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
 
