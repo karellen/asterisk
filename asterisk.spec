@@ -5,7 +5,7 @@
 %global           jansson_version 2.14
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
-%ifarch s390 %{arm} aarch64 %{mips}
+%ifarch s390 %{arm} aarch64 %{mips} riscv64
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %else
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -51,7 +51,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          18.12.1
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.10
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.11
 # Automatically converted from old format: GPLv2 - review is highly recommended.
 License:          GPL-2.0-only
 URL:              http://www.asterisk.org/
@@ -97,6 +97,10 @@ Patch2:           asterisk-18.4.0-astmm_ignore_for_console_board.patch
 Patch3:           asterisk-18.12.1-ilbc_macros.patch
 
 Patch4:           asterisk-configure-c99.patch
+
+# Fix pjproject build failure on RISC-V architecture
+# https://github.com/pjsip/pjproject/pull/4173.patch
+Patch5:           pjproject-add-riscv-support.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -663,6 +667,7 @@ echo '*************************************************************************'
 
 %patch -P4 -p1
 
+%patch -P5 -p1
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
@@ -1690,6 +1695,10 @@ fi
 %endif
 
 %changelog
+* Sun Nov 24 2024 Zhengyu He <hezhy472013@gmail.com> - 18.12.1-1.11
+- Do not use -m32/-m64 on riscv64
+- Fix pjproject build failure on RISC-V
+
 * Tue Oct 22 2024 Richard W.M. Jones <rjones@redhat.com> - 18.12.1-1.10
 - Rebuild for Jansson 2.14
   (https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/3PYINSQGKQ4BB25NQUI2A2UCGGLAG5ND/)
