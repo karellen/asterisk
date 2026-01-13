@@ -52,7 +52,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          22.1.0
+Version:          22.7.0
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.0
 # Automatically converted from old format: GPLv2 - review is highly recommended.
 License:          GPL-2.0-only
