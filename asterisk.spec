@@ -7,7 +7,7 @@
 %global           jansson_version 2.14
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
-%ifarch s390 %{arm} aarch64 %{mips}
+%ifarch s390 %{arm} aarch64 %{mips} riscv64
 %global           ldflags         -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
 %else
 %global           ldflags         -m%{__isa_bits} -Wl,--as-needed,--library-path=%{_libdir} %{__global_ldflags}
@@ -100,6 +100,10 @@ Patch3:           asterisk-18.12.1-ilbc_macros.patch
 
 #Patch4:           asterisk-configure-c99.patch
 
+# Fix pjproject build failure on RISC-V architecture
+# https://github.com/pjsip/pjproject/pull/4173.patch
+Patch5:           pjproject-add-riscv-support.patch
+
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
 Provides:         bundled(pjproject) = %{pjsip_version}
@@ -111,6 +115,7 @@ BuildRequires:    autoconf
 BuildRequires:    automake
 BuildRequires:    gcc
 BuildRequires:    gcc-c++
+BuildRequires:    libxcrypt-devel
 BuildRequires:    ncurses
 BuildRequires:    perl
 
@@ -259,8 +264,6 @@ Provides:         bundled(jansson) = 2.11
 BuildRequires:    libgcrypt
 BuildRequires: make
 
-Requires(pre):    %{_sbindir}/useradd
-Requires(pre):    %{_sbindir}/groupadd
 
 Requires(post):   systemd-units
 Requires(post):   systemd-sysv
@@ -670,6 +673,7 @@ echo '*************************************************************************'
 
 %patch -P4 -p1
 
+%patch -P5 -p1
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
@@ -746,6 +750,11 @@ chmod -x contrib/scripts/dbsep.cgi
 %if ! 0%{imap}
 %{__perl} -pi -e 's/^MENUSELECT_APPS=(.*)$/MENUSELECT_APPS=\1 app_voicemail_imap/g' menuselect.makeopts
 %endif
+
+# Create a sysusers.d config file
+cat >asterisk.sysusers.conf <<EOF
+u asterisk - 'Asterisk User' /var/lib/asterisk -
+EOF
 
 %build
 
@@ -944,10 +953,8 @@ rm -f %{buildroot}%{_sysconfdir}/asterisk/motif.conf
 rm -f %{buildroot}%{_sysconfdir}/asterisk/ooh323.conf
 %endif
 
-%pre
-%{_sbindir}/groupadd -r asterisk &>/dev/null || :
-%{_sbindir}/useradd  -r -s /sbin/nologin -d /var/lib/asterisk -M \
-                               -c 'Asterisk User' -g asterisk asterisk &>/dev/null || :
+install -m0644 -D asterisk.sysusers.conf %{buildroot}%{_sysusersdir}/asterisk.conf
+
 
 %post
 if [ $1 -eq 1 ] ; then
@@ -1386,6 +1393,7 @@ fi
 %attr(0755,asterisk,asterisk) %dir %{astvarrundir}
 
 %{_datarootdir}/asterisk/scripts/
+%{_sysusersdir}/asterisk.conf
 
 %files ael
 %attr(0640,asterisk,asterisk) %config(noreplace) %{_sysconfdir}/asterisk/extensions.ael
@@ -1709,11 +1717,31 @@ fi
 %endif
 
 %changelog
+* Wed Jul 23 2025 Fedora Release Engineering <releng@fedoraproject.org> - 18.12.1-1.15
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_43_Mass_Rebuild
+
+* Tue Feb 11 2025 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 18.12.1-1.14
+- Add sysusers.d config file to allow rpm to create users/groups automatically
+
+* Sat Feb 01 2025 Björn Esser <besser82@fedoraproject.org> - 18.12.1-1.13
+- Add explicit BR: libxcrypt-devel
+
+* Thu Jan 16 2025 Fedora Release Engineering <releng@fedoraproject.org> - 18.12.1-1.12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_42_Mass_Rebuild
+
 * Sun Dec 29 2024 Arcadiy Ivanov <arcadiy@karellen.co> - 22.1.0-1.0
 - Upgrade to 22.1.0
 - PJSIP 2.14.1
 - Add build fixes for direct downloads
 - Add new modules and module dependencies
+
+* Sun Nov 24 2024 Zhengyu He <hezhy472013@gmail.com> - 18.12.1-1.11
+- Do not use -m32/-m64 on riscv64
+- Fix pjproject build failure on RISC-V
+
+* Tue Oct 22 2024 Richard W.M. Jones <rjones@redhat.com> - 18.12.1-1.10
+- Rebuild for Jansson 2.14
+  (https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/3PYINSQGKQ4BB25NQUI2A2UCGGLAG5ND/)
 
 * Mon Jul 29 2024 Miroslav Suchý <msuchy@redhat.com> - 18.12.1-1.9
 - convert license to SPDX
