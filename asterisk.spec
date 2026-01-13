@@ -3,8 +3,8 @@
 
 %define _disable_source_fetch 0
 
-%global           pjsip_version   2.14.1
-%global           jansson_version 2.14
+%global           pjsip_version   2.15.1
+%global           jansson_version 2.14.1
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
 %ifarch s390 %{arm} aarch64 %{mips} riscv64
