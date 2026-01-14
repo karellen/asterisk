@@ -1,0 +1,13 @@
+diff --git a/res/res_pjsip_session.c b/res/res_pjsip_session.c
+index b5a8b3f54c..48feb8840e 100644
+--- a/res/res_pjsip_session.c
++++ b/res/res_pjsip_session.c
+@@ -5652,7 +5652,7 @@ static void session_outgoing_nat_hook(pjsip_tx_data *tdata, struct ast_sip_trans
+ 	}
+ 
+ 	/* We purposely do this so that the hook will not be invoked multiple times, ie: if a retransmit occurs */
+-	ast_sip_mod_data_set(tdata->pool, tdata->mod_data, session_module.id, MOD_DATA_NAT_HOOK, nat_hook);
++	// ast_sip_mod_data_set(tdata->pool, tdata->mod_data, session_module.id, MOD_DATA_NAT_HOOK, nat_hook);
+ }
+ 
+ #ifdef TEST_FRAMEWORK

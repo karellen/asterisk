@@ -54,7 +54,7 @@
 Summary:          The Open Source PBX
 Name:             asterisk
 Version:          22.7.0
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.1
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.2
 # Automatically converted from old format: GPLv2 - review is highly recommended.
 License:          GPL-2.0-only
 URL:              http://www.asterisk.org/
@@ -106,6 +106,8 @@ Patch3:           asterisk-18.12.1-ilbc_macros.patch
 # Fix pjproject build failure on RISC-V architecture
 # https://github.com/pjsip/pjproject/pull/4173.patch
 Patch4:           pjproject-add-riscv-support.patch
+
+Patch5:           issue_449.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -677,6 +679,8 @@ echo '*************************************************************************'
 %patch -P3 -p1
 
 %patch -P4 -p1
+
+%patch -P5 -p1
 
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
