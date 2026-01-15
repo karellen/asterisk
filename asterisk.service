@@ -11,7 +11,7 @@ Group=asterisk
 ExecStart=/usr/sbin/asterisk -f -C /etc/asterisk/asterisk.conf
 ExecStop=/usr/sbin/asterisk -rx 'core stop now'
 ExecReload=/usr/sbin/asterisk -rx 'core reload'
-
+Restart=on-failure
 # To emulate some of the features of the safe_asterisk script, copy
 # this file to /etc/systemd/system/asterisk.service and uncomment one
 # or more of the following lines.  For more information on what these
