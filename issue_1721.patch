@@ -1,0 +1,251 @@
+diff --git a/funcs/func_hangupcause.c b/funcs/func_hangupcause.c
+index 26a3dbce3cc..0b93d8dc92b 100644
+--- a/funcs/func_hangupcause.c
++++ b/funcs/func_hangupcause.c
+@@ -55,7 +55,6 @@
+ 				<para>Parameter describing which type of information is requested. Types are:</para>
+ 				<enumlist>
+ 					<enum name="tech"><para>Technology-specific cause information</para></enum>
+-					<enum name="tech_extended"><para>Technology-specific extended list of cause information</para></enum>
+ 					<enum name="ast"><para>Translated Asterisk cause code</para></enum>
+ 				</enumlist>
+ 			</parameter>
+@@ -120,10 +119,9 @@ static int hangupcause_read(struct ast_channel *chan, const char *cmd, char *dat
+ 	char *parms;
+ 	struct ast_control_pvt_cause_code *cause_code;
+ 	int res = 0;
+-	struct ast_str *causelist;
+ 	AST_DECLARE_APP_ARGS(args,
+ 		AST_APP_ARG(channel);	/*!< Channel name */
+-		AST_APP_ARG(type);	/*!< Type of information requested (ast, tech or tech_extended) */
++		AST_APP_ARG(type);	/*!< Type of information requested (ast or tech) */
+ 		);
+ 
+ 	/* Ensure that the buffer is empty */
+@@ -141,49 +139,25 @@ static int hangupcause_read(struct ast_channel *chan, const char *cmd, char *dat
+ 		return -1;
+ 	}
+ 
+-	causelist = ast_str_create(128);
+-	if (!causelist) {
+-		ast_log(LOG_ERROR, "Unable to allocate buffer, cause information will be unavailable!\n");
+-		return -1;
+-	}
+-
+ 	ast_channel_lock(chan);
+-	if (!strcmp(args.type, "tech_extended")) {
+-		struct ao2_iterator *cause_codes;
+-		cause_codes = ast_channel_dialed_causes_find_multiple(chan, args.channel);
+-		while ((cause_code = ao2_iterator_next(cause_codes))) {
+-			if (!cause_code->cause_extended) {
+-				ao2_ref(cause_code, -1);
+-				continue;
+-			}
+-			ast_str_append(&causelist, 0, "%s%s", (ast_str_strlen(causelist) ? "," : ""), cause_code->code);
+-			ao2_ref(cause_code, -1);
+-		}
+-		ao2_iterator_destroy(cause_codes);
+-	} else {
+-		cause_code = ast_channel_dialed_causes_find(chan, args.channel);
+-		if (!cause_code) {
+-			ast_log(LOG_WARNING, "Unable to find information for channel '%s'\n", args.channel);
+-			ast_channel_unlock(chan);
+-			return -1;
+-		}
+-	}
++	cause_code = ast_channel_dialed_causes_find(chan, args.channel);
+ 	ast_channel_unlock(chan);
+ 
++	if (!cause_code) {
++		ast_log(LOG_WARNING, "Unable to find information for channel %s\n", args.channel);
++		return -1;
++	}
++
+ 	if (!strcmp(args.type, "ast")) {
+ 		ast_copy_string(buf, ast_cause2str(cause_code->ast_cause), len);
+ 	} else if (!strcmp(args.type, "tech")) {
+ 		ast_copy_string(buf, cause_code->code, len);
+-	} else if (!strcmp(args.type, "tech_extended")) {
+-		ast_copy_string(buf, ast_str_buffer(causelist), len);
+ 	} else {
+ 		ast_log(LOG_WARNING, "Information type not recognized (%s)\n", args.type);
+ 		res = -1;
+ 	}
+ 
+-	if (cause_code) {
+-		ao2_cleanup(cause_code);
+-	}
++	ao2_ref(cause_code, -1);
+ 
+ 	return res;
+ }
+diff --git a/include/asterisk/channel.h b/include/asterisk/channel.h
+index 7e8b3e353eb..5cc7272fca1 100644
+--- a/include/asterisk/channel.h
++++ b/include/asterisk/channel.h
+@@ -4466,24 +4466,6 @@ struct ast_str *ast_channel_dialed_causes_channels(const struct ast_channel *cha
+  */
+ struct ast_control_pvt_cause_code *ast_channel_dialed_causes_find(const struct ast_channel *chan, const char *chan_name);
+ 
+-/*!
+- * \since 20.17.0, 22.8.0, 23.1.0
+- * \brief Retrieve a ref-counted cause code information structure iterator
+- *
+- * \details
+- * This function makes use of datastore operations on the channel, so
+- * it is important to lock the channel before calling this function.
+- * This function increases the ref count of the returned object, so the
+- * calling function must decrease the reference count when it is finished
+- * with the object.
+- *
+- * \param chan The channel from which to retrieve information
+- * \param chan_name The name of the channel about which to retrieve information
+- * \retval NULL on search failure
+- * \retval Pointer to a ao2_iterator object containing the desired information
+- */
+-struct ao2_iterator *ast_channel_dialed_causes_find_multiple(const struct ast_channel *chan, const char *chan_name);
+-
+ /*!
+  * \since 11
+  * \brief Add cause code information to the channel
+diff --git a/include/asterisk/frame.h b/include/asterisk/frame.h
+index 67c0036d68e..a81ff92024b 100644
+--- a/include/asterisk/frame.h
++++ b/include/asterisk/frame.h
+@@ -417,7 +417,6 @@ enum ast_control_transfer {
+ struct ast_control_pvt_cause_code {
+ 	char chan_name[AST_CHANNEL_NAME];	/*!< Name of the channel that originated the cause information */
+ 	unsigned int emulate_sip_cause:1;	/*!< Indicates whether this should be used to emulate SIP_CAUSE support */
+-	unsigned int cause_extended:1;		/*!< Indicates whether this cause code was retrieved from supplementary sources */
+ 	int ast_cause;				/*!< Asterisk cause code associated with this message */
+ 	char code[1];				/*!< Tech-specific cause code information, beginning with the name of the tech */
+ };
+diff --git a/main/channel_internal_api.c b/main/channel_internal_api.c
+index 9b41811bd98..3ea6bc7d8b3 100644
+--- a/main/channel_internal_api.c
++++ b/main/channel_internal_api.c
+@@ -1154,68 +1154,23 @@ struct ast_str *ast_channel_dialed_causes_channels(const struct ast_channel *cha
+ 
+ struct ast_control_pvt_cause_code *ast_channel_dialed_causes_find(const struct ast_channel *chan, const char *chan_name)
+ {
+-	struct ao2_iterator causes;
+-	struct ast_control_pvt_cause_code *cause_code;
+-
+-	causes = ao2_iterator_init(chan->dialed_causes, 0);
+-	while ((cause_code = ao2_iterator_next(&causes))) {
+-		if (strcmp(cause_code->chan_name, chan_name)) {
+-			ao2_ref(cause_code, -1);
+-			continue;
+-		}
+-		if (!cause_code->cause_extended) {
+-			ao2_iterator_destroy(&causes);
+-			return cause_code;
+-		}
+-		ao2_ref(cause_code, -1);
+-	}
+-	ao2_iterator_destroy(&causes);
+-
+-	return NULL;
+-}
+-
+-struct ao2_iterator *ast_channel_dialed_causes_find_multiple(const struct ast_channel *chan, const char *chan_name)
+-{
+-	struct ao2_iterator *causes;
+-	struct ast_control_pvt_cause_code *cause_code;
+-
+-	causes = ao2_find(chan->dialed_causes, chan_name, OBJ_SEARCH_KEY | OBJ_MULTIPLE);
+-	while ((cause_code = ao2_iterator_next(causes))) {
+-		ao2_ref(cause_code, -1);
+-	}
+-	ao2_iterator_destroy(causes);
+-
+-	return ao2_find(chan->dialed_causes, chan_name, OBJ_SEARCH_KEY | OBJ_MULTIPLE);
+-}
+-
+-static int remove_dialstatus_cb(void *obj, void *arg, int flags)
+-{
+-	struct ast_control_pvt_cause_code *cause_code = obj;
+-	char *str = ast_tech_to_upper(ast_strdupa(arg));
+-	char *pc_str = ast_tech_to_upper(ast_strdupa(cause_code->chan_name));
+-
+-	if (cause_code->cause_extended) {
+-		return 0;
+-	}
+-	return !strcmp(pc_str, str) ? CMP_MATCH | CMP_STOP : 0;
++	return ao2_find(chan->dialed_causes, chan_name, OBJ_KEY);
+ }
+ 
+ int ast_channel_dialed_causes_add(const struct ast_channel *chan, const struct ast_control_pvt_cause_code *cause_code, int datalen)
+ {
+ 	struct ast_control_pvt_cause_code *ao2_cause_code;
+-	char *arg = ast_strdupa(cause_code->chan_name);
+-
+-	ao2_callback(chan->dialed_causes, OBJ_MULTIPLE | OBJ_NODATA | OBJ_UNLINK, remove_dialstatus_cb, arg);
+-
++	ao2_find(chan->dialed_causes, cause_code->chan_name, OBJ_KEY | OBJ_UNLINK | OBJ_NODATA);
+ 	ao2_cause_code = ao2_alloc(datalen, NULL);
++
+ 	if (ao2_cause_code) {
+ 		memcpy(ao2_cause_code, cause_code, datalen);
+ 		ao2_link(chan->dialed_causes, ao2_cause_code);
+ 		ao2_ref(ao2_cause_code, -1);
+ 		return 0;
++	} else {
++		return -1;
+ 	}
+-
+-	return -1;
+ }
+ 
+ void ast_channel_dialed_causes_clear(const struct ast_channel *chan)
+diff --git a/res/res_pjsip_rfc3326.c b/res/res_pjsip_rfc3326.c
+index e4e4e1b12fc..7c38a1632cb 100644
+--- a/res/res_pjsip_rfc3326.c
++++ b/res/res_pjsip_rfc3326.c
+@@ -38,7 +38,7 @@ static void rfc3326_use_reason_header(struct ast_sip_session *session, struct pj
+ {
+ 	static const pj_str_t str_reason = { "Reason", 6 };
+ 	pjsip_generic_string_hdr *header;
+-	char buf[128];
++	char buf[20];
+ 	char *cause;
+ 	int code_q850 = 0, code_sip = 0;
+ 
+@@ -46,11 +46,9 @@ static void rfc3326_use_reason_header(struct ast_sip_session *session, struct pj
+ 	for (; header;
+ 		header = pjsip_msg_find_hdr_by_name(rdata->msg_info.msg, &str_reason, header->next)) {
+ 		int cause_q850, cause_sip;
+-		struct ast_control_pvt_cause_code *cause_code;
+-		int data_size = sizeof(*cause_code);
+-
+ 		ast_copy_pj_str(buf, &header->hvalue, sizeof(buf));
+ 		cause = ast_skip_blanks(buf);
++
+ 		cause_q850 = !strncasecmp(cause, "Q.850", 5);
+ 		cause_sip = !strncasecmp(cause, "SIP", 3);
+ 		if ((cause_q850 || cause_sip) && (cause = strstr(cause, "cause="))) {
+@@ -58,24 +56,6 @@ static void rfc3326_use_reason_header(struct ast_sip_session *session, struct pj
+ 			if (sscanf(cause, "cause=%30d", code) != 1) {
+ 				*code = 0;
+ 			}
+-
+-			/* Safe */
+-			/* Build and send the tech-specific cause information */
+-			/* size of the string making up the cause code is "SIP " + reason length */
+-			data_size += 4 + strlen(cause) + 1;
+-			cause_code = ast_alloca(data_size);
+-			memset(cause_code, 0, data_size);
+-			ast_copy_string(cause_code->chan_name, ast_channel_name(session->channel), AST_CHANNEL_NAME);
+-			snprintf(cause_code->code, data_size, "SIP %s", cause);
+-
+-			cause_code->cause_extended = 1;
+-			if (code_q850) {
+-				cause_code->ast_cause = *code & 0x7;
+-			} else if (code_sip) {
+-				cause_code->ast_cause = ast_sip_hangup_sip2cause(*code);
+-			}
+-			ast_queue_control_data(session->channel, AST_CONTROL_PVT_CAUSE_CODE, cause_code, data_size);
+-			ast_channel_hangupcause_hash_set(session->channel, cause_code, data_size);
+ 		}
+ 	}
+ 
