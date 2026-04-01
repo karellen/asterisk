@@ -1,0 +1,80 @@
+From c5005ee7295b92c643e1b10e1da1450e955ea985 Mon Sep 17 00:00:00 2001
+From: Arcadiy Ivanov <arcadiy@ivanov.biz>
+Date: Tue, 31 Mar 2026 20:08:23 -0400
+Subject: [PATCH] res_pjsip_sdp_rtp: Use auto-selected transport bind address
+ for RTP
+
+When a PJSIP endpoint does not explicitly set `transport`, the RTP
+socket binds to [::] (or 0.0.0.0) instead of the transport's bind
+address. This is because create_rtp() only resolves the transport
+via a sorcery lookup on session->endpoint->transport, which is empty
+when the transport is auto-selected.
+
+On a host that also serves as a NAT gateway with iptables DNAT and
+MASQUERADE, the wildcard-bound RTP socket causes the kernel to select
+the WAN IP as the source address for outbound RTP. This creates a
+conntrack tuple collision with inbound DNAT entries for the same port,
+causing MASQUERADE to silently remap the RTP source port. The remote
+end receives RTP from an unexpected port and drops it, resulting in
+one-way audio with no errors logged by Asterisk.
+
+Fall back to the session dialog's auto-selected transport bind address
+when the endpoint does not have an explicit transport configured. This
+makes the RTP bind behavior for auto-selected transports match the
+behavior when a transport is explicitly set on the endpoint.
+
+Both PJSIP_TPSELECTOR_TRANSPORT and PJSIP_TPSELECTOR_LISTENER selector
+types are handled since either may be present depending on the transport
+protocol (UDP uses transport, TCP/TLS use listener).
+
+Fixes #1847
+---
+ res/res_pjsip_sdp_rtp.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/res/res_pjsip_sdp_rtp.c b/res/res_pjsip_sdp_rtp.c
+index 7d2a5e7c4a..851f939dd8 100644
+--- a/res/res_pjsip_sdp_rtp.c
++++ b/res/res_pjsip_sdp_rtp.c
+@@ -55,6 +55,7 @@
+ #include "asterisk/logger_category.h"
+ #include "asterisk/format_cache.h"
+ 
++#include "asterisk/res_pjproject.h"
+ #include "asterisk/res_pjsip.h"
+ #include "asterisk/res_pjsip_session.h"
+ #include "asterisk/res_pjsip_session_caps.h"
+@@ -264,6 +265,30 @@ static int create_rtp(struct ast_sip_session *session, struct ast_sip_session_me
+ 				ao2_ref(trans_state, -1);
+ 			}
+ 			ao2_ref(transport, -1);
++		} else if (session->inv_session && session->inv_session->dlg) {
++			/*
++			 * The endpoint does not have an explicit transport configured
++			 * but the session dialog already has an auto-selected one.
++			 * Use its bind address so the RTP socket is not left on the
++			 * wildcard address, which on a multi-homed or NAT-gateway host
++			 * can cause the kernel to choose a source IP that conflicts
++			 * with conntrack DNAT entries for inbound RTP.
++			 */
++			pj_sockaddr *local_addr = NULL;
++
++			if (session->inv_session->dlg->tp_sel.type == PJSIP_TPSELECTOR_TRANSPORT
++					&& session->inv_session->dlg->tp_sel.u.transport) {
++				local_addr = &session->inv_session->dlg->tp_sel.u.transport->local_addr;
++			} else if (session->inv_session->dlg->tp_sel.type == PJSIP_TPSELECTOR_LISTENER
++					&& session->inv_session->dlg->tp_sel.u.listener) {
++				local_addr = &session->inv_session->dlg->tp_sel.u.listener->local_addr;
++			}
++
++			if (local_addr && !ast_sockaddr_from_pj_sockaddr(&temp_media_address, local_addr)) {
++				ast_debug_rtp(1, "Auto-selected transport bound to %s: Using it for RTP media.\n",
++					ast_sockaddr_stringify(&temp_media_address));
++				media_address = &temp_media_address;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.53.0
+
