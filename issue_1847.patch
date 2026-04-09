@@ -1,4 +1,4 @@
-From c3f54aecae02eb081b3d7d876c0f715db4f9bfa7 Mon Sep 17 00:00:00 2001
+From cadae335196b9bbcac91bc6ef76a25f21e33d996 Mon Sep 17 00:00:00 2001
 From: Arcadiy Ivanov <arcadiy@ivanov.biz>
 Date: Tue, 31 Mar 2026 20:08:23 -0400
 Subject: [PATCH] res_pjsip_sdp_rtp: Use auto-selected transport bind address
@@ -10,37 +10,44 @@ address. This is because `create_rtp()` only resolves the transport
 via a sorcery lookup on `session->endpoint->transport`, which is empty
 when the transport is auto-selected.
 
-On a host that also serves as a NAT gateway with iptables DNAT and
-MASQUERADE, the wildcard-bound RTP socket causes the kernel to select
-the WAN IP as the source address for outbound RTP. This creates a
-conntrack tuple collision with inbound DNAT entries for the same port,
-causing MASQUERADE to silently remap the RTP source port. The remote
-end receives RTP from an unexpected port and drops it, resulting in
-one-way audio with no errors logged by Asterisk.
+On a multi-homed host or NAT gateway whose transport binds to a
+specific interface, the wildcard-bound RTP socket causes the kernel to
+select a source IP that may conflict with conntrack DNAT entries for
+inbound RTP, causing MASQUERADE to silently remap the RTP source port.
+The remote end receives RTP from an unexpected port and drops it,
+resulting in one-way audio with no errors logged by Asterisk.
 
 When no explicit transport is configured and ICE is not in use,
-determine the transport type from the dialog's target URI and query
-the transport manager for the local bind address via
-`pjsip_tpmgr_find_local_addr()`. This is the same mechanism used by
-`sip_dialog_create_from()` to resolve the local address for the From
-header, and produces the correct bind address regardless of whether
-the transport was explicitly configured or auto-selected.
+determine the transport type from the dialog's target URI and acquire
+the transport via `pjsip_tpmgr_acquire_transport()`. If the
+transport's bind address is a specific (non-wildcard) address, use it
+for RTP. When the transport binds to a wildcard address (0.0.0.0 or
+[::]), the RTP socket is left on the wildcard as well, matching the
+behaviour of the explicit-transport code path and preserving
+dual-stack operation.
 
 When ICE is enabled the wildcard bind is left as-is since ICE needs
 to discover candidates on all interfaces.
 
-Fixes: #1847
-
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+
+UserNote: When a PJSIP endpoint does not have an explicit `transport`
+configured, ICE is disabled, and the auto-selected transport binds to
+a specific (non-wildcard) address, the RTP socket now binds to that
+address instead of the wildcard. This fixes one-way audio on
+multi-homed hosts and NAT gateways where the wildcard bind caused the
+kernel to select an incorrect source address for outbound RTP.
+
+Fixes: #1847
 ---
- res/res_pjsip_sdp_rtp.c | 51 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ res/res_pjsip_sdp_rtp.c | 76 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
 
 diff --git a/res/res_pjsip_sdp_rtp.c b/res/res_pjsip_sdp_rtp.c
-index 7d2a5e7c4a..29c86eb183 100644
+index 7d2a5e7c4a..2b140a136e 100644
 --- a/res/res_pjsip_sdp_rtp.c
 +++ b/res/res_pjsip_sdp_rtp.c
-@@ -264,6 +264,57 @@ static int create_rtp(struct ast_sip_session *session, struct ast_sip_session_me
+@@ -264,6 +264,82 @@ static int create_rtp(struct ast_sip_session *session, struct ast_sip_session_me
  				ao2_ref(trans_state, -1);
  			}
  			ao2_ref(transport, -1);
@@ -50,20 +57,26 @@ index 7d2a5e7c4a..29c86eb183 100644
 +					|| PJSIP_URI_SCHEME_IS_SIPS(session->inv_session->dlg->target))) {
 +			/*
 +			 * The endpoint does not have an explicit transport configured
-+			 * and ICE is not in use. Ask the transport manager for the
-+			 * local address that would be used for the dialog's target
-+			 * URI, so the RTP socket is not left on the wildcard address.
-+			 * On a multi-homed or NAT-gateway host a wildcard bind causes
-+			 * the kernel to choose a source IP that conflicts with
++			 * and ICE is not in use. Acquire the transport that would be
++			 * used for the dialog's target URI and, when it is bound to a
++			 * specific (non-wildcard) address, use that address for RTP.
++			 *
++			 * On a multi-homed or NAT-gateway host whose transport binds
++			 * to a specific interface, a wildcard-bound RTP socket causes
++			 * the kernel to choose a source IP that may conflict with
 +			 * conntrack DNAT entries for inbound RTP.
++			 *
++			 * When the transport itself binds to a wildcard address
++			 * (0.0.0.0 or [::]), the RTP socket is left on the wildcard
++			 * as well — this matches the behaviour of the explicit
++			 * transport code path above and preserves dual-stack
++			 * operation.
 +			 *
 +			 * When ICE is enabled the wildcard bind is intentional so
 +			 * that ICE can discover candidates on all interfaces.
 +			 */
 +			pjsip_sip_uri *sip_uri;
 +			pjsip_transport_type_e type;
-+			pj_str_t local_addr;
-+			int local_port;
 +
 +			sip_uri = pjsip_uri_get_uri(session->inv_session->dlg->target);
 +			type = pjsip_transport_get_type_from_name(&sip_uri->transport_param);
@@ -81,18 +94,37 @@ index 7d2a5e7c4a..29c86eb183 100644
 +			}
 +
 +			if (type != PJSIP_TRANSPORT_UNSPECIFIED
-+					&& pjsip_tpmgr_find_local_addr(
-+						pjsip_endpt_get_tpmgr(ast_sip_get_pjsip_endpoint()),
-+						session->inv_session->dlg->pool, type,
-+						&session->inv_session->dlg->tp_sel,
-+						&local_addr, &local_port) == PJ_SUCCESS) {
-+				char hoststr[PJ_INET6_ADDRSTRLEN];
++					&& (pjsip_transport_get_flag_from_type(type) & PJSIP_TRANSPORT_DATAGRAM)) {
++				pjsip_transport *tp = NULL;
++				pj_sockaddr remote;
++				int addr_len;
 +
-+				ast_copy_pj_str(hoststr, &local_addr, sizeof(hoststr));
-+				if (ast_sockaddr_parse(&temp_media_address, hoststr, 0)) {
-+					ast_debug_rtp(1, "Transport manager bound to %s: Using it for RTP media.\n",
-+						hoststr);
-+					media_address = &temp_media_address;
++				pj_bzero(&remote, sizeof(remote));
++				if (type & PJSIP_TRANSPORT_IPV6) {
++					addr_len = sizeof(pj_sockaddr_in6);
++					remote.addr.sa_family = pj_AF_INET6();
++				} else {
++					addr_len = sizeof(pj_sockaddr_in);
++					remote.addr.sa_family = pj_AF_INET();
++				}
++
++				if (pjsip_tpmgr_acquire_transport(
++						pjsip_endpt_get_tpmgr(ast_sip_get_pjsip_endpoint()),
++						type, &remote, addr_len,
++						&session->inv_session->dlg->tp_sel,
++						&tp) == PJ_SUCCESS) {
++					if (pj_sockaddr_has_addr(&tp->local_addr)) {
++						char hoststr[PJ_INET6_ADDRSTRLEN];
++
++						pj_sockaddr_print(&tp->local_addr, hoststr,
++							sizeof(hoststr), 0);
++						if (ast_sockaddr_parse(&temp_media_address, hoststr, 0)) {
++							ast_debug_rtp(1, "Auto-selected transport bound to %s: "
++								"Using it for RTP media.\n", hoststr);
++							media_address = &temp_media_address;
++						}
++					}
++					pjsip_transport_dec_ref(tp);
 +				}
 +			}
  		}
