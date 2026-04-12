@@ -3,7 +3,7 @@
 
 %define _disable_source_fetch 0
 
-%global           pjsip_version   2.15.1
+%global           pjsip_version   2.16
 %global           jansson_version 2.14.1
 %global           libjwt_version  1.15.3
 
@@ -53,8 +53,8 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          22.8.2
-Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.4
+Version:          22.9.0
+Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.0
 # Automatically converted from old format: GPLv2 - review is highly recommended.
 License:          GPL-2.0-only
 URL:              http://www.asterisk.org/
@@ -107,8 +107,7 @@ Patch3:           asterisk-18.12.1-ilbc_macros.patch
 # https://github.com/pjsip/pjproject/pull/4173.patch
 Patch4:           pjproject-add-riscv-support.patch
 
-Patch5:           issue_449.patch
-Patch6:           issue_1847.patch
+Patch5:           issue_1847.patch
 
 # Asterisk now builds against a bundled copy of pjproject, as they apply some patches
 # directly to pjproject before the build against it
@@ -683,8 +682,6 @@ echo '*************************************************************************'
 
 %patch -P5 -p1
 
-%patch -P6 -p1
-
 cp %{S:3} menuselect.makedeps
 cp %{S:4} menuselect.makeopts
 
@@ -1224,6 +1221,7 @@ fi
 %{_libdir}/asterisk/modules/res_ari_recordings.so
 %{_libdir}/asterisk/modules/res_ari_sounds.so
 %{_libdir}/asterisk/modules/res_audiosocket.so
+%{_libdir}/asterisk/modules/res_cdrel_custom.so
 %{_libdir}/asterisk/modules/res_chan_stats.so
 %{_libdir}/asterisk/modules/res_clialiases.so
 %{_libdir}/asterisk/modules/res_cliexec.so
