@@ -3,8 +3,8 @@
 
 %define _disable_source_fetch 0
 
-%global           pjsip_version   2.16
-%global           jansson_version 2.14.1
+%global           pjsip_version   2.17
+%global           jansson_version 2.15.0
 %global           libjwt_version  1.15.3
 
 %global           optflags        %{optflags} -Werror-implicit-function-declaration -DLUA_COMPAT_MODULE -fPIC
@@ -53,7 +53,7 @@
 
 Summary:          The Open Source PBX
 Name:             asterisk
-Version:          22.9.0
+Version:          22.10.1
 Release:          %{?_rc||?_beta:0.}1%{?_rc:.rc%{_rc}}%{?_beta:.beta%{_beta}}%{?dist}.0
 # Automatically converted from old format: GPLv2 - review is highly recommended.
 License:          GPL-2.0-only
