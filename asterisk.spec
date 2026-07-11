@@ -1084,6 +1084,7 @@ fi
 %{_libdir}/asterisk/modules/app_speech_utils.so
 %{_libdir}/asterisk/modules/app_stack.so
 %{_libdir}/asterisk/modules/app_stasis.so
+%{_libdir}/asterisk/modules/app_stasis_broadcast.so
 %{_libdir}/asterisk/modules/app_statsd.so
 %{_libdir}/asterisk/modules/app_stream_echo.so
 %{_libdir}/asterisk/modules/app_system.so
@@ -1277,6 +1278,7 @@ fi
 %{_libdir}/asterisk/modules/res_srtp.so
 %{_libdir}/asterisk/modules/res_stasis.so
 %{_libdir}/asterisk/modules/res_stasis_answer.so
+%{_libdir}/asterisk/modules/res_stasis_broadcast.so
 %{_libdir}/asterisk/modules/res_stasis_device_state.so
 %{_libdir}/asterisk/modules/res_stasis_playback.so
 %{_libdir}/asterisk/modules/res_stasis_recording.so
@@ -1616,6 +1618,7 @@ fi
 %{_libdir}/asterisk/modules/res_pjsip_header_funcs.so
 %{_libdir}/asterisk/modules/res_pjsip_history.so
 %{_libdir}/asterisk/modules/res_pjsip_logger.so
+%{_libdir}/asterisk/modules/res_pjsip_maintenance.so
 %{_libdir}/asterisk/modules/res_pjsip_messaging.so
 #%%{_libdir}/asterisk/modules/res_pjsip_multihomed.so
 %{_libdir}/asterisk/modules/res_pjsip_mwi.so
